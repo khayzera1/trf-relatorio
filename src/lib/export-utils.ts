@@ -2,18 +2,19 @@
 "use client";
 
 import * as XLSX from "xlsx";
+import Papa from "papaparse";
 import type { ClientData } from "@/components/columns";
 
-// Function to convert data to CSV format and trigger download
+// Função para converter dados para CSV formatado e acionar o download
 export function exportToCsv(data: ClientData[], filename: string) {
-  const header = Object.keys(data[0]);
-  const csvRows = data.map((row) =>
-    header
-      .map((fieldName) => JSON.stringify((row as any)[fieldName], (key, value) => value === null ? '' : value))
-      .join(",")
-  );
-  
-  const csv = [header.join(","), ...csvRows].join("\r\n");
+  const styledData = data.map(item => ({
+    'ID Cliente': item.id,
+    'Cliente': item.clientName,
+    'Campanha': item.campaign,
+    'Status': item.status
+  }));
+
+  const csv = Papa.unparse(styledData);
 
   const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -28,7 +29,7 @@ export function exportToCsv(data: ClientData[], filename: string) {
   }
 }
 
-// Function to convert data to Excel format and trigger download
+// Função para converter dados para o formato Excel e acionar o download
 export function exportToExcel(data: ClientData[], filename: string) {
   const styledData = data.map(item => ({
     'ID Cliente': item.id,
@@ -39,11 +40,11 @@ export function exportToExcel(data: ClientData[], filename: string) {
 
   const worksheet = XLSX.utils.json_to_sheet(styledData);
 
-  // Set column widths
+  // Definir larguras das colunas
   worksheet['!cols'] = [
-    { wch: 10 }, // ID Cliente
-    { wch: 30 }, // Cliente
-    { wch: 30 }, // Campanha
+    { wch: 12 }, // ID Cliente
+    { wch: 35 }, // Cliente
+    { wch: 40 }, // Campanha
     { wch: 15 }, // Status
   ];
 

@@ -8,6 +8,8 @@ import { DataTable, type ClientData } from "@/components/data-table";
 import { columns } from "@/components/columns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CsvUploader } from "@/components/csv-uploader";
+import { Button } from "@/components/ui/button";
+import { UserPlus } from "lucide-react";
 
 const initialData: ClientData[] = [
   { id: 'CLI001', clientName: 'Pizzaria do Bairro', campaign: 'Google Ads - Pesquisa Local', status: 'Ativa' },
@@ -23,7 +25,16 @@ const initialData: ClientData[] = [
 ];
 
 export default function Home() {
-  const [data] = useState<ClientData[]>(initialData);
+  const [data, setData] = useState<ClientData[]>(initialData);
+
+  // Esta função simula a adição de um novo cliente.
+  // Em uma aplicação real, você faria uma chamada de API para o seu backend.
+  const addClient = (newClient: Omit<ClientData, 'id'>) => {
+    setData(prevData => [
+        { ...newClient, id: `CLI${String(prevData.length + 1).padStart(3, '0')}` }, 
+        ...prevData
+    ]);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -40,9 +51,17 @@ export default function Home() {
         </Card>
 
         <Card className="shadow-lg border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline">Painel de Clientes</CardTitle>
-            <CardDescription>Visualize e gerencie as campanhas dos seus clientes.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle className="text-2xl font-headline">Painel de Clientes</CardTitle>
+                <CardDescription>Visualize, gerencie e exporte os dados dos seus clientes.</CardDescription>
+            </div>
+            <Link href="/clients/new">
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Adicionar Novo Cliente
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <DataTable columns={columns} data={data} />
