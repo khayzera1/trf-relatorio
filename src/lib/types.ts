@@ -1,5 +1,4 @@
 
-
 export interface ClientData {
   id: string;
   clientName: string;
