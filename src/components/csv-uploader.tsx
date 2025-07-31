@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, FileCheck, Loader2, Bot } from 'lucide-react';
+import { UploadCloud, FileCheck, Loader2, Bot, User } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { generateReportSummary } from '@/ai/flows/generate-report-summary-flow';
 import type { ReportData } from '@/lib/types';
@@ -15,9 +15,10 @@ import { FileText } from "lucide-react";
 
 interface CsvUploaderProps {
     onReportGenerated: (data: ReportData) => void;
+    clientName?: string | null;
 }
 
-export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
+export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps) {
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -65,8 +66,6 @@ export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
                 // Get structured data from AI
                 const summaryResult = await generateReportSummary({ csvData: csvText });
                 
-                // The AI flow now returns a default object, so we just need to pass it along.
-                // The preview component will handle the case of an empty campaigns array.
                 onReportGenerated(summaryResult);
 
             } catch (error) {
@@ -106,7 +105,8 @@ export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
                         <CardTitle className="text-2xl font-headline">Gerador de Relatório PDF</CardTitle>
                     </div>
                     <CardDescription>
-                        Envie um arquivo CSV para gerar um relatório de KPIs para seus clientes.
+                        {clientName ? `Gerando relatório para o cliente: ` : `Envie um arquivo CSV para gerar um relatório de KPIs.`}
+                         {clientName && <span className="font-bold text-primary">{clientName}</span>}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

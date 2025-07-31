@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from 'next/navigation';
 import { Header } from "@/components/header";
 import { CsvUploader } from "@/components/csv-uploader";
 import { ReportPreview } from "@/components/report-preview";
@@ -11,12 +12,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function ReportsPage() {
+function ReportsPageContent() {
+    const searchParams = useSearchParams();
+    const clientName = searchParams.get('clientName') || null;
+
     const [reportData, setReportData] = useState<ReportData | null>(null);
 
     const handlePdfGeneration = () => {
         if (reportData) {
-            generatePdf(reportData);
+            generatePdf(reportData, clientName);
         }
     };
 
@@ -40,11 +44,23 @@ export default function ReportsPage() {
                         data={reportData} 
                         onGeneratePdf={handlePdfGeneration}
                         onCancel={handleReset}
+                        clientName={clientName}
                     />
                 ) : (
-                    <CsvUploader onReportGenerated={setReportData} />
+                    <CsvUploader 
+                        onReportGenerated={setReportData}
+                        clientName={clientName} 
+                    />
                 )}
             </main>
         </div>
+    );
+}
+
+export default function ReportsPage() {
+    return (
+        <Suspense fallback={<div>Carregando...</div>}>
+            <ReportsPageContent />
+        </Suspense>
     );
 }

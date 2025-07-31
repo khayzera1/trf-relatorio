@@ -23,6 +23,7 @@ import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { ClientData } from "@/lib/types";
 
 const formSchema = z.object({
   clientName: z.string().min(2, {
@@ -55,22 +56,27 @@ export default function NewClientPage() {
         setIsSubmitting(true);
 
         // Simula uma chamada de API
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        console.log("Dados do formulário:", values);
+        const newClient: ClientData = {
+          id: `CLI${Date.now()}`, // Simple unique ID
+          ...values,
+        };
+
+        // Salva no localStorage
+        const existingData = JSON.parse(localStorage.getItem('clientData') || '[]');
+        localStorage.setItem('clientData', JSON.stringify([...existingData, newClient]));
 
         toast({
             title: "Cliente Cadastrado com Sucesso!",
             description: `O cliente ${values.clientName} foi adicionado.`,
         });
 
-        // Como não temos um backend real, não podemos adicionar o cliente à lista
-        // da página principal diretamente. Em uma aplicação real, você invalidaria
-        // o cache de dados ou usaria uma biblioteca de gerenciamento de estado.
-        // Por enquanto, apenas redirecionamos o usuário de volta.
         router.push("/");
-
-        setIsSubmitting(false);
+        
+        // Apenas para garantir que a transição de estado não ocorra em um componente desmontado
+        // Embora o redirecionamento já deva cuidar disso.
+        setTimeout(() => setIsSubmitting(false), 500);
     }
 
     return (

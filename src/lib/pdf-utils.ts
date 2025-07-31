@@ -39,12 +39,10 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.text(cleanText(card.value), x + 10, y + 38);
     
     if (card.description) {
-        // KPI Description (e.g., "Conversa no WhatsApp")
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
-        // Add text wrapping to prevent overflow
-        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20); // -20 for padding
+        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20);
         doc.text(descriptionLines, x + 10, y + 55);
     }
 };
@@ -72,22 +70,16 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
         const currentX = margin + colIndex * (cardWidth + cardGap);
         let currentY = cursorY + rowIndex * (cardHeight + cardGap);
         
-        // Check if we need to start a new row
         if (colIndex === 0 && index > 0) {
             rowIndex++;
-            // recalculate Y after incrementing row
             currentY = cursorY + rowIndex * (cardHeight + cardGap); 
         }
 
-        // Check for page break before drawing the next row
         if (currentY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            // Reset Y for the new page
             cursorY = margin; 
-            // Reset row index for new page, since we are starting from the top
             rowIndex = 0; 
-            // Recalculate Y position on new page
-            currentY = cursorY + rowIndex * (cardHeight + cardGap);
+            currentY = cursorY; // Start at the top for the new row
             drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
         } else {
              drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
@@ -95,11 +87,10 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     });
 
     const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
-    // Return the Y position for the next section
     return cursorY + totalRows * (cardHeight + cardGap) - cardGap; 
 };
 
-export function generatePdf(data: ReportData) {
+export function generatePdf(data: ReportData, clientName?: string | null) {
     if (!data || !data.reportTitle || !data.campaigns) {
         console.error("Invalid data provided to generatePdf");
         alert("Não foi possível gerar o PDF. Dados inválidos ou ausentes.");
@@ -110,40 +101,52 @@ export function generatePdf(data: ReportData) {
 
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 40;
+    let headerCursorY = 45;
 
     // --- Header com fundo azul ---
     doc.setFillColor(29, 78, 216); // bg-blue-700
-    doc.rect(0, 0, pageWidth, 110, 'F');
+    doc.rect(0, 0, pageWidth, 120, 'F');
     
+    // Client Name
+    if (clientName) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Cliente: ${cleanText(clientName)}`, margin, headerCursorY);
+        headerCursorY += 25;
+    }
+
+    // Report Title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
     const title = cleanText(data.reportTitle);
-    doc.text(title, margin, 55);
+    doc.text(title, margin, headerCursorY);
+    headerCursorY += 25;
+
 
     // Report Period
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(229, 231, 235); // primary-foreground/90
     const period = cleanText(data.reportPeriod);
-    doc.text(period, margin, 80);
+    doc.text(period, margin, headerCursorY);
 
 
     // --- Área de conteúdo ---
-    let cursorY = 140;
+    let contentCursorY = 150;
     
     data.campaigns.forEach((campaign, index) => {
-        // Check for page break before starting a new campaign section
-        if (cursorY + 120 > doc.internal.pageSize.getHeight() - margin) { // 120 is an estimate for section height
+        if (contentCursorY + 120 > doc.internal.pageSize.getHeight() - margin) { 
            doc.addPage();
-           cursorY = margin;
+           contentCursorY = margin;
         } else if (index > 0) {
-           cursorY += 20; // Add some space between campaigns on the same page
+           contentCursorY += 20;
         }
         
-        cursorY = drawCampaignSection(doc, campaign, cursorY, pageWidth, margin);
+        contentCursorY = drawCampaignSection(doc, campaign, contentCursorY, pageWidth, margin);
     });
 
-    const safeTitle = cleanText(data.reportTitle) || "relatorio";
-    doc.save(`${safeTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+    const safeFileName = clientName ? `relatorio_${cleanText(clientName)}` : "relatorio";
+    doc.save(`${safeFileName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
 }
