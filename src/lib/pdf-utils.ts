@@ -58,39 +58,43 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     cursorY += 25;
 
     // --- Grid de KPIs ---
-    const cardsPerRow = 3;
+    const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 60;
     
-    let currentX = margin;
     let rowIndex = 0;
 
     campaignData.kpiCards.forEach((card, index) => {
         const colIndex = index % cardsPerRow;
-        currentX = margin + colIndex * (cardWidth + cardGap);
-        const currentY = cursorY + rowIndex * (cardHeight + cardGap);
-
+        const currentX = margin + colIndex * (cardWidth + cardGap);
+        let currentY = cursorY + rowIndex * (cardHeight + cardGap);
+        
         // Check if we need to start a new row
         if (colIndex === 0 && index > 0) {
             rowIndex++;
+            // recalculate Y after incrementing row
+            currentY = cursorY + rowIndex * (cardHeight + cardGap); 
         }
 
         // Check for page break before drawing the next row
         if (currentY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            cursorY = margin;
-            rowIndex = 0; // Reset row index for new page
+            // Reset Y for the new page
+            cursorY = margin; 
+            // Reset row index for new page, since we are starting from the top
+            rowIndex = 0; 
             // Recalculate Y position on new page
-            const newY = cursorY + rowIndex * (cardHeight + cardGap);
-            drawKpiCard(doc, card, currentX, newY, cardWidth, cardHeight);
+            currentY = cursorY + rowIndex * (cardHeight + cardGap);
+            drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
         } else {
              drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
         }
     });
 
     const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
-    return cursorY + totalRows * cardHeight + (totalRows - 1) * cardGap + 30; // Return the Y position for the next section
+    // Return the Y position for the next section
+    return cursorY + totalRows * (cardHeight + cardGap) - cardGap; 
 };
 
 export function generatePdf(data: ReportData) {
