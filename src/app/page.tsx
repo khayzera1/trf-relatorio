@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ExportDialog } from "@/components/export-dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { CsvUploader } from "@/components/csv-uploader";
 
 const initialData: SalesData[] = [
   { id: 'SALE001', product: 'Widget A', quantity: 150, amount: 1575.00, date: '2023-10-01' },
@@ -52,7 +53,17 @@ export default function Home() {
           />
         </div>
       </Header>
-      <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+        <Card className="shadow-lg border-primary/10">
+          <CardHeader>
+            <CardTitle className="text-2xl font-headline">Gerador de Relatório PDF</CardTitle>
+            <CardDescription>Envie um arquivo CSV para gerar um relatório em PDF no formato A4 para seus clientes.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CsvUploader />
+          </CardContent>
+        </Card>
+
         <Card className="shadow-lg border-primary/10">
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Relatório de Vendas</CardTitle>
