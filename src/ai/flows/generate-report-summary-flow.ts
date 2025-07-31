@@ -28,6 +28,7 @@ export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInp
 const KpiCardDataSchema = z.object({
     title: z.string().describe("The name of the Key Performance Indicator (KPI). E.g., 'Impressões', 'Cliques', 'Custo por Resultado'."),
     value: z.string().describe("The main value for the KPI. E.g., '35.671', 'R$5,88'."),
+    description: z.string().optional().describe("A brief, optional description providing context for the KPI. For 'Custo por Resultado', this should specify what the result is (e.g., 'Conversa no WhatsApp', 'Contato no site'). For other KPIs, this is usually not needed."),
 });
 
 const GenerateReportSummaryOutputSchema = z.object({
@@ -62,10 +63,11 @@ const prompt = ai.definePrompt({
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Identify the key performance indicators (KPIs) and their current values.
     2.  **Create a Report Title:** Generate a professional and engaging title for the report in Brazilian Portuguese.
-    3.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object that follows the specified format.
+    3.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object.
         -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
         -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
-    4.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title and the value.
+        -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
+    4.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
 
     **CSV Data:**
     \`\`\`csv
@@ -83,7 +85,8 @@ const prompt = ai.definePrompt({
         },
         {
           "title": "Custo por Resultado",
-          "value": "R$5,88"
+          "value": "R$5,88",
+          "description": "Conversa no WhatsApp"
         }
       ]
     }

@@ -38,11 +38,19 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setTextColor(17, 24, 39); // text-foreground (text-gray-900)
     doc.text(cleanText(card.value), x + 10, y + 40);
     
-    // "no período atual" text
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128); // text-muted-foreground
-    doc.text("no período atual", x + 10, y + 55);
+    if (card.description) {
+        // KPI Description (e.g., "Conversa no WhatsApp")
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(29, 78, 216); // text-primary (blue-700)
+        doc.text(cleanText(card.description), x + 10, y + 58);
+    } else {
+        // "no período atual" text
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(107, 114, 128); // text-muted-foreground
+        doc.text("no período atual", x + 10, y + 55);
+    }
 };
 
 
@@ -83,7 +91,7 @@ export function generatePdf(data: ReportData) {
     const cardsPerRow = 2;
     const cardMargin = 20;
     const cardWidth = (pageWidth - margin * 2 - cardMargin * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 65;
+    const cardHeight = 70; // Increased height to accommodate description
     
     data.kpiCards.forEach((card, index) => {
         const row = Math.floor(index / cardsPerRow);

@@ -10,6 +10,7 @@ export interface ClientData {
 export interface KpiCardData {
   title: string;
   value: string;
+  description?: string;
 }
 
 export interface ReportData {

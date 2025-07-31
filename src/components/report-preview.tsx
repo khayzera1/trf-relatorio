@@ -19,8 +19,11 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
             <div>
                 <p className="text-sm text-muted-foreground">{card.title}</p>
                 <p className="text-3xl font-bold text-foreground my-2">{card.value}</p>
+                {card.description && (
+                    <p className="text-sm font-semibold text-primary">{card.description}</p>
+                )}
             </div>
-            <p className="text-xs text-muted-foreground">no período atual</p>
+            {!card.description && <p className="text-xs text-muted-foreground mt-4">no período atual</p>}
         </div>
     );
 };
