@@ -109,6 +109,7 @@ const generateReportSummaryFlow = ai.defineFlow(
     const {output} = await prompt(input);
     
     if (!output) {
+      // Return a default empty structure if the AI fails to generate a valid output
       return {
         reportTitle: "Relatório de Campanha",
         kpiCards: []

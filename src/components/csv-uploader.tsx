@@ -66,7 +66,7 @@ export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
                 const summaryResult = await generateReportSummary({ csvData: csvText });
                 
                 if (!summaryResult || !summaryResult.kpiCards || summaryResult.kpiCards.length === 0) {
-                    throw new Error("A IA não conseguiu extrair dados do CSV. Verifique o formato do arquivo.");
+                    throw new Error("A IA não conseguiu extrair dados do CSV. Verifique o formato do arquivo ou tente novamente.");
                 }
 
                 onReportGenerated(summaryResult);
@@ -165,4 +165,3 @@ export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
         </div>
     );
 }
-
