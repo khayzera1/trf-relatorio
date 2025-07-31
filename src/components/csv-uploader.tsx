@@ -65,17 +65,15 @@ export function CsvUploader({ onReportGenerated }: CsvUploaderProps) {
                 // Get structured data from AI
                 const summaryResult = await generateReportSummary({ csvData: csvText });
                 
-                if (!summaryResult || !summaryResult.kpiCards || summaryResult.kpiCards.length === 0) {
-                    throw new Error("A IA não conseguiu extrair dados do CSV. Verifique o formato do arquivo ou tente novamente.");
-                }
-
+                // The AI flow now returns a default object, so we just need to pass it along.
+                // The preview component will handle the case of an empty campaigns array.
                 onReportGenerated(summaryResult);
 
             } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : "Um erro desconhecido ocorreu";
+                const errorMessage = error instanceof Error ? error.message : "Um erro desconhecido ocorreu ao se comunicar com a IA.";
                 toast({
                     variant: "destructive",
-                    title: "Erro ao gerar pré-visualização",
+                    title: "Erro ao Gerar Pré-visualização",
                     description: errorMessage,
                 });
             } finally {

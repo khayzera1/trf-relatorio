@@ -131,7 +131,7 @@ const generateReportSummaryFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     
-    if (!output || !output.campaigns || output.campaigns.length === 0) {
+    if (!output) {
       // Return a default empty structure if the AI fails to generate a valid output
       return {
         reportTitle: "Relatório de Campanha",
