@@ -8,7 +8,6 @@ import { type ClientData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, ArrowRight, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Armazenamento local
@@ -26,19 +25,6 @@ export default function Home() {
   useEffect(() => {
     setData(getInitialData());
   }, []);
-
-  const getBadgeVariant = (status: ClientData['status']) => {
-    switch (status) {
-      case 'Ativa':
-        return 'default';
-      case 'Pausada':
-        return 'secondary';
-      case 'Concluída':
-        return 'outline';
-      default:
-        return 'default';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -60,39 +46,30 @@ export default function Home() {
         <div className="max-w-3xl mx-auto space-y-6">
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-bold font-headline tracking-tight">Feed de Clientes</h1>
-                <p className="text-muted-foreground mt-2">Acompanhe o status das campanhas dos seus clientes.</p>
+                <p className="text-muted-foreground mt-2">Acompanhe seus clientes e gere relatórios.</p>
             </div>
             {data.length > 0 ? (
               data.map((client) => (
                 <Card key={client.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <CardHeader className="flex flex-row items-center gap-4 bg-card p-4 border-b">
-                         <Avatar>
-                            <AvatarImage src={`https://placehold.co/40x40.png?text=${client.clientName.charAt(0)}`} alt={client.clientName} data-ai-hint="logo letter" />
-                            <AvatarFallback>{client.clientName.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                    <CardHeader className="flex flex-row items-center justify-between bg-card p-4 border-b">
+                        <div className="flex items-center gap-4">
+                             <Avatar>
+                                <AvatarImage src={`https://placehold.co/40x40.png?text=${client.clientName.charAt(0)}`} alt={client.clientName} data-ai-hint="logo letter" />
+                                <AvatarFallback>{client.clientName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <CardTitle className="text-lg font-semibold text-primary">{client.clientName}</CardTitle>
+                            </div>
+                        </div>
                         <div>
-                            <CardTitle className="text-lg font-semibold text-primary">{client.clientName}</CardTitle>
-                            <CardDescription className="text-sm">{client.campaign}</CardDescription>
+                            <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
+                                <Button variant="ghost" size="sm">
+                                    Gerar Relatório
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </Link>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6">
-                        <p className="text-muted-foreground">
-                            A campanha <span className="font-semibold text-foreground">{client.campaign}</span> está com o status:
-                        </p>
-                        <div className="mt-4">
-                            <Badge variant={getBadgeVariant(client.status)} className="text-sm capitalize">
-                                {client.status}
-                            </Badge>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="bg-muted/50 p-4 flex justify-end">
-                         <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
-                            <Button variant="ghost" size="sm">
-                                Gerar Relatório
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </CardFooter>
                 </Card>
               ))
             ) : (

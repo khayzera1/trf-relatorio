@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Header } from "@/components/header";
 import Link from "next/link";
@@ -28,12 +27,6 @@ import type { ClientData } from "@/lib/types";
 const formSchema = z.object({
   clientName: z.string().min(2, {
     message: "O nome do cliente deve ter pelo menos 2 caracteres.",
-  }),
-  campaign: z.string().min(5, {
-    message: "O nome da campanha deve ter pelo menos 5 caracteres.",
-  }),
-  status: z.enum(["Ativa", "Pausada", "Concluída"], {
-    required_error: "Você precisa selecionar um status para a campanha.",
   }),
 });
 
@@ -48,22 +41,19 @@ export default function NewClientPage() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             clientName: "",
-            campaign: "",
         },
     });
 
     async function onSubmit(values: NewClientFormData) {
         setIsSubmitting(true);
 
-        // Simula uma chamada de API
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         const newClient: ClientData = {
-          id: `CLI${Date.now()}`, // Simple unique ID
+          id: `CLI${Date.now()}`, 
           ...values,
         };
 
-        // Salva no localStorage
         const existingData = JSON.parse(localStorage.getItem('clientData') || '[]');
         localStorage.setItem('clientData', JSON.stringify([...existingData, newClient]));
 
@@ -74,8 +64,6 @@ export default function NewClientPage() {
 
         router.push("/");
         
-        // Apenas para garantir que a transição de estado não ocorra em um componente desmontado
-        // Embora o redirecionamento já deva cuidar disso.
         setTimeout(() => setIsSubmitting(false), 500);
     }
 
@@ -97,7 +85,7 @@ export default function NewClientPage() {
                                 <UserPlus className="h-6 w-6 text-primary"/>
                                 <CardTitle className="text-2xl font-headline">Cadastrar Novo Cliente</CardTitle>
                             </div>
-                            <CardDescription>Preencha as informações abaixo para adicionar um novo cliente e sua campanha.</CardDescription>
+                            <CardDescription>Preencha as informações abaixo para adicionar um novo cliente.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Form {...form}>
@@ -113,47 +101,6 @@ export default function NewClientPage() {
                                                 </FormControl>
                                                 <FormDescription>
                                                     O nome fantasia ou razão social do cliente.
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="campaign"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Campanha</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Ex: Google Ads - Pesquisa Local" {...field} />
-                                                </FormControl>
-                                                <FormDescription>
-                                                    Descreva a campanha principal para este cliente.
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="status"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Status</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Selecione o status da campanha" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value="Ativa">Ativa</SelectItem>
-                                                            <SelectItem value="Pausada">Pausada</SelectItem>
-                                                            <SelectItem value="Concluída">Concluída</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                <FormDescription>
-                                                    O status atual da campanha principal.
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
