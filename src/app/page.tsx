@@ -85,7 +85,7 @@ export default function Home() {
                           <p className="text-lg font-semibold text-card-foreground">{client.clientName}</p>
                       </div>
                   </CardHeader>
-                  <CardContent className="p-4 flex justify-end bg-muted/50">
+                  <CardContent className="p-4 pt-0 flex justify-end">
                       <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
                           <Button variant="ghost" size="sm">
                               Gerar Relatório
