@@ -1,30 +1,49 @@
 
+'use client';
+
+import { useState } from "react";
 import { Header } from "@/components/header";
 import { CsvUploader } from "@/components/csv-uploader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { ReportPreview } from "@/components/report-preview";
+import type { ReportData } from "@/lib/types";
+import { generatePdf } from "@/lib/pdf-utils";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function ReportsPage() {
+    const [reportData, setReportData] = useState<ReportData | null>(null);
+
+    const handlePdfGeneration = () => {
+        if (reportData) {
+            generatePdf(reportData);
+        }
+    };
+
+    const handleReset = () => {
+        setReportData(null);
+    };
+
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <Header />
+            <Header>
+                <Link href="/">
+                    <Button variant="outline">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Voltar para Clientes
+                    </Button>
+                </Link>
+            </Header>
             <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-2xl mx-auto">
-                    <Card className="shadow-lg border-primary/10">
-                        <CardHeader>
-                            <div className="flex items-center gap-3 mb-2">
-                                <FileText className="h-6 w-6 text-primary"/>
-                                <CardTitle className="text-2xl font-headline">Gerador de Relatório PDF</CardTitle>
-                            </div>
-                            <CardDescription>
-                                Envie um arquivo CSV para gerar um relatório em PDF para seus clientes.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <CsvUploader />
-                        </CardContent>
-                    </Card>
-                </div>
+                {reportData ? (
+                    <ReportPreview 
+                        data={reportData} 
+                        onGeneratePdf={handlePdfGeneration}
+                        onCancel={handleReset}
+                    />
+                ) : (
+                    <CsvUploader onReportGenerated={setReportData} />
+                )}
             </main>
         </div>
     );
