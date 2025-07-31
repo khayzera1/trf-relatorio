@@ -33,7 +33,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.text(cleanText(card.title), x + 10, y + 15);
 
     // KPI Value (e.g., "35.671")
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-foreground (text-gray-900)
     doc.text(cleanText(card.value), x + 10, y + 35);
