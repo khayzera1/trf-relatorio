@@ -36,14 +36,14 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-foreground (text-gray-900)
-    doc.text(cleanText(card.value), x + 10, y + 40);
+    doc.text(cleanText(card.value), x + 10, y + 35);
     
     if (card.description) {
         // KPI Description (e.g., "Conversa no WhatsApp")
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
-        doc.text(cleanText(card.description), x + 10, y + 58);
+        doc.text(cleanText(card.description), x + 10, y + 50);
     }
 };
 
@@ -55,35 +55,44 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-gray-900
     doc.text(cleanText(campaignData.campaignName), margin, cursorY);
-    cursorY += 30;
+    cursorY += 20;
 
     // --- Grid de KPIs ---
-    const cardsPerRow = 2;
-    const cardMargin = 20;
-    const cardWidth = (pageWidth - margin * 2 - cardMargin * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 70;
+    const cardsPerRow = 3;
+    const cardGap = 15;
+    const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
+    const cardHeight = 60;
+    
+    let currentX = margin;
     let maxRowHeight = 0;
 
     campaignData.kpiCards.forEach((card, index) => {
+        const colIndex = index % cardsPerRow;
+
+        // Check if we need to start a new row
+        if (colIndex === 0 && index > 0) {
+            cursorY += maxRowHeight + cardGap;
+            maxRowHeight = 0;
+            currentX = margin;
+        }
+
+        // Check for page break
         if (cursorY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
             cursorY = margin;
+            currentX = margin;
         }
-
-        const row = Math.floor(index / cardsPerRow);
-        const col = index % cardsPerRow;
-
-        const cardX = margin + col * (cardWidth + cardMargin);
-        const cardY = cursorY + row * (cardHeight + cardMargin);
-
-        drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
         
-        if(row * (cardHeight + cardMargin) > maxRowHeight) {
-            maxRowHeight = row * (cardHeight + cardMargin);
+        drawKpiCard(doc, card, currentX, cursorY, cardWidth, cardHeight);
+        
+        if (cardHeight > maxRowHeight) {
+            maxRowHeight = cardHeight;
         }
+        
+        currentX += cardWidth + cardGap;
     });
 
-    return startY + maxRowHeight + cardHeight + 40; // Return the Y position for the next section
+    return cursorY + maxRowHeight + 30; // Return the Y position for the next section
 };
 
 export function generatePdf(data: ReportData) {
@@ -111,10 +120,14 @@ export function generatePdf(data: ReportData) {
     // --- Área de conteúdo ---
     let cursorY = 120;
     
-    data.campaigns.forEach((campaign) => {
-        if (cursorY > doc.internal.pageSize.getHeight() - margin - 100) { // Check if there's enough space for a new section
-            doc.addPage();
-            cursorY = margin;
+    data.campaigns.forEach((campaign, index) => {
+        if (index > 0) {
+             if (cursorY + 100 > doc.internal.pageSize.getHeight() - margin) {
+                doc.addPage();
+                cursorY = margin;
+             } else {
+                cursorY += 20; // Add some space between campaigns
+             }
         }
         cursorY = drawCampaignSection(doc, campaign, cursorY, pageWidth, margin);
     });

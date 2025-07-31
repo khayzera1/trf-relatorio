@@ -48,12 +48,21 @@ export type GenerateReportSummaryOutput = z.infer<typeof GenerateReportSummaryOu
 export async function generateReportSummary(
   input: GenerateReportSummaryInput
 ): Promise<ReportData> {
-  const result = await generateReportSummaryFlow(input);
-  // Ensure the output conforms to ReportData, providing defaults if necessary
-  return {
-    reportTitle: result.reportTitle || "Relatório de Métricas",
-    campaigns: result.campaigns || [],
-  };
+  try {
+    const result = await generateReportSummaryFlow(input);
+    // Ensure the output conforms to ReportData, providing defaults if necessary
+    return {
+      reportTitle: result.reportTitle || "Relatório de Métricas",
+      campaigns: result.campaigns || [],
+    };
+  } catch (error) {
+    console.error("Error in generateReportSummary:", error);
+    // Return a default empty structure on error
+    return {
+      reportTitle: "Erro ao Gerar Relatório",
+      campaigns: []
+    };
+  }
 }
 
 const prompt = ai.definePrompt({
@@ -72,7 +81,7 @@ const prompt = ai.definePrompt({
     3.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
     4.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
         -   **campaignName:** The name of the campaign.
-        -   **kpiCards:** An array of KPI objects belonging *only* to that campaign.
+        -   **kpiCards:** An array of relevant KPI objects belonging *only* to that campaign. Extract as many relevant KPIs as you can find, such as "Impressões", "Cliques", "Custo Total", "CTR", "CPC", "Custo por Resultado", and the main "Resultado".
             -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
             -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
             -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
@@ -91,28 +100,18 @@ const prompt = ai.definePrompt({
         {
           "campaignName": "Google Ads - Pesquisa Local",
           "kpiCards": [
-            {
-              "title": "Impressões",
-              "value": "35.671"
-            },
-            {
-              "title": "Custo por Resultado",
-              "value": "R$5,88",
-              "description": "Conversa no WhatsApp"
-            }
+            { "title": "Impressões", "value": "35.671" },
+            { "title": "Cliques", "value": "1.234" },
+            { "title": "Custo por Resultado", "value": "R$5,88", "description": "Conversa no WhatsApp" },
+            { "title": "CPC", "value": "R$1,20" }
           ]
         },
         {
             "campaignName": "Meta Ads - Tráfego Site",
             "kpiCards": [
-              {
-                "title": "Cliques",
-                "value": "1.250"
-              },
-              {
-                "title": "Custo por Clique",
-                "value": "R$1,44"
-              }
+              { "title": "Cliques", "value": "1.250" },
+              { "title": "Custo por Clique", "value": "R$1,44" },
+              { "title": "Impressões", "value": "150.987" }
             ]
         }
       ]

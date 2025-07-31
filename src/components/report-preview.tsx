@@ -63,7 +63,7 @@ export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewPr
         </div>
       </CardHeader>
       <CardContent>
-        <Separator />
+        <Separator className="my-4" />
         <div className="p-8 bg-gray-50 rounded-lg border mt-6">
             {/* Header Azul */}
             <div className="bg-primary text-primary-foreground p-6 rounded-t-lg -m-8 mb-8">
@@ -75,7 +75,7 @@ export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewPr
                    <CampaignSection key={index} campaignData={campaign} />
                 ))
             ) : (
-                <p className="text-muted-foreground text-center">Nenhuma campanha encontrada no arquivo CSV.</p>
+                <p className="text-muted-foreground text-center py-8">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
             )}
         </div>
       </CardContent>
