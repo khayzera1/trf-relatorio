@@ -79,18 +79,34 @@ export async function generatePdf(
             textColor: [255, 255, 255],
             fontStyle: 'bold',
             halign: 'center',
+            valign: 'middle',
+            fontSize: 8,
         },
         styles: {
-            fontSize: 9,
-            cellPadding: 2.5,
+            fontSize: 8,
+            cellPadding: 2,
             overflow: 'linebreak',
+            halign: 'center',
+            valign: 'middle'
         },
         alternateRowStyles: {
             fillColor: [247, 247, 247],
         },
         columnStyles: {
-            // Example of setting a specific width, adjust as needed
-            // 0: { cellWidth: 20 },
+            // Adjust column widths as needed
+            0: { cellWidth: 25 }, // Nome da campanha
+            1: { cellWidth: 15 }, // Status de veiculação
+            2: { cellWidth: 20 }, // Nível de veiculação
+            3: { cellWidth: 15 }, // Impressões
+            4: { cellWidth: 15 }, // Alcance
+            5: { cellWidth: 15 }, // Frequência
+            6: { cellWidth: 15 }, // CTR (todos)
+            7: { cellWidth: 15 }, // Cliques no link
+            8: { cellWidth: 15 }, // CPC (todos)
+            9: { cellWidth: 20 }, // Resultados
+            10: { cellWidth: 20 }, // Custo por resultado
+            11: { cellWidth: 15 }, // Início do relatório
+            12: { cellWidth: 15 }, // Término do relatório
         },
         didDrawPage: (data) => {
             // Footer
