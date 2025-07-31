@@ -47,7 +47,7 @@ export default function NewClientPage() {
     async function onSubmit(values: NewClientFormData) {
         setIsSubmitting(true);
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         const newClient: ClientData = {
           id: `CLI${Date.now()}`, 
@@ -64,7 +64,7 @@ export default function NewClientPage() {
 
         router.push("/");
         
-        setTimeout(() => setIsSubmitting(false), 500);
+        setTimeout(() => setIsSubmitting(false), 300);
     }
 
     return (
@@ -77,13 +77,13 @@ export default function NewClientPage() {
                     </Button>
                 </Link>
             </Header>
-            <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
-                    <Card className="shadow-lg border-primary/10">
+                    <Card className="shadow-lg border-primary/20">
                         <CardHeader>
                             <div className="flex items-center gap-3 mb-2">
                                 <UserPlus className="h-6 w-6 text-primary"/>
-                                <CardTitle className="text-2xl font-headline">Cadastrar Novo Cliente</CardTitle>
+                                <CardTitle className="text-2xl">Cadastrar Novo Cliente</CardTitle>
                             </div>
                             <CardDescription>Preencha as informações abaixo para adicionar um novo cliente.</CardDescription>
                         </CardHeader>
@@ -106,8 +106,8 @@ export default function NewClientPage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <div className="flex justify-end gap-4">
-                                        <Button type="button" variant="outline" onClick={() => router.push('/')} disabled={isSubmitting}>
+                                    <div className="flex justify-end gap-4 pt-4">
+                                        <Button type="button" variant="ghost" onClick={() => router.push('/')} disabled={isSubmitting}>
                                             Cancelar
                                         </Button>
                                         <Button type="submit" disabled={isSubmitting}>
