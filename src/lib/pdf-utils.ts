@@ -2,15 +2,10 @@
 "use client";
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Extend jsPDF with autoTable for TypeScript
-interface jsPDFWithAutoTable extends jsPDF {
-    autoTable: (options: any) => jsPDF;
-}
 
 /**
  * Generates a styled PDF report with a title, summary, and a data table.
+ * This version uses manual table drawing for precise control over layout.
  * @param title The main title of the report.
  * @param summary An executive summary or introductory text.
  * @param headers An array of strings for the table headers.
@@ -22,111 +17,120 @@ export async function generatePdf(
     headers: string[],
     data: Record<string, string>[]
 ) {
-    // Set page to landscape for more horizontal space
-    const doc = new jsPDF({ orientation: 'landscape' }) as jsPDFWithAutoTable;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt' });
     doc.setLanguage('pt-BR');
-    const pageHeight = doc.internal.pageSize.height;
-    const pageWidth = doc.internal.pageSize.width;
-    const margin = 15;
-    let cursorY = margin;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 40;
+    let cursorY = 40;
 
     // --- Header ---
-    const drawHeader = () => {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text('AgênciaDev - Relatório de Marketing', margin, cursorY);
-        cursorY += 8;
-        doc.setDrawColor(220, 220, 220);
-        doc.line(margin, cursorY, pageWidth - margin, cursorY);
-        cursorY += 10;
-    };
-
-    drawHeader();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text('AgênciaDev - Relatório de Marketing', margin, cursorY);
+    cursorY += 15;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, cursorY, pageWidth - margin, cursorY);
+    cursorY += 25;
 
     // --- Report Title ---
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
+    doc.setFontSize(24);
     doc.setTextColor(40, 40, 40);
     const splitTitle = doc.splitTextToSize(title, pageWidth - margin * 2);
     doc.text(splitTitle, pageWidth / 2, cursorY, { align: 'center' });
-    cursorY += (splitTitle.length * 10) + 10;
+    cursorY += (splitTitle.length * 20) + 20;
 
     // --- Executive Summary ---
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(40, 40, 40);
     doc.text('Resumo Executivo', margin, cursorY);
-    cursorY += 7;
+    cursorY += 15;
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
     const summaryLines = doc.splitTextToSize(summary, pageWidth - margin * 2);
     doc.text(summaryLines, margin, cursorY);
-    cursorY += (summaryLines.length * 5) + 15;
+    cursorY += (summaryLines.length * 12) + 30;
 
+    // --- Manual Table Drawing ---
+    const tableHeaders = headers;
+    const tableData = data.map(row => tableHeaders.map(header => row[header] ?? ''));
+    
+    // Define column widths - these are percentages of the available width
+    const availableWidth = pageWidth - margin * 2;
+    const columnWidths = [14, 5, 5, 6, 6, 6, 6, 5, 5, 5, 10, 8, 6, 7, 6, 6].map(w => (w / 100) * availableWidth);
 
-    // --- Data Table ---
-    const tableData = data.map(row => headers.map(header => row[header] ?? ''));
+    const headStyles = {
+        fillColor: [214, 89, 52],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 7,
+    };
+    const bodyStyles = {
+        fontSize: 7,
+        cellPadding: 5,
+    };
+    const alternateRowStyles = {
+        fillColor: [247, 247, 247],
+    };
 
-    doc.autoTable({
-        head: [headers],
-        body: tableData,
-        startY: cursorY,
-        theme: 'grid',
-        headStyles: {
-            fillColor: [214, 89, 52], // Primary color from theme
-            textColor: [255, 255, 255],
-            fontStyle: 'bold',
-            fontSize: 8,
-            halign: 'center',
-            valign: 'middle',
-        },
-        styles: {
-            fontSize: 8,
-            cellPadding: 2,
-            overflow: 'linebreak',
-            halign: 'center',
-            valign: 'middle'
-        },
-        alternateRowStyles: {
-            fillColor: [247, 247, 247],
-        },
-        columnStyles: {
-            // Force specific widths to prevent bad wrapping
-            0: { cellWidth: 35 }, // Nome da campanha
-            1: { cellWidth: 15 }, // Status
-            2: { cellWidth: 15 }, // Nível de veiculação
-            3: { cellWidth: 15 }, // Valor (BRL)
-            4: { cellWidth: 15 }, // Impressões
-            5: { cellWidth: 15 }, // CPM
-            6: { cellWidth: 15 }, // Alcance
-            7: { cellWidth: 15 }, // Frequência
-            8: { cellWidth: 12 }, // CTR
-            9: { cellWidth: 12 }, // Cliques
-            10: { cellWidth: 12 }, // CPC
-            11: { cellWidth: 25 }, // Atribuição
-            12: { cellWidth: 20 }, // Tipo de resultado
-            13: { cellWidth: 15 }, // Resultados
-            14: { cellWidth: 15 }, // Custo por Resultado
-            15: { cellWidth: 15 }, // Início
-            16: { cellWidth: 15 }, // Término
-        },
-        margin: { left: margin, right: margin },
-        didDrawPage: (data) => {
-            // Footer
-            const pageCount = doc.internal.getNumberOfPages();
-            doc.setFontSize(9);
-            doc.setTextColor(150);
-            doc.text(
-                `Página ${data.pageNumber} de ${pageCount}`,
-                pageWidth / 2,
-                pageHeight - 10,
-                { align: 'center' }
-            );
-        },
+    // Draw table headers
+    doc.setFontSize(headStyles.fontSize);
+    doc.setFont('helvetica', headStyles.fontStyle);
+    doc.setTextColor(headStyles.textColor[0], headStyles.textColor[1], headStyles.textColor[2]);
+    doc.setFillColor(headStyles.fillColor[0], headStyles.fillColor[1], headStyles.fillColor[2]);
+    
+    let currentX = margin;
+    let tableHeaderCursorY = cursorY;
+    
+    const headerRowHeight = 30; // Fixed height for header row
+    doc.rect(margin, tableHeaderCursorY, availableWidth, headerRowHeight, 'F');
+    
+    tableHeaders.forEach((header, i) => {
+        const headerLines = doc.splitTextToSize(header, columnWidths[i] - bodyStyles.cellPadding * 2);
+        doc.text(headerLines, currentX + (columnWidths[i] / 2), tableHeaderCursorY + (headerRowHeight / 2), { align: 'center', baseline: 'middle' });
+        currentX += columnWidths[i];
     });
+
+    cursorY += headerRowHeight;
+
+    // Draw table body
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    
+    tableData.forEach((row, rowIndex) => {
+        const rowHeight = 30; // Fixed height for data rows
+        
+        // Alternate row color
+        if (rowIndex % 2 !== 0) {
+            doc.setFillColor(alternateRowStyles.fillColor[0], alternateRowStyles.fillColor[1], alternateRowStyles.fillColor[2]);
+            doc.rect(margin, cursorY, availableWidth, rowHeight, 'F');
+        }
+
+        currentX = margin;
+        row.forEach((cell, colIndex) => {
+            const cellLines = doc.splitTextToSize(String(cell), columnWidths[colIndex] - bodyStyles.cellPadding * 2);
+            doc.text(cellLines, currentX + (columnWidths[colIndex] / 2), cursorY + (rowHeight / 2), { align: 'center', baseline: 'middle' });
+            currentX += columnWidths[colIndex];
+        });
+        
+        cursorY += rowHeight;
+    });
+
+    // Draw page numbers (if needed, this is a basic example)
+    const pageCount = doc.internal.getNumberOfPages();
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text(
+        `Página 1 de ${pageCount}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 20,
+        { align: 'center' }
+    );
 
     doc.save(`${title.replace(/\s/g, '_').toLowerCase()}.pdf`);
 }
