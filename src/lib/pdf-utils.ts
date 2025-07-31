@@ -2,10 +2,16 @@
 "use client";
 
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import type { UserOptions } from 'jspdf-autotable';
+
+// Augment jsPDF with the autoTable plugin
+interface jsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: UserOptions) => jsPDFWithAutoTable;
+}
 
 /**
  * Generates a styled PDF report with a title, summary, and a data table.
- * This version uses manual table drawing for precise control over layout.
  * @param title The main title of the report.
  * @param summary An executive summary or introductory text.
  * @param headers An array of strings for the table headers.
@@ -17,7 +23,8 @@ export async function generatePdf(
     headers: string[],
     data: Record<string, string>[]
 ) {
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt' });
+    // Ensure we are working with a valid instance, and cast it to our augmented type
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt' }) as jsPDFWithAutoTable;
     doc.setLanguage('pt-BR');
 
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -34,15 +41,17 @@ export async function generatePdf(
     doc.line(margin, cursorY, pageWidth - margin, cursorY);
     cursorY += 25;
 
-    // --- Report Title ---
+    // --- Report Title (Validated) ---
+    const safeTitle = title || 'Relatório de Campanha';
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
     doc.setTextColor(40, 40, 40);
-    const splitTitle = doc.splitTextToSize(title || 'Relatório de Campanha', pageWidth - margin * 2);
+    const splitTitle = doc.splitTextToSize(safeTitle, pageWidth - margin * 2);
     doc.text(splitTitle, pageWidth / 2, cursorY, { align: 'center' });
     cursorY += (splitTitle.length * 20) + 20;
 
-    // --- Executive Summary ---
+    // --- Executive Summary (Validated) ---
+    const safeSummary = summary || 'Não foi possível gerar um resumo para este relatório.';
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(40, 40, 40);
@@ -52,89 +61,53 @@ export async function generatePdf(
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
-    const summaryLines = doc.splitTextToSize(summary || 'N/A', pageWidth - margin * 2);
+    const summaryLines = doc.splitTextToSize(safeSummary, pageWidth - margin * 2);
     doc.text(summaryLines, margin, cursorY);
     cursorY += (summaryLines.length * 12) + 30;
 
-    // --- Manual Table Drawing ---
+    // --- Data Table (Validated) ---
     const tableHeaders = headers || [];
-    const tableData = data.map(row => tableHeaders.map(header => row[header] ?? ''));
-    
-    if (tableHeaders.length === 0) {
-        doc.text("Não há dados para exibir na tabela.", margin, cursorY);
-    } else {
-      // Define column widths - these are percentages of the available width
-      const availableWidth = pageWidth - margin * 2;
-      const columnWidths = [14, 5, 5, 6, 6, 6, 6, 5, 5, 5, 10, 8, 6, 7, 6, 6].map(w => (w / 100) * availableWidth);
-
-      const headStyles = {
-          fillColor: [214, 89, 52],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-          fontSize: 7,
-      };
-      const bodyStyles = {
-          fontSize: 7,
-          cellPadding: 5,
-      };
-      const alternateRowStyles = {
-          fillColor: [247, 247, 247],
-      };
-
-      // Draw table headers
-      doc.setFontSize(headStyles.fontSize);
-      doc.setFont('helvetica', headStyles.fontStyle);
-      doc.setTextColor(headStyles.textColor[0], headStyles.textColor[1], headStyles.textColor[2]);
-      doc.setFillColor(headStyles.fillColor[0], headStyles.fillColor[1], headStyles.fillColor[2]);
-      
-      let currentX = margin;
-      let tableHeaderCursorY = cursorY;
-      
-      const headerRowHeight = 30; // Fixed height for header row
-      doc.rect(margin, tableHeaderCursorY, availableWidth, headerRowHeight, 'F');
-      
-      tableHeaders.forEach((header, i) => {
-          const headerLines = doc.splitTextToSize(header || '', columnWidths[i] - bodyStyles.cellPadding * 2);
-          doc.text(headerLines, currentX + (columnWidths[i] / 2), tableHeaderCursorY + (headerRowHeight / 2), { align: 'center', baseline: 'middle' });
-          currentX += columnWidths[i];
-      });
-
-      cursorY += headerRowHeight;
-
-      // Draw table body
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(80, 80, 80);
-      
-      tableData.forEach((row, rowIndex) => {
-          const rowHeight = 30; // Fixed height for data rows
-          
-          // Alternate row color
-          if (rowIndex % 2 !== 0) {
-              doc.setFillColor(alternateRowStyles.fillColor[0], alternateRowStyles.fillColor[1], alternateRowStyles.fillColor[2]);
-              doc.rect(margin, cursorY, availableWidth, rowHeight, 'F');
-          }
-
-          currentX = margin;
-          row.forEach((cell, colIndex) => {
-              const cellLines = doc.splitTextToSize(String(cell || ''), columnWidths[colIndex] - bodyStyles.cellPadding * 2);
-              doc.text(cellLines, currentX + (columnWidths[colIndex] / 2), cursorY + (rowHeight / 2), { align: 'center', baseline: 'middle' });
-              currentX += columnWidths[colIndex];
-          });
-          
-          cursorY += rowHeight;
-      });
-    }
-
-    // Draw page numbers (if needed, this is a basic example)
-    const pageCount = doc.internal.getNumberOfPages();
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text(
-        `Página 1 de ${pageCount}`,
-        pageWidth / 2,
-        doc.internal.pageSize.getHeight() - 20,
-        { align: 'center' }
+    // Ensure every cell in the body is a string, providing a fallback.
+    const tableBody = data.map(row => 
+        tableHeaders.map(header => String(row[header] ?? 'N/D'))
     );
 
-    doc.save(`${(title || 'relatorio').replace(/\s/g, '_').toLowerCase()}.pdf`);
+    if (tableHeaders.length > 0 && tableBody.length > 0) {
+        doc.autoTable({
+            startY: cursorY,
+            head: [tableHeaders],
+            body: tableBody,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [214, 89, 52], // Primary color
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 7,
+            },
+            styles: {
+                fontSize: 7,
+                cellPadding: 4,
+                overflow: 'linebreak'
+            },
+            columnStyles: {
+                // You can define specific widths or styles per column index here if needed
+            },
+            didDrawPage: (data) => {
+                // Footer with page number
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(9);
+                doc.setTextColor(150);
+                doc.text(
+                    `Página ${data.pageNumber} de ${pageCount}`,
+                    pageWidth / 2,
+                    doc.internal.pageSize.getHeight() - 20,
+                    { align: 'center' }
+                );
+            }
+        });
+    } else {
+        doc.text("Não há dados na tabela para exibir.", margin, cursorY);
+    }
+    
+    doc.save(`${safeTitle.replace(/\s/g, '_').toLowerCase()}.pdf`);
 }

@@ -59,7 +59,7 @@ export function CsvUploader() {
                 // 1. Get summary from AI
                 const summaryResult = await generateReportSummary({ csvData: csvText });
                 
-                // **Robust check for null/undefined values from AI**
+                // Robust check for null/undefined values from AI
                 const reportTitle = summaryResult?.reportTitle ?? "Relatório de Campanha";
                 const executiveSummary = summaryResult?.executiveSummary ?? "O resumo não pôde ser gerado.";
 

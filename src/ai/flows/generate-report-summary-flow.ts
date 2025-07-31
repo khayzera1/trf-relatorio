@@ -23,7 +23,7 @@ const GenerateReportSummaryInputSchema = z.object({
 export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInputSchema>;
 
 const GenerateReportSummaryOutputSchema = z.object({
-  reportTitle: z.string().describe("A concise and descriptive title for the report, based on the data provided."),
+  reportTitle: z.string().describe("A concise and descriptive title for the report, based on the data provided. Example: 'Relatório de Desempenho da Campanha'."),
   executiveSummary: z
     .string()
     .describe(
@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
 
     **Instructions:**
     1.  **Analyze the Data:** Carefully review the following CSV data to understand the campaign's performance. Identify key metrics (like Clicks, Impressions, CTR, Cost, Conversions), trends over time, and any significant patterns.
-    2.  **Create a Report Title:** Generate a clear and professional title for the report, such as "Relatório de Desempenho da Campanha".
+    2.  **Create a Report Title:** Generate a clear and professional title for the report. For example: "Relatório de Desempenho da Campanha".
     3.  **Write an Executive Summary:** Based on your analysis, write a 2-3 paragraph executive summary. This summary should:
         - Start with a brief overview of the campaign's objective (if inferable).
         - Highlight the most important results and key performance indicators (KPIs).
@@ -71,6 +71,18 @@ const generateReportSummaryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    
+    // Fallback mechanism to ensure we never return null/undefined
+    if (!output) {
+      return {
+        reportTitle: "Relatório de Campanha",
+        executiveSummary: "A análise do relatório não pôde ser gerada no momento."
+      };
+    }
+    
+    return {
+      reportTitle: output.reportTitle || "Relatório de Campanha",
+      executiveSummary: output.executiveSummary || "O resumo para este relatório não está disponível."
+    };
   }
 );
