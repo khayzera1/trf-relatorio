@@ -1,11 +1,15 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Header } from "@/components/header";
 import { DataTable, type SalesData } from "@/components/data-table";
 import { columns } from "@/components/columns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ExportDialog } from "@/components/export-dialog";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const initialData: SalesData[] = [
   { id: 'SALE001', product: 'Widget A', quantity: 150, amount: 1575.00, date: '2023-10-01' },
@@ -33,12 +37,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header>
-        <ExportDialog
-          data={data}
-          onExport={handleExport}
-          exportCount={totalExports}
-          usageStatistics={JSON.stringify(exportCount)}
-        />
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard">
+            <Button variant="outline">
+                Ir para o Painel
+                <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+          <ExportDialog
+            data={data}
+            onExport={handleExport}
+            exportCount={totalExports}
+            usageStatistics={JSON.stringify(exportCount)}
+          />
+        </div>
       </Header>
       <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <Card className="shadow-lg border-primary/10">
