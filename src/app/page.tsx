@@ -85,7 +85,7 @@ export default function Home() {
                     </div>
                 </CardContent>
                 <CardFooter className="bg-muted/50 p-4 flex justify-end">
-                     <Link href="/dashboard">
+                     <Link href={`/dashboard/${client.id}`}>
                         <Button variant="ghost" size="sm">
                             Ver Relatórios
                             <ArrowRight className="ml-2 h-4 w-4" />
