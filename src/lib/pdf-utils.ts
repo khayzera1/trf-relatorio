@@ -2,13 +2,19 @@
 "use client";
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import type { UserOptions } from 'jspdf-autotable';
 
 // Augment jsPDF with the autoTable plugin
 interface jsPDFWithAutoTable extends jsPDF {
   autoTable: (options: UserOptions) => jsPDFWithAutoTable;
 }
+
+// Function to remove unsupported characters and emojis
+const cleanText = (text: string): string => {
+  if (!text) return '';
+  // Removes most emojis and non-standard characters.
+  return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').replace(/[^a-zA-Z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ.,\s-:;()[\]/|%@]/g, '');
+};
 
 /**
  * Generates a styled PDF report with a title, summary, and a data table.
@@ -42,7 +48,7 @@ export async function generatePdf(
     cursorY += 25;
 
     // --- Report Title (Validated) ---
-    const safeTitle = title || 'Relatório de Campanha';
+    const safeTitle = cleanText(title) || 'Relatório de Campanha';
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
     doc.setTextColor(40, 40, 40);
@@ -51,7 +57,7 @@ export async function generatePdf(
     cursorY += (splitTitle.length * 20) + 20;
 
     // --- Executive Summary (Validated) ---
-    const safeSummary = summary || 'Não foi possível gerar um resumo para este relatório.';
+    const safeSummary = cleanText(summary) || 'Não foi possível gerar um resumo para este relatório.';
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(40, 40, 40);
@@ -62,14 +68,14 @@ export async function generatePdf(
     doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
     const summaryLines = doc.splitTextToSize(safeSummary, pageWidth - margin * 2);
-    doc.text(summaryLines, margin, cursorY);
+    doc.text(summaryLines, margin, cursorY, { align: 'justify' });
     cursorY += (summaryLines.length * 12) + 30;
 
     // --- Data Table (Validated) ---
-    const tableHeaders = headers || [];
+    const tableHeaders = headers.map(h => cleanText(h));
     // Ensure every cell in the body is a string, providing a fallback.
     const tableBody = data.map(row => 
-        tableHeaders.map(header => String(row[header] ?? 'N/D'))
+        tableHeaders.map(header => cleanText(String(row[header] ?? 'N/D')))
     );
 
     if (tableHeaders.length > 0 && tableBody.length > 0) {
@@ -79,18 +85,38 @@ export async function generatePdf(
             body: tableBody,
             theme: 'striped',
             headStyles: {
-                fillColor: [214, 89, 52], // Primary color
+                fillColor: [41, 128, 185], // A more professional blue
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
-                fontSize: 7,
+                fontSize: 8,
+                halign: 'center',
             },
             styles: {
                 fontSize: 7,
                 cellPadding: 4,
-                overflow: 'linebreak'
+                overflow: 'linebreak',
+                lineWidth: 0.5,
+                lineColor: [220, 220, 220],
             },
             columnStyles: {
-                // You can define specific widths or styles per column index here if needed
+                // Adjusting column widths for better layout
+                0: { cellWidth: 100 }, // Nome da campanha
+                1: { cellWidth: 50 }, // Status
+                2: { cellWidth: 50 }, // Nível
+                3: { cellWidth: 'auto' }, // Valor
+                4: { cellWidth: 'auto' }, // Impressões
+                5: { cellWidth: 'auto' }, // CPM
+                6: { cellWidth: 'auto' }, // Alcance
+                7: { cellWidth: 'auto' }, // Frequência
+                8: { cellWidth: 'auto' }, // CTR
+                9: { cellWidth: 'auto' }, // Cliques
+                10: { cellWidth: 'auto' }, // CPC
+                11: { cellWidth: 100 }, // Configuração de atribuição
+                12: { cellWidth: 'auto' }, // Tipo de resultado
+                13: { cellWidth: 'auto' }, // Resultados
+                14: { cellWidth: 'auto' }, // Custo por resultado
+                15: { cellWidth: 50 }, // Início
+                16: { cellWidth: 50 }, // Término
             },
             didDrawPage: (data) => {
                 // Footer with page number
@@ -109,5 +135,5 @@ export async function generatePdf(
         doc.text("Não há dados na tabela para exibir.", margin, cursorY);
     }
     
-    doc.save(`${safeTitle.replace(/\s/g, '_').toLowerCase()}.pdf`);
+    doc.save(`${safeTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
 }

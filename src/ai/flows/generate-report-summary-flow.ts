@@ -23,11 +23,11 @@ const GenerateReportSummaryInputSchema = z.object({
 export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInputSchema>;
 
 const GenerateReportSummaryOutputSchema = z.object({
-  reportTitle: z.string().describe("A concise and descriptive title for the report, based on the data provided. Example: 'Relatório de Desempenho da Campanha'."),
+  reportTitle: z.string().describe("A concise and descriptive title for the report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho da Campanha - Julho 2025'."),
   executiveSummary: z
     .string()
     .describe(
-      'A 2-3 paragraph executive summary of the campaign results, highlighting key metrics, trends, and insights. This summary should be written in a professional and clear tone, suitable for a client report.'
+      'A 2-3 paragraph executive summary of the campaign results, highlighting key metrics, trends, and insights. This summary must be written in a professional and clear tone, in Brazilian Portuguese (pt-BR), suitable for a client report. Do not use emojis or special formatting characters.'
     ),
 });
 export type GenerateReportSummaryOutput = z.infer<typeof GenerateReportSummaryOutputSchema>;
@@ -44,17 +44,18 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateReportSummaryOutputSchema},
   prompt: `
     You are a marketing data analyst expert for a digital marketing agency.
-    Your task is to analyze the provided marketing campaign data in CSV format and generate a professional, insightful summary for a client report.
+    Your task is to analyze the provided marketing campaign data in CSV format and generate a professional, insightful summary for a client report, **entirely in Brazilian Portuguese (pt-BR)**.
 
     **Instructions:**
     1.  **Analyze the Data:** Carefully review the following CSV data to understand the campaign's performance. Identify key metrics (like Clicks, Impressions, CTR, Cost, Conversions), trends over time, and any significant patterns.
-    2.  **Create a Report Title:** Generate a clear and professional title for the report. For example: "Relatório de Desempenho da Campanha".
-    3.  **Write an Executive Summary:** Based on your analysis, write a 2-3 paragraph executive summary. This summary should:
+    2.  **Create a Report Title:** Generate a clear and professional title for the report **in Brazilian Portuguese**. For example: "Relatório de Desempenho da Campanha - Julho 2025".
+    3.  **Write an Executive Summary:** Based on your analysis, write a 2-3 paragraph executive summary **in Brazilian Portuguese**. This summary should:
         - Start with a brief overview of the campaign's objective (if inferable).
         - Highlight the most important results and key performance indicators (KPIs).
         - Point out any significant trends (e.g., "Houve um aumento de 25% nos cliques em comparação com o mês anterior").
         - Provide a concluding thought or insight.
         - The tone must be professional, clear, and direct.
+        - **Do not use emojis or any special formatting (like markdown).**
 
     **CSV Data:**
     \`\`\`csv
@@ -76,7 +77,7 @@ const generateReportSummaryFlow = ai.defineFlow(
     if (!output) {
       return {
         reportTitle: "Relatório de Campanha",
-        executiveSummary: "A análise do relatório não pôde ser gerada no momento."
+        executiveSummary: "A análise do relatório não pôde ser gerada no momento. Por favor, verifique o conteúdo do arquivo CSV e tente novamente."
       };
     }
     
