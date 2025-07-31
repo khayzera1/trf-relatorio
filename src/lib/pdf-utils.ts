@@ -43,7 +43,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
-        doc.text(cleanText(card.description), x + 10, y + 50);
+        doc.text(cleanText(card.description), x + 10, y + 52);
     }
 };
 
@@ -61,7 +61,7 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 60;
+    const cardHeight = 65;
     
     let rowIndex = 0;
 
