@@ -18,7 +18,7 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
             <div>
                 <p className="text-sm text-muted-foreground">{card.title}</p>
-                <p className="text-3xl font-bold text-foreground my-2">{card.value}</p>
+                <p className="text-2xl font-bold text-foreground my-2">{card.value}</p>
                 {card.description && (
                     <p className="text-sm font-semibold text-primary">{card.description}</p>
                 )}
