@@ -6,11 +6,10 @@ import { Header } from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer } from "recharts";
-import { DollarSign, Eye, MousePointerClick, TrendingUp, User, Tag, ArrowLeft } from "lucide-react";
+import { DollarSign, Eye, MousePointerClick, TrendingUp, User, Tag, ArrowLeft, Target } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ClientData } from '@/lib/types';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // Mock data fetching - em uma aplicação real, isso viria de um backend
 const clients: ClientData[] = [
@@ -30,40 +29,42 @@ const getClientById = (id: string): ClientData | undefined => {
     return clients.find(client => client.id === id);
 }
 
-const campaignData = {
-    'Google Ads': {
-        kpis: {
-            cost: 'R$4.523,18',
-            clicks: '+2.350',
-            impressions: '+12.234',
-            ctr: '19,35%',
-        },
-        chartData: [
-            { month: 'Jan', clicks: 186, impressions: 800 },
-            { month: 'Fev', clicks: 305, impressions: 1200 },
-            { month: 'Mar', clicks: 237, impressions: 900 },
-            { month: 'Abr', clicks: 273, impressions: 1100 },
-            { month: 'Mai', clicks: 209, impressions: 750 },
-            { month: 'Jun', clicks: 214, impressions: 850 },
-        ],
+// Estrutura de dados de campanha específica por cliente
+const campaignDataByClient: { [key: string]: any } = {
+    'CLI001': {
+        platform: 'Google Ads',
+        kpis: { cost: 'R$1.250,50', clicks: '310', impressions: '8.120', ctr: '3,82%', result: '25 Ligações' },
+        chartData: [ { month: 'Jan', clicks: 45, impressions: 1200 }, { month: 'Fev', clicks: 60, impressions: 1500 }, { month: 'Mar', clicks: 55, impressions: 1400 }, { month: 'Abr', clicks: 70, impressions: 1800 }, { month: 'Mai', clicks: 50, impressions: 1300 }, { month: 'Jun', clicks: 30, impressions: 920 } ],
     },
-    'Meta Ads': {
-        kpis: {
-            cost: 'R$3.154,25',
-            clicks: '+1.890',
-            impressions: '+9.876',
-            ctr: '19,14%',
-        },
-        chartData: [
-            { month: 'Jan', clicks: 220, impressions: 1200 },
-            { month: 'Fev', clicks: 280, impressions: 1800 },
-            { month: 'Mar', clicks: 200, impressions: 1000 },
-            { month: 'Abr', clicks: 310, impressions: 2100 },
-            { month: 'Mai', clicks: 190, impressions: 1100 },
-            { month: 'Jun', clicks: 250, impressions: 1600 },
-        ],
+    'CLI002': {
+        platform: 'Meta Ads',
+        kpis: { cost: 'R$980,00', clicks: '1.500', impressions: '25.000', ctr: '6,00%', result: '80 Conversas no WhatsApp' },
+        chartData: [ { month: 'Jan', clicks: 200, impressions: 4000 }, { month: 'Fev', clicks: 250, impressions: 5000 }, { month: 'Mar', clicks: 280, impressions: 5500 }, { month: 'Abr', clicks: 320, impressions: 6000 }, { month: 'Mai', clicks: 210, impressions: 3000 }, { month: 'Jun', clicks: 240, impressions: 1500 } ],
     },
+    'CLI003': {
+        platform: 'Google Ads',
+        kpis: { cost: 'R$600,00', clicks: '8.000', impressions: '150.000', ctr: '5,33%', result: 'N/A' },
+        chartData: [ { month: 'Jan', clicks: 1200, impressions: 25000 }, { month: 'Fev', clicks: 1500, impressions: 30000 }, { month: 'Mar', clicks: 1300, impressions: 28000 }, { month: 'Abr', clicks: 1800, impressions: 35000 }, { month: 'Mai', clicks: 1100, impressions: 20000 }, { month: 'Jun', clicks: 1100, impressions: 12000 } ],
+    },
+    'CLI004': {
+        platform: 'Meta Ads',
+        kpis: { cost: 'R$1.800,70', clicks: '450', impressions: '40.000', ctr: '1,13%', result: '1.2k Visitas ao Site' },
+        chartData: [ { month: 'Jan', clicks: 60, impressions: 6000 }, { month: 'Fev', clicks: 80, impressions: 8000 }, { month: 'Mar', clicks: 70, impressions: 7000 }, { month: 'Abr', clicks: 90, impressions: 9000 }, { month: 'Mai', clicks: 75, impressions: 6000 }, { month: 'Jun', clicks: 75, impressions: 4000 } ],
+    },
+     'CLI005': {
+        platform: 'Google Ads',
+        kpis: { cost: 'R$2.500,00', clicks: '400', impressions: '9.500', ctr: '4,21%', result: '50 Agendamentos' },
+        chartData: [ { month: 'Jan', clicks: 50, impressions: 1200 }, { month: 'Fev', clicks: 70, impressions: 1800 }, { month: 'Mar', clicks: 65, impressions: 1600 }, { month: 'Abr', clicks: 85, impressions: 2000 }, { month: 'Mai', clicks: 70, impressions: 1700 }, { month: 'Jun', clicks: 60, impressions: 1200 } ],
+    },
+    // Add more client-specific data as needed
 };
+
+const defaultCampaignData = {
+    platform: 'N/A',
+    kpis: { cost: 'R$0,00', clicks: '0', impressions: '0', ctr: '0,00%', result: 'Nenhum resultado' },
+    chartData: [ { month: 'Jan', clicks: 0, impressions: 0 }, { month: 'Fev', clicks: 0, impressions: 0 }, { month: 'Mar', clicks: 0, impressions: 0 }, { month: 'Abr', clicks: 0, impressions: 0 }, { month: 'Mai', clicks: 0, impressions: 0 }, { month: 'Jun', clicks: 0, impressions: 0 } ],
+};
+
 
 const chartConfig = {
     clicks: { label: 'Cliques', color: 'hsl(var(--chart-1))' },
@@ -96,8 +97,7 @@ export default function DashboardPage() {
         )
     }
 
-    const platform = client.campaign.includes('Google') ? 'Google Ads' : 'Meta Ads';
-    const data = campaignData[platform];
+    const data = campaignDataByClient[client.id] || defaultCampaignData;
     
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Custo Total</CardTitle>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground">no último semestre</p>
                             </CardContent>
                         </Card>
-                        <Card>
+                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Cliques</CardTitle>
                                 <MousePointerClick className="h-4 w-4 text-muted-foreground" />
@@ -166,11 +166,21 @@ export default function DashboardPage() {
                                 <p className="text-xs text-muted-foreground">médio do período</p>
                             </CardContent>
                         </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Resultado Principal</CardTitle>
+                                <Target className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{data.kpis.result}</div>
+                                <p className="text-xs text-muted-foreground">meta da campanha</p>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Desempenho Geral - {platform}</CardTitle>
+                            <CardTitle>Desempenho Geral - {data.platform}</CardTitle>
                             <CardDescription>Últimos 6 meses</CardDescription>
                         </CardHeader>
                         <CardContent className="pl-2">
@@ -194,4 +204,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-
