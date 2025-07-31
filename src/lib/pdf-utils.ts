@@ -55,7 +55,7 @@ export async function generatePdf(
     // --- Executive Summary ---
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.setTextColor(0, 89, 179); // Primary color
+    doc.setTextColor(40, 40, 40);
     doc.text('Resumo Executivo', margin, cursorY);
     cursorY += 7;
 
@@ -79,14 +79,14 @@ export async function generatePdf(
             fillColor: [214, 89, 52], // Primary color from theme
             textColor: [255, 255, 255],
             fontStyle: 'bold',
-            fontSize: 7, // Smaller font for headers
+            fontSize: 8, // Smaller font for headers
             halign: 'center',
             valign: 'middle',
         },
         styles: {
-            fontSize: 7, // Smaller font for cell content
+            fontSize: 7.5, // Smaller font for cell content
             cellPadding: 2,
-            overflow: 'visible', // Prevent ugly line breaks
+            overflow: 'linebreak', // Prevent ugly line breaks
             halign: 'center',
             valign: 'middle'
         },
@@ -94,9 +94,8 @@ export async function generatePdf(
             fillColor: [247, 247, 247],
         },
         columnStyles: {
-            // Using auto table width calculation
+           // Let autotable handle it, but with smaller fonts it should be better
         },
-        tableWidth: 'auto',
         margin: { left: margin, right: margin },
         didDrawPage: (data) => {
             // Footer
