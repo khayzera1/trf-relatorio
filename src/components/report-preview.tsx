@@ -4,7 +4,7 @@
 import type { ReportData, KpiCardData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowUp, FileText, Download, X } from "lucide-react";
+import { FileText, Download, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface ReportPreviewProps {
@@ -14,21 +14,13 @@ interface ReportPreviewProps {
 }
 
 const KpiCard = ({ card }: { card: KpiCardData }) => {
-    const isPositive = card.change.startsWith('+');
-    
     return (
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
             <div>
                 <p className="text-sm text-muted-foreground">{card.title}</p>
-                <p className="text-2xl font-bold text-foreground my-1">{card.value}</p>
+                <p className="text-3xl font-bold text-foreground my-2">{card.value}</p>
             </div>
-            <div className="flex items-center text-xs">
-                <span className={`flex items-center mr-2 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    {isPositive ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                    {card.change}
-                </span>
-                <span className="text-muted-foreground">{card.previousValue}</span>
-            </div>
+            <p className="text-xs text-muted-foreground">no período atual</p>
         </div>
     );
 };
@@ -62,6 +54,8 @@ export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewPr
                     <h2 className="text-2xl font-bold">{data.reportTitle}</h2>
                 </div>
                 
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Relatório de Desempenho</h3>
+
                 {/* Grid de KPIs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {data.kpiCards.map((card, index) => (

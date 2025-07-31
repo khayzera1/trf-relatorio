@@ -19,21 +19,19 @@ const GenerateReportSummaryInputSchema = z.object({
   csvData: z
     .string()
     .describe(
-      'A string containing the entire CSV data from a marketing campaign report. The CSV must contain at least columns for a metric name, its current value, its previous value, and the percentage change.'
+      'A string containing the entire CSV data from a marketing campaign report. The CSV must contain columns for a metric name and its corresponding value.'
     ),
 });
 export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInputSchema>;
 
 
 const KpiCardDataSchema = z.object({
-    title: z.string().describe("The name of the Key Performance Indicator (KPI). E.g., 'Impressões', 'Cliques', 'Custo'."),
-    value: z.string().describe("The main value for the KPI. E.g., '210.081', 'R$70.180,79'."),
-    change: z.string().describe("The percentage change from the previous period, including the signal. E.g., '+24,32%', '-12,09%'."),
-    previousValue: z.string().describe("The value from the previous period, with context. E.g., '168.984 no período anterior'."),
+    title: z.string().describe("The name of the Key Performance Indicator (KPI). E.g., 'Impressões', 'Cliques', 'Custo por Resultado'."),
+    value: z.string().describe("The main value for the KPI. E.g., '35.671', 'R$5,88'."),
 });
 
 const GenerateReportSummaryOutputSchema = z.object({
-  reportTitle: z.string().describe("A concise and descriptive title for the report in Brazilian Portuguese, based on the data provided. Example: 'Métricas do Google Ads: os KPIs mais importantes'."),
+  reportTitle: z.string().describe("A concise and descriptive title for the report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas Digitais'."),
   kpiCards: z.array(KpiCardDataSchema).describe("An array of KPI card objects, each representing a key metric from the report."),
 });
 
@@ -62,13 +60,12 @@ const prompt = ai.definePrompt({
     The report should only use information that is present in the CSV.
 
     **Instructions:**
-    1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Identify the key performance indicators (KPIs), their current values, their values from the previous period, and the percentage change.
+    1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Identify the key performance indicators (KPIs) and their current values.
     2.  **Create a Report Title:** Generate a professional and engaging title for the report in Brazilian Portuguese.
     3.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object that follows the specified format.
-        -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Conversão").
-        -   **value:** The primary, current value of the metric. Format it appropriately (e.g., with currency symbols, separators).
-        -   **change:** The percentage change. It MUST include the '+' or '-' sign.
-        -   **previousValue:** A descriptive string showing the value in the previous period, like "12.345 no período anterior".
+        -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
+        -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
+    4.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title and the value.
 
     **CSV Data:**
     \`\`\`csv
@@ -78,19 +75,15 @@ const prompt = ai.definePrompt({
     **Example Output Structure:**
     \`\`\`json
     {
-      "reportTitle": "Métricas do Google Ads: os KPIs mais importantes",
+      "reportTitle": "Análise de Desempenho de Campanhas Digitais",
       "kpiCards": [
         {
           "title": "Impressões",
-          "value": "210.081",
-          "change": "+24,32%",
-          "previousValue": "188.984 no período anterior"
+          "value": "35.671"
         },
         {
-          "title": "Custo",
-          "value": "R$70.180,79",
-          "change": "+17,68%",
-          "previousValue": "R$59.631,40 no período anterior"
+          "title": "Custo por Resultado",
+          "value": "R$5,88"
         }
       ]
     }
