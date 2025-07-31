@@ -40,7 +40,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
-        <Card className="shadow-lg border-primary/10">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Gerador de Relatório PDF</CardTitle>
             <CardDescription>Envie um arquivo CSV para gerar um relatório em PDF no formato A4 para seus clientes.</CardDescription>
@@ -50,7 +50,7 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border-primary/10">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle className="text-2xl font-headline">Painel de Clientes</CardTitle>

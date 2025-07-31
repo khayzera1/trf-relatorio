@@ -29,7 +29,7 @@ export const columns: ColumnDef<ClientData>[] = [
       );
     },
     cell: ({ row }) => {
-        return <div className="font-medium">{row.getValue("clientName")}</div>;
+        return <div className="font-medium text-primary">{row.getValue("clientName")}</div>;
     }
   },
   {
@@ -47,7 +47,7 @@ export const columns: ColumnDef<ClientData>[] = [
             'Concluída': 'outline',
         }[status] as "default" | "secondary" | "outline";
         
-        return <Badge variant={variant}>{status}</Badge>;
+        return <Badge variant={variant} className="capitalize">{status}</Badge>;
     }
   },
   {
