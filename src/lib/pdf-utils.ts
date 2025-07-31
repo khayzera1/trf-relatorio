@@ -50,12 +50,12 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
 const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
 
-    // Campaign Name Header
+    // --- Campaign Name Header ---
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-gray-900
     doc.text(cleanText(campaignData.campaignName), margin, cursorY);
-    cursorY += 20;
+    cursorY += 25;
 
     // --- Grid de KPIs ---
     const cardsPerRow = 3;
@@ -64,35 +64,33 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     const cardHeight = 60;
     
     let currentX = margin;
-    let maxRowHeight = 0;
+    let rowIndex = 0;
 
     campaignData.kpiCards.forEach((card, index) => {
         const colIndex = index % cardsPerRow;
+        currentX = margin + colIndex * (cardWidth + cardGap);
+        const currentY = cursorY + rowIndex * (cardHeight + cardGap);
 
         // Check if we need to start a new row
         if (colIndex === 0 && index > 0) {
-            cursorY += maxRowHeight + cardGap;
-            maxRowHeight = 0;
-            currentX = margin;
+            rowIndex++;
         }
 
-        // Check for page break
-        if (cursorY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
+        // Check for page break before drawing the next row
+        if (currentY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
             cursorY = margin;
-            currentX = margin;
+            rowIndex = 0; // Reset row index for new page
+            // Recalculate Y position on new page
+            const newY = cursorY + rowIndex * (cardHeight + cardGap);
+            drawKpiCard(doc, card, currentX, newY, cardWidth, cardHeight);
+        } else {
+             drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
         }
-        
-        drawKpiCard(doc, card, currentX, cursorY, cardWidth, cardHeight);
-        
-        if (cardHeight > maxRowHeight) {
-            maxRowHeight = cardHeight;
-        }
-        
-        currentX += cardWidth + cardGap;
     });
 
-    return cursorY + maxRowHeight + 30; // Return the Y position for the next section
+    const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
+    return cursorY + totalRows * cardHeight + (totalRows - 1) * cardGap + 30; // Return the Y position for the next section
 };
 
 export function generatePdf(data: ReportData) {
@@ -129,14 +127,14 @@ export function generatePdf(data: ReportData) {
     let cursorY = 140;
     
     data.campaigns.forEach((campaign, index) => {
-        if (index > 0) {
-             if (cursorY + 100 > doc.internal.pageSize.getHeight() - margin) {
-                doc.addPage();
-                cursorY = margin;
-             } else {
-                cursorY += 20; // Add some space between campaigns
-             }
+        // Check for page break before starting a new campaign section
+        if (cursorY + 120 > doc.internal.pageSize.getHeight() - margin) { // 120 is an estimate for section height
+           doc.addPage();
+           cursorY = margin;
+        } else if (index > 0) {
+           cursorY += 20; // Add some space between campaigns on the same page
         }
+        
         cursorY = drawCampaignSection(doc, campaign, cursorY, pageWidth, margin);
     });
 
