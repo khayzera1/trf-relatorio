@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { ReportData, KpiCardData } from "@/lib/types";
+import type { ReportData, KpiCardData, CampaignReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, X, Tag } from "lucide-react";
@@ -23,11 +23,25 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
                     <p className="text-sm font-semibold text-primary">{card.description}</p>
                 )}
             </div>
-            {!card.description && <p className="text-xs text-muted-foreground mt-4">no período atual</p>}
         </div>
     );
 };
 
+const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData }) => {
+    return (
+        <div className="mb-10">
+            <div className="flex items-center gap-3 mb-4">
+                <Tag className="h-5 w-5 text-primary" />
+                <h3 className="text-xl font-semibold text-foreground">{campaignData.campaignName}</h3>
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {campaignData.kpiCards.map((card, index) => (
+                    <KpiCard key={index} card={card} />
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewProps) {
   return (
@@ -49,32 +63,25 @@ export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewPr
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-            <Separator />
-            <div className="p-8 bg-gray-50 rounded-lg border">
-                {/* Header Azul */}
-                <div className="bg-primary text-primary-foreground p-6 rounded-t-lg -m-8 mb-8">
-                    <h2 className="text-2xl font-bold">{data.reportTitle}</h2>
-                    <div className="flex items-center gap-2 mt-2 opacity-90">
-                        <Tag className="h-4 w-4" />
-                        <span className="font-semibold">{data.campaignName}</span>
-                    </div>
-                </div>
-                
-                <h3 className="text-lg font-semibold mb-4 text-foreground">Relatório de Desempenho</h3>
-
-                {/* Grid de KPIs */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {data.kpiCards.map((card, index) => (
-                        <KpiCard key={index} card={card} />
-                    ))}
-                </div>
+        <Separator />
+        <div className="p-8 bg-gray-50 rounded-lg border mt-6">
+            {/* Header Azul */}
+            <div className="bg-primary text-primary-foreground p-6 rounded-t-lg -m-8 mb-8">
+                <h2 className="text-2xl font-bold">{data.reportTitle}</h2>
             </div>
+            
+            {data.campaigns.length > 0 ? (
+                data.campaigns.map((campaign, index) => (
+                   <CampaignSection key={index} campaignData={campaign} />
+                ))
+            ) : (
+                <p className="text-muted-foreground text-center">Nenhuma campanha encontrada no arquivo CSV.</p>
+            )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-4">
         <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button onClick={onGeneratePdf}>
+        <Button onClick={onGeneratePdf} disabled={data.campaigns.length === 0}>
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>

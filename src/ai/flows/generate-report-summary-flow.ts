@@ -3,23 +3,24 @@
 
 /**
  * @fileOverview This file defines a Genkit flow that analyzes marketing campaign data
- * from a CSV and extracts key performance indicators (KPIs) for a dashboard-style report.
+ * from a CSV containing one or more campaigns and extracts key performance indicators (KPIs)
+ * for a consolidated dashboard-style report.
  *
- * - generateReportSummary - Analyzes CSV data and returns structured KPI data.
+ * - generateReportSummary - Analyzes CSV data and returns structured KPI data for multiple campaigns.
  * - GenerateReportSummaryInput - The input type for the generateReportSummary function.
- * - GenerateReportSummaryOutput - The return type for the generateReportSummary function, conforming to the ReportData interface.
+ * - GenerateReportSummaryOutput - The return type for the generateReportSummary function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { ReportData } from '@/lib/types';
+import type { ReportData } from '@/lib/types';
 
 
 const GenerateReportSummaryInputSchema = z.object({
   csvData: z
     .string()
     .describe(
-      'A string containing the entire CSV data from a marketing campaign report. The CSV must contain columns for a metric name and its corresponding value.'
+      'A string containing the entire CSV data from a marketing campaign report. The CSV can contain data for one or more distinct campaigns.'
     ),
 });
 export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInputSchema>;
@@ -31,10 +32,14 @@ const KpiCardDataSchema = z.object({
     description: z.string().optional().describe("A brief, optional description providing context for the KPI. For 'Custo por Resultado', this should specify what the result is (e.g., 'Conversa no WhatsApp', 'Contato no site'). For other KPIs, this is usually not needed."),
 });
 
-const GenerateReportSummaryOutputSchema = z.object({
-  reportTitle: z.string().describe("A concise and descriptive title for the report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas Digitais'."),
+const CampaignReportSchema = z.object({
   campaignName: z.string().describe("The name of the campaign, extracted directly from the CSV data."),
-  kpiCards: z.array(KpiCardDataSchema).describe("An array of KPI card objects, each representing a key metric from the report."),
+  kpiCards: z.array(KpiCardDataSchema).describe("An array of KPI card objects for this specific campaign."),
+});
+
+const GenerateReportSummaryOutputSchema = z.object({
+  reportTitle: z.string().describe("A concise and descriptive title for the consolidated report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas'."),
+  campaigns: z.array(CampaignReportSchema).describe("An array of report objects, one for each campaign found in the CSV."),
 });
 
 export type GenerateReportSummaryOutput = z.infer<typeof GenerateReportSummaryOutputSchema>;
@@ -47,8 +52,7 @@ export async function generateReportSummary(
   // Ensure the output conforms to ReportData, providing defaults if necessary
   return {
     reportTitle: result.reportTitle || "Relatório de Métricas",
-    campaignName: result.campaignName || "Campanha não identificada",
-    kpiCards: result.kpiCards || [],
+    campaigns: result.campaigns || [],
   };
 }
 
@@ -58,18 +62,20 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateReportSummaryOutputSchema},
   prompt: `
     You are a marketing data analyst expert for a digital marketing agency.
-    Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report.
+    Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report. The CSV can contain data for MULTIPLE campaigns.
     The entire analysis and output must be in **Brazilian Portuguese (pt-BR)**.
     The report should only use information that is present in the CSV.
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
-    2.  **Extract Campaign Name:** The CSV will always contain the campaign name. Identify and extract this name.
-    3.  **Create a Report Title:** Generate a professional and engaging title for the report in Brazilian Portuguese.
-    4.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object.
-        -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
-        -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
-        -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
+    2.  **Identify All Campaigns:** The CSV may contain multiple campaigns. Identify each distinct campaign and its associated metrics.
+    3.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
+    4.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
+        -   **campaignName:** The name of the campaign.
+        -   **kpiCards:** An array of KPI objects belonging *only* to that campaign.
+            -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
+            -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
+            -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
     5.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
 
     **CSV Data:**
@@ -77,20 +83,37 @@ const prompt = ai.definePrompt({
     {{{csvData}}}
     \`\`\`
 
-    **Example Output Structure:**
+    **Example Output Structure for Multiple Campaigns:**
     \`\`\`json
     {
-      "reportTitle": "Análise de Desempenho de Campanhas Digitais",
-      "campaignName": "Google Ads - Pesquisa Local",
-      "kpiCards": [
+      "reportTitle": "Análise de Desempenho das Campanhas",
+      "campaigns": [
         {
-          "title": "Impressões",
-          "value": "35.671"
+          "campaignName": "Google Ads - Pesquisa Local",
+          "kpiCards": [
+            {
+              "title": "Impressões",
+              "value": "35.671"
+            },
+            {
+              "title": "Custo por Resultado",
+              "value": "R$5,88",
+              "description": "Conversa no WhatsApp"
+            }
+          ]
         },
         {
-          "title": "Custo por Resultado",
-          "value": "R$5,88",
-          "description": "Conversa no WhatsApp"
+            "campaignName": "Meta Ads - Tráfego Site",
+            "kpiCards": [
+              {
+                "title": "Cliques",
+                "value": "1.250"
+              },
+              {
+                "title": "Custo por Clique",
+                "value": "R$1,44"
+              }
+            ]
         }
       ]
     }
@@ -108,12 +131,11 @@ const generateReportSummaryFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     
-    if (!output) {
+    if (!output || !output.campaigns || output.campaigns.length === 0) {
       // Return a default empty structure if the AI fails to generate a valid output
       return {
         reportTitle: "Relatório de Campanha",
-        campaignName: "Não identificada",
-        kpiCards: []
+        campaigns: []
       };
     }
     

@@ -2,7 +2,7 @@
 "use client";
 
 import jsPDF from 'jspdf';
-import type { ReportData, KpiCardData } from './types';
+import type { ReportData, KpiCardData, CampaignReportData } from './types';
 
 
 const cleanText = (text: string | undefined | null): string => {
@@ -44,18 +44,50 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
         doc.text(cleanText(card.description), x + 10, y + 58);
-    } else {
-        // "no período atual" text
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(107, 114, 128); // text-muted-foreground
-        doc.text("no período atual", x + 10, y + 55);
     }
 };
 
+const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
+    let cursorY = startY;
+
+    // Campaign Name Header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 24, 39); // text-gray-900
+    doc.text(cleanText(campaignData.campaignName), margin, cursorY);
+    cursorY += 30;
+
+    // --- Grid de KPIs ---
+    const cardsPerRow = 2;
+    const cardMargin = 20;
+    const cardWidth = (pageWidth - margin * 2 - cardMargin * (cardsPerRow - 1)) / cardsPerRow;
+    const cardHeight = 70;
+    let maxRowHeight = 0;
+
+    campaignData.kpiCards.forEach((card, index) => {
+        if (cursorY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
+            doc.addPage();
+            cursorY = margin;
+        }
+
+        const row = Math.floor(index / cardsPerRow);
+        const col = index % cardsPerRow;
+
+        const cardX = margin + col * (cardWidth + cardMargin);
+        const cardY = cursorY + row * (cardHeight + cardMargin);
+
+        drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
+        
+        if(row * (cardHeight + cardMargin) > maxRowHeight) {
+            maxRowHeight = row * (cardHeight + cardMargin);
+        }
+    });
+
+    return startY + maxRowHeight + cardHeight + 40; // Return the Y position for the next section
+};
 
 export function generatePdf(data: ReportData) {
-    if (!data || !data.reportTitle || !data.kpiCards) {
+    if (!data || !data.reportTitle || !data.campaigns) {
         console.error("Invalid data provided to generatePdf");
         alert("Não foi possível gerar o PDF. Dados inválidos ou ausentes.");
         return;
@@ -68,45 +100,23 @@ export function generatePdf(data: ReportData) {
 
     // --- Header com fundo azul ---
     doc.setFillColor(29, 78, 216); // bg-blue-700
-    doc.rect(0, 0, pageWidth, 110, 'F'); // Increased header height
+    doc.rect(0, 0, pageWidth, 90, 'F');
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
     const title = cleanText(data.reportTitle);
-    doc.text(title, margin, 45);
-
-    // Campaign Name
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(255, 255, 255);
-    const campaignName = cleanText(data.campaignName) || "Campanha não especificada";
-    doc.text(`Campanha: ${campaignName}`, margin, 75);
+    doc.text(title, margin, 55);
 
     // --- Área de conteúdo ---
-    let cursorY = 140; // Adjusted cursor
+    let cursorY = 120;
     
-    // Header do Relatório ("Relatório de Desempenho")
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39); // text-gray-900
-    doc.text("Relatório de Desempenho", margin, cursorY);
-    cursorY += 30;
-
-    // --- Grid de KPIs ---
-    const cardsPerRow = 2;
-    const cardMargin = 20;
-    const cardWidth = (pageWidth - margin * 2 - cardMargin * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 70; // Increased height to accommodate description
-    
-    data.kpiCards.forEach((card, index) => {
-        const row = Math.floor(index / cardsPerRow);
-        const col = index % cardsPerRow;
-
-        const cardX = margin + col * (cardWidth + cardMargin);
-        const cardY = cursorY + row * (cardHeight + cardMargin);
-
-        drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
+    data.campaigns.forEach((campaign) => {
+        if (cursorY > doc.internal.pageSize.getHeight() - margin - 100) { // Check if there's enough space for a new section
+            doc.addPage();
+            cursorY = margin;
+        }
+        cursorY = drawCampaignSection(doc, campaign, cursorY, pageWidth, margin);
     });
 
     const safeTitle = cleanText(data.reportTitle) || "relatorio";
