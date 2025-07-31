@@ -29,34 +29,58 @@ const getClientById = (id: string): ClientData | undefined => {
     return clients.find(client => client.id === id);
 }
 
-// Estrutura de dados de campanha específica por cliente
-const campaignDataByClient: { [key: string]: any } = {
-    'CLI001': {
+// Estrutura de dados de campanha específica por NOME DA CAMPANHA
+const campaignDataByCampaignName: { [key: string]: any } = {
+    'Google Ads - Pesquisa Local': {
         platform: 'Google Ads',
         kpis: { cost: 'R$1.250,50', clicks: '310', impressions: '8.120', ctr: '3,82%', result: '25 Ligações' },
         chartData: [ { month: 'Jan', clicks: 45, impressions: 1200 }, { month: 'Fev', clicks: 60, impressions: 1500 }, { month: 'Mar', clicks: 55, impressions: 1400 }, { month: 'Abr', clicks: 70, impressions: 1800 }, { month: 'Mai', clicks: 50, impressions: 1300 }, { month: 'Jun', clicks: 30, impressions: 920 } ],
     },
-    'CLI002': {
+    'Meta Ads - WhatsApp': {
         platform: 'Meta Ads',
         kpis: { cost: 'R$980,00', clicks: '1.500', impressions: '25.000', ctr: '6,00%', result: '80 Conversas no WhatsApp' },
         chartData: [ { month: 'Jan', clicks: 200, impressions: 4000 }, { month: 'Fev', clicks: 250, impressions: 5000 }, { month: 'Mar', clicks: 280, impressions: 5500 }, { month: 'Abr', clicks: 320, impressions: 6000 }, { month: 'Mai', clicks: 210, impressions: 3000 }, { month: 'Jun', clicks: 240, impressions: 1500 } ],
     },
-    'CLI003': {
+    'Google Ads - Display': {
         platform: 'Google Ads',
         kpis: { cost: 'R$600,00', clicks: '8.000', impressions: '150.000', ctr: '5,33%', result: 'N/A' },
         chartData: [ { month: 'Jan', clicks: 1200, impressions: 25000 }, { month: 'Fev', clicks: 1500, impressions: 30000 }, { month: 'Mar', clicks: 1300, impressions: 28000 }, { month: 'Abr', clicks: 1800, impressions: 35000 }, { month: 'Mai', clicks: 1100, impressions: 20000 }, { month: 'Jun', clicks: 1100, impressions: 12000 } ],
     },
-    'CLI004': {
+    'Meta Ads - Tráfego Site': {
         platform: 'Meta Ads',
         kpis: { cost: 'R$1.800,70', clicks: '450', impressions: '40.000', ctr: '1,13%', result: '1.2k Visitas ao Site' },
         chartData: [ { month: 'Jan', clicks: 60, impressions: 6000 }, { month: 'Fev', clicks: 80, impressions: 8000 }, { month: 'Mar', clicks: 70, impressions: 7000 }, { month: 'Abr', clicks: 90, impressions: 9000 }, { month: 'Mai', clicks: 75, impressions: 6000 }, { month: 'Jun', clicks: 75, impressions: 4000 } ],
     },
-     'CLI005': {
+     'Google Ads - Pesquisa': {
         platform: 'Google Ads',
         kpis: { cost: 'R$2.500,00', clicks: '400', impressions: '9.500', ctr: '4,21%', result: '50 Agendamentos' },
         chartData: [ { month: 'Jan', clicks: 50, impressions: 1200 }, { month: 'Fev', clicks: 70, impressions: 1800 }, { month: 'Mar', clicks: 65, impressions: 1600 }, { month: 'Abr', clicks: 85, impressions: 2000 }, { month: 'Mai', clicks: 70, impressions: 1700 }, { month: 'Jun', clicks: 60, impressions: 1200 } ],
     },
-    // Add more client-specific data as needed
+    'Meta Ads - Catálogo': {
+      platform: 'Meta Ads',
+      kpis: { cost: 'R$1.500,00', clicks: '2.200', impressions: '60.000', ctr: '3,67%', result: '300 Vendas' },
+      chartData: [ { month: 'Jan', clicks: 300, impressions: 9000 }, { month: 'Fev', clicks: 350, impressions: 10000 }, { month: 'Mar', clicks: 400, impressions: 12000 }, { month: 'Abr', clicks: 420, impressions: 13000 }, { month: 'Mai', clicks: 380, impressions: 11000 }, { month: 'Jun', clicks: 350, impressions: 5000 } ],
+    },
+    'Google Ads - Maps': {
+        platform: 'Google Ads',
+        kpis: { cost: 'R$450,00', clicks: '150', impressions: '5.000', ctr: '3,00%', result: '40 Rotas Traçadas' },
+        chartData: [ { month: 'Jan', clicks: 20, impressions: 800 }, { month: 'Fev', clicks: 25, impressions: 1000 }, { month: 'Mar', clicks: 30, impressions: 1200 }, { month: 'Abr', clicks: 28, impressions: 1100 }, { month: 'Mai', clicks: 22, impressions: 900 }, { month: 'Jun', clicks: 25, impressions: 1000 } ],
+    },
+    'Meta Ads - Leads': {
+        platform: 'Meta Ads',
+        kpis: { cost: 'R$2.100,00', clicks: '600', impressions: '35.000', ctr: '1,71%', result: '120 Leads' },
+        chartData: [ { month: 'Jan', clicks: 80, impressions: 5000 }, { month: 'Fev', clicks: 100, impressions: 6000 }, { month: 'Mar', clicks: 110, impressions: 6500 }, { month: 'Abr', clicks: 120, impressions: 7000 }, { month: 'Mai', clicks: 90, impressions: 5500 }, { month: 'Jun', clicks: 100, impressions: 5000 } ],
+    },
+    'Google Ads - Rede de Pesquisa': {
+        platform: 'Google Ads',
+        kpis: { cost: 'R$3.500,00', clicks: '800', impressions: '22.000', ctr: '3,64%', result: '95 Contatos via Site' },
+        chartData: [ { month: 'Jan', clicks: 120, impressions: 3000 }, { month: 'Fev', clicks: 130, impressions: 3500 }, { month: 'Mar', clicks: 150, impressions: 4000 }, { month: 'Abr', clicks: 140, impressions: 4500 }, { month: 'Mai', clicks: 130, impressions: 4000 }, { month: 'Jun', clicks: 130, impressions: 3000 } ],
+    },
+    'Meta Ads - Inscrição': {
+        platform: 'Meta Ads',
+        kpis: { cost: 'R$1.950,00', clicks: '950', impressions: '48.000', ctr: '1,98%', result: '250 Inscrições' },
+        chartData: [ { month: 'Jan', clicks: 150, impressions: 7000 }, { month: 'Fev', clicks: 160, impressions: 8000 }, { month: 'Mar', clicks: 180, impressions: 9000 }, { month: 'Abr', clicks: 170, impressions: 8500 }, { month: 'Mai', clicks: 150, impressions: 8000 }, { month: 'Jun', clicks: 140, impressions: 7500 } ],
+    },
 };
 
 const defaultCampaignData = {
@@ -97,7 +121,7 @@ export default function DashboardPage() {
         )
     }
 
-    const data = campaignDataByClient[client.id] || defaultCampaignData;
+    const data = campaignDataByCampaignName[client.campaign] || defaultCampaignData;
     
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -204,3 +228,5 @@ export default function DashboardPage() {
         </div>
     );
 }
+
+    
