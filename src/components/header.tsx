@@ -1,7 +1,8 @@
 
 import type { ReactNode } from 'react';
-import { Facebook } from 'lucide-react';
+import { Facebook, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from './ui/button';
 
 export function Header({ children }: { children?: ReactNode }) {
   return (
@@ -16,7 +17,13 @@ export function Header({ children }: { children?: ReactNode }) {
               AgênciaDev
             </h1>
           </Link>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
+            <Link href="/reports">
+              <Button variant="ghost">
+                <FileText className="mr-2 h-4 w-4" />
+                Gerar Relatório
+              </Button>
+            </Link>
             {children}
           </div>
         </div>

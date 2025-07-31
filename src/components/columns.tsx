@@ -4,15 +4,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
-import { Badge } from "@/components/badge";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { ClientData } from "@/lib/types";
 
-export interface ClientData {
-  id: string;
-  clientName: string;
-  campaign: string;
-  status: 'Ativa' | 'Pausada' | 'Concluída';
-}
 
 export const columns: ColumnDef<ClientData>[] = [
   {

@@ -18,7 +18,7 @@ import { Download, FileSpreadsheet, FileText, Lightbulb, Loader2 } from "lucide-
 import { exportToCsv, exportToExcel } from "@/lib/export-utils";
 import { suggestExportFormats, type SuggestExportFormatsOutput } from "@/ai/flows/suggest-export-formats";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { ClientData } from "./columns";
+import type { ClientData } from "@/lib/types";
 
 interface ExportDialogProps {
   data: ClientData[];

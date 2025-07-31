@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
-import { type ClientData } from "@/components/columns";
+import { type ClientData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, ArrowRight } from "lucide-react";

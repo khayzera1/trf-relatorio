@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ExportDialog } from "./export-dialog";
-import type { ClientData } from "./columns";
+import type { ClientData } from "@/lib/types";
 
 
 interface DataTableProps<TData, TValue> {
