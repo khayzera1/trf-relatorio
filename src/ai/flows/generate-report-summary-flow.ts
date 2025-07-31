@@ -33,6 +33,7 @@ const KpiCardDataSchema = z.object({
 
 const GenerateReportSummaryOutputSchema = z.object({
   reportTitle: z.string().describe("A concise and descriptive title for the report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas Digitais'."),
+  campaignName: z.string().describe("The name of the campaign, extracted directly from the CSV data."),
   kpiCards: z.array(KpiCardDataSchema).describe("An array of KPI card objects, each representing a key metric from the report."),
 });
 
@@ -46,6 +47,7 @@ export async function generateReportSummary(
   // Ensure the output conforms to ReportData, providing defaults if necessary
   return {
     reportTitle: result.reportTitle || "Relatório de Métricas",
+    campaignName: result.campaignName || "Campanha não identificada",
     kpiCards: result.kpiCards || [],
   };
 }
@@ -61,13 +63,14 @@ const prompt = ai.definePrompt({
     The report should only use information that is present in the CSV.
 
     **Instructions:**
-    1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Identify the key performance indicators (KPIs) and their current values.
-    2.  **Create a Report Title:** Generate a professional and engaging title for the report in Brazilian Portuguese.
-    3.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object.
+    1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
+    2.  **Extract Campaign Name:** The CSV will always contain the campaign name. Identify and extract this name.
+    3.  **Create a Report Title:** Generate a professional and engaging title for the report in Brazilian Portuguese.
+    4.  **Extract KPI Cards:** For each key metric found in the CSV, create a JSON object.
         -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
         -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
         -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
-    4.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
+    5.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
 
     **CSV Data:**
     \`\`\`csv
@@ -78,6 +81,7 @@ const prompt = ai.definePrompt({
     \`\`\`json
     {
       "reportTitle": "Análise de Desempenho de Campanhas Digitais",
+      "campaignName": "Google Ads - Pesquisa Local",
       "kpiCards": [
         {
           "title": "Impressões",
@@ -108,6 +112,7 @@ const generateReportSummaryFlow = ai.defineFlow(
       // Return a default empty structure if the AI fails to generate a valid output
       return {
         reportTitle: "Relatório de Campanha",
+        campaignName: "Não identificada",
         kpiCards: []
       };
     }

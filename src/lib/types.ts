@@ -15,5 +15,6 @@ export interface KpiCardData {
 
 export interface ReportData {
   reportTitle: string;
+  campaignName: string;
   kpiCards: KpiCardData[];
 }

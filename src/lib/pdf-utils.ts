@@ -68,17 +68,23 @@ export function generatePdf(data: ReportData) {
 
     // --- Header com fundo azul ---
     doc.setFillColor(29, 78, 216); // bg-blue-700
-    doc.rect(0, 0, pageWidth, 90, 'F');
+    doc.rect(0, 0, pageWidth, 110, 'F'); // Increased header height
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
     const title = cleanText(data.reportTitle);
-    const titleLines = doc.splitTextToSize(title, pageWidth - margin * 2);
-    doc.text(titleLines, margin, 45);
+    doc.text(title, margin, 45);
+
+    // Campaign Name
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(255, 255, 255);
+    const campaignName = cleanText(data.campaignName) || "Campanha não especificada";
+    doc.text(`Campanha: ${campaignName}`, margin, 75);
 
     // --- Área de conteúdo ---
-    let cursorY = 120;
+    let cursorY = 140; // Adjusted cursor
     
     // Header do Relatório ("Relatório de Desempenho")
     doc.setFontSize(14);
