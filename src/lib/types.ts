@@ -20,5 +20,6 @@ export interface CampaignReportData {
 
 export interface ReportData {
   reportTitle: string;
+  reportPeriod: string;
   campaigns: CampaignReportData[];
 }

@@ -109,7 +109,7 @@ export function generatePdf(data: ReportData) {
 
     // --- Header com fundo azul ---
     doc.setFillColor(29, 78, 216); // bg-blue-700
-    doc.rect(0, 0, pageWidth, 90, 'F');
+    doc.rect(0, 0, pageWidth, 110, 'F');
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
@@ -117,8 +117,16 @@ export function generatePdf(data: ReportData) {
     const title = cleanText(data.reportTitle);
     doc.text(title, margin, 55);
 
+    // Report Period
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(229, 231, 235); // primary-foreground/90
+    const period = cleanText(data.reportPeriod);
+    doc.text(period, margin, 80);
+
+
     // --- Área de conteúdo ---
-    let cursorY = 120;
+    let cursorY = 140;
     
     data.campaigns.forEach((campaign, index) => {
         if (index > 0) {

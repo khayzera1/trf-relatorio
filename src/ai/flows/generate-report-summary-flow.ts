@@ -39,6 +39,7 @@ const CampaignReportSchema = z.object({
 
 const GenerateReportSummaryOutputSchema = z.object({
   reportTitle: z.string().describe("A concise and descriptive title for the consolidated report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas'."),
+  reportPeriod: z.string().describe("The reporting period, extracted from the CSV data. Format it in Brazilian Portuguese like 'De DD/MM/AAAA a DD/MM/AAAA'."),
   campaigns: z.array(CampaignReportSchema).describe("An array of report objects, one for each campaign found in the CSV."),
 });
 
@@ -53,6 +54,7 @@ export async function generateReportSummary(
     // Ensure the output conforms to ReportData, providing defaults if necessary
     return {
       reportTitle: result.reportTitle || "Relatório de Métricas",
+      reportPeriod: result.reportPeriod || "Período não informado",
       campaigns: result.campaigns || [],
     };
   } catch (error) {
@@ -60,6 +62,7 @@ export async function generateReportSummary(
     // Return a default empty structure on error
     return {
       reportTitle: "Erro ao Gerar Relatório",
+      reportPeriod: "",
       campaigns: []
     };
   }
@@ -77,15 +80,16 @@ const prompt = ai.definePrompt({
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
-    2.  **Identify All Campaigns:** The CSV may contain multiple campaigns. Identify each distinct campaign and its associated metrics.
-    3.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
-    4.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
+    2.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
+    3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as a string like "De 01/01/2024 a 31/01/2024". This will be the value for 'reportPeriod'.
+    4.  **Identify All Campaigns:** The CSV may contain multiple campaigns. Identify each distinct campaign and its associated metrics.
+    5.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
         -   **campaignName:** The name of the campaign.
         -   **kpiCards:** An array of relevant KPI objects belonging *only* to that campaign. Extract as many relevant KPIs as you can find, such as "Impressões", "Cliques", "Custo Total", "CTR", "CPC", "Custo por Resultado", and the main "Resultado".
             -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
             -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency). **IMPORTANT: For any value that is a decimal number (like currencies or percentages), round it to a maximum of two decimal places.** For example, R$6,23426966 should be R$6,23 and 1,3159513% should be 1,32%. Whole numbers like "Impressões" should have no decimal places.
             -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
-    5.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
+    6.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
 
     **CSV Data:**
     \`\`\`csv
@@ -96,6 +100,7 @@ const prompt = ai.definePrompt({
     \`\`\`json
     {
       "reportTitle": "Análise de Desempenho das Campanhas",
+      "reportPeriod": "De 01/05/2024 a 31/05/2024",
       "campaigns": [
         {
           "campaignName": "Google Ads - Pesquisa Local",
@@ -134,6 +139,7 @@ const generateReportSummaryFlow = ai.defineFlow(
       // Return a default empty structure if the AI fails to generate a valid output
       return {
         reportTitle: "Relatório de Campanha",
+        reportPeriod: "Período não encontrado",
         campaigns: []
       };
     }

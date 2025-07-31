@@ -4,7 +4,7 @@
 import type { ReportData, KpiCardData, CampaignReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface ReportPreviewProps {
@@ -68,6 +68,10 @@ export function ReportPreview({ data, onGeneratePdf, onCancel }: ReportPreviewPr
             {/* Header Azul */}
             <div className="bg-primary text-primary-foreground p-6 rounded-t-lg -m-8 mb-8">
                 <h2 className="text-2xl font-bold">{data.reportTitle}</h2>
+                <div className="flex items-center gap-2 mt-2 text-primary-foreground/90">
+                  <Calendar className="h-4 w-4" />
+                  <p className="font-medium">{data.reportPeriod}</p>
+                </div>
             </div>
             
             {data.campaigns.length > 0 ? (
