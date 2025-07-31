@@ -4,7 +4,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/badge";
 import Link from "next/link";
 
 export interface ClientData {
