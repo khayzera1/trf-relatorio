@@ -62,7 +62,7 @@ export async function generateReportSummary(
     // Return a default empty structure on error
     return {
       reportTitle: "Erro ao Gerar Relatório",
-      reportPeriod: "",
+      reportPeriod: "Período não encontrado",
       campaigns: []
     };
   }
@@ -81,7 +81,7 @@ const prompt = ai.definePrompt({
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
     2.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
-    3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as a string like "De 01/01/2024 a 31/01/2024". This will be the value for 'reportPeriod'.
+    3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as a string in Brazilian Portuguese like "De DD/MM/AAAA a DD/MM/AAAA". This will be the value for 'reportPeriod'. If you cannot determine the dates, return "Período não encontrado".
     4.  **Identify All Campaigns:** The CSV may contain multiple campaigns. Identify each distinct campaign and its associated metrics.
     5.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
         -   **campaignName:** The name of the campaign.
