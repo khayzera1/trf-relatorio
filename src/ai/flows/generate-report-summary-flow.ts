@@ -83,7 +83,7 @@ const prompt = ai.definePrompt({
         -   **campaignName:** The name of the campaign.
         -   **kpiCards:** An array of relevant KPI objects belonging *only* to that campaign. Extract as many relevant KPIs as you can find, such as "Impressões", "Cliques", "Custo Total", "CTR", "CPC", "Custo por Resultado", and the main "Resultado".
             -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
-            -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency).
+            -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards (e.g., use ',' for decimals and '.' for thousands, include 'R$' for currency). **IMPORTANT: For any value that is a decimal number (like currencies or percentages), round it to a maximum of two decimal places.** For example, R$6,23426966 should be R$6,23 and 1,3159513% should be 1,32%. Whole numbers like "Impressões" should have no decimal places.
             -   **description:** If the metric is "Custo por Resultado", look for the specific type of result in the data (e.g., "Conversa", "Contato no site", "Lead") and add it here. For other metrics, this field should be omitted.
     5.  **Do not include** any data from previous periods, percentage changes, or any text like "no período atual". Only the title, the value, and the optional description.
 
