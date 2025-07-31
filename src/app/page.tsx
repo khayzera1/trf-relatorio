@@ -82,7 +82,7 @@ export default function Home() {
                            <Avatar className="h-12 w-12 text-lg">
                               <AvatarFallback className="bg-primary/20 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
                           </Avatar>
-                          <p className="text-lg font-semibold text-primary-foreground">{client.clientName}</p>
+                          <p className="text-lg font-semibold text-card-foreground">{client.clientName}</p>
                       </div>
                   </CardHeader>
                   <CardContent className="p-4 flex justify-end bg-muted/50">
