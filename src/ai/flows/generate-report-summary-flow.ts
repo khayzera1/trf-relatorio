@@ -19,12 +19,11 @@ const GenerateReportSummaryInputSchema = z.object({
     .describe(
       'A string containing the entire CSV data from a marketing campaign report.'
     ),
-  clientName: z.string().optional().describe('The name of the client for whom the report is generated.'),
 });
 export type GenerateReportSummaryInput = z.infer<typeof GenerateReportSummaryInputSchema>;
 
 const GenerateReportSummaryOutputSchema = z.object({
-  reportTitle: z.string().describe("A concise and descriptive title for the report, including the client's name if available."),
+  reportTitle: z.string().describe("A concise and descriptive title for the report, based on the data provided."),
   executiveSummary: z
     .string()
     .describe(
@@ -46,18 +45,10 @@ const prompt = ai.definePrompt({
   prompt: `
     You are a marketing data analyst expert for a digital marketing agency.
     Your task is to analyze the provided marketing campaign data in CSV format and generate a professional, insightful summary for a client report.
-    {{#if clientName}}
-    The client's name is {{clientName}}.
-    {{/if}}
 
     **Instructions:**
     1.  **Analyze the Data:** Carefully review the following CSV data to understand the campaign's performance. Identify key metrics (like Clicks, Impressions, CTR, Cost, Conversions), trends over time, and any significant patterns.
-    2.  **Create a Report Title:** Generate a clear and professional title for the report.
-        {{#if clientName}}
-        It should be in the format: "Relatório de Desempenho da Campanha - {{clientName}}".
-        {{else}}
-        If no client name is provided, use "Relatório de Desempenho da Campanha".
-        {{/if}}
+    2.  **Create a Report Title:** Generate a clear and professional title for the report, such as "Relatório de Desempenho da Campanha".
     3.  **Write an Executive Summary:** Based on your analysis, write a 2-3 paragraph executive summary. This summary should:
         - Start with a brief overview of the campaign's objective (if inferable).
         - Highlight the most important results and key performance indicators (KPIs).
@@ -83,4 +74,3 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output!;
   }
 );
-

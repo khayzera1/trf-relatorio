@@ -57,8 +57,12 @@ export function CsvUploader() {
 
             try {
                 // 1. Get summary from AI
-                const summary = await generateReportSummary({ csvData: csvText });
+                const summaryResult = await generateReportSummary({ csvData: csvText });
                 
+                // **Robust check for null/undefined values from AI**
+                const reportTitle = summaryResult?.reportTitle ?? "Relatório de Campanha";
+                const executiveSummary = summaryResult?.executiveSummary ?? "O resumo não pôde ser gerado.";
+
                 // 2. Parse CSV for tabling
                 const parseResult = Papa.parse<Record<string, string>>(csvText, {
                     header: true,
@@ -74,8 +78,8 @@ export function CsvUploader() {
                     throw new Error("Não foi possível extrair os cabeçalhos do arquivo CSV.");
                 }
 
-                // 3. Generate PDF with summary
-                await generatePdf(summary.reportTitle, summary.executiveSummary, headers, parseResult.data);
+                // 3. Generate PDF with validated summary
+                await generatePdf(reportTitle, executiveSummary, headers, parseResult.data);
 
                 toast({
                     title: "PDF Gerado com Sucesso!",
