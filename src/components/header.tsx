@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import { FileUp } from 'lucide-react';
 
@@ -11,7 +12,7 @@ export function Header({ children }: { children?: ReactNode }) {
                 <FileUp className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-2xl font-bold font-headline text-foreground">
-              Data Exporter
+              Agência de Marketing
             </h1>
           </div>
           <div className="flex items-center">

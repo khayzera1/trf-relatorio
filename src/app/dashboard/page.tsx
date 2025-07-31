@@ -43,7 +43,7 @@ export default function DashboardPage() {
                 <Link href="/">
                     <Button variant="outline">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para Vendas
+                        Voltar para Clientes
                     </Button>
                 </Link>
             </Header>

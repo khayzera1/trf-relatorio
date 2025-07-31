@@ -1,10 +1,11 @@
+
 "use client";
 
 import * as XLSX from "xlsx";
-import type { SalesData } from "@/components/columns";
+import type { ClientData } from "@/components/columns";
 
 // Function to convert data to CSV format and trigger download
-export function exportToCsv(data: SalesData[], filename: string) {
+export function exportToCsv(data: ClientData[], filename: string) {
   const header = Object.keys(data[0]);
   const csvRows = data.map((row) =>
     header
@@ -28,37 +29,25 @@ export function exportToCsv(data: SalesData[], filename: string) {
 }
 
 // Function to convert data to Excel format and trigger download
-export function exportToExcel(data: SalesData[], filename: string) {
+export function exportToExcel(data: ClientData[], filename: string) {
   const styledData = data.map(item => ({
-    'ID Venda': item.id,
-    'Produto': item.product,
-    'Quantidade': item.quantity,
-    'Valor (R$)': item.amount,
-    'Data': new Date(item.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+    'ID Cliente': item.id,
+    'Cliente': item.clientName,
+    'Campanha': item.campaign,
+    'Status': item.status
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(styledData);
 
   // Set column widths
   worksheet['!cols'] = [
-    { wch: 10 }, // ID Venda
-    { wch: 20 }, // Produto
-    { wch: 12 }, // Quantidade
-    { wch: 15 }, // Valor (R$)
-    { wch: 12 }, // Data
+    { wch: 10 }, // ID Cliente
+    { wch: 30 }, // Cliente
+    { wch: 30 }, // Campanha
+    { wch: 15 }, // Status
   ];
 
-  // Format amount column as currency
-  data.forEach((_, index) => {
-    const cellRef = XLSX.utils.encode_cell({c: 3, r: index + 1});
-    if (worksheet[cellRef]) {
-        worksheet[cellRef].t = 'n';
-        worksheet[cellRef].z = 'R$ #,##0.00';
-    }
-  });
-
-
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Vendas");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Clientes");
   XLSX.writeFile(workbook, filename);
 }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -18,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { SalesData } from "./columns";
+import type { ClientData } from "./columns";
 
 
 interface DataTableProps<TData, TValue> {
@@ -26,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData extends SalesData, TValue>({
+export function DataTable<TData extends ClientData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -92,4 +93,4 @@ export function DataTable<TData extends SalesData, TValue>({
   );
 }
 
-export type { SalesData };
+export type { ClientData };
