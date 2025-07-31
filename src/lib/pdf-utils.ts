@@ -79,14 +79,14 @@ export async function generatePdf(
             fillColor: [214, 89, 52], // Primary color from theme
             textColor: [255, 255, 255],
             fontStyle: 'bold',
-            fontSize: 8, // Smaller font for headers
+            fontSize: 8,
             halign: 'center',
             valign: 'middle',
         },
         styles: {
-            fontSize: 7.5, // Smaller font for cell content
+            fontSize: 8,
             cellPadding: 2,
-            overflow: 'linebreak', // Prevent ugly line breaks
+            overflow: 'linebreak',
             halign: 'center',
             valign: 'middle'
         },
@@ -94,7 +94,24 @@ export async function generatePdf(
             fillColor: [247, 247, 247],
         },
         columnStyles: {
-           // Let autotable handle it, but with smaller fonts it should be better
+            // Force specific widths to prevent bad wrapping
+            0: { cellWidth: 35 }, // Nome da campanha
+            1: { cellWidth: 15 }, // Status
+            2: { cellWidth: 15 }, // Nível de veiculação
+            3: { cellWidth: 15 }, // Valor (BRL)
+            4: { cellWidth: 15 }, // Impressões
+            5: { cellWidth: 15 }, // CPM
+            6: { cellWidth: 15 }, // Alcance
+            7: { cellWidth: 15 }, // Frequência
+            8: { cellWidth: 12 }, // CTR
+            9: { cellWidth: 12 }, // Cliques
+            10: { cellWidth: 12 }, // CPC
+            11: { cellWidth: 25 }, // Atribuição
+            12: { cellWidth: 20 }, // Tipo de resultado
+            13: { cellWidth: 15 }, // Resultados
+            14: { cellWidth: 15 }, // Custo por Resultado
+            15: { cellWidth: 15 }, // Início
+            16: { cellWidth: 15 }, // Término
         },
         margin: { left: margin, right: margin },
         didDrawPage: (data) => {
