@@ -30,13 +30,13 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128); // text-muted-foreground (text-gray-500)
-    doc.text(cleanText(card.title), x + 10, y + 15);
+    doc.text(cleanText(card.title), x + 10, y + 18);
 
     // KPI Value (e.g., "35.671")
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-foreground (text-gray-900)
-    doc.text(cleanText(card.value), x + 10, y + 35);
+    doc.text(cleanText(card.value), x + 10, y + 38);
     
     if (card.description) {
         // KPI Description (e.g., "Conversa no WhatsApp")
@@ -45,7 +45,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
         // Add text wrapping to prevent overflow
         const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20); // -20 for padding
-        doc.text(descriptionLines, x + 10, y + 52);
+        doc.text(descriptionLines, x + 10, y + 55);
     }
 };
 
@@ -63,7 +63,7 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 65;
+    const cardHeight = 70;
     
     let rowIndex = 0;
 
