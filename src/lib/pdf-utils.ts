@@ -43,7 +43,9 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
-        doc.text(cleanText(card.description), x + 10, y + 52);
+        // Add text wrapping to prevent overflow
+        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20); // -20 for padding
+        doc.text(descriptionLines, x + 10, y + 52);
     }
 };
 
