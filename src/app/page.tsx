@@ -74,24 +74,20 @@ export default function Home() {
         </div>
         
         {filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredClients.map((client) => (
               <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary">
-                  <CardHeader className="flex flex-row items-center gap-4 p-4">
-                      <Avatar className="h-12 w-12 text-lg">
+                  <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center">
+                      <Avatar className="h-16 w-16 text-xl">
                           <AvatarFallback className="bg-primary/20 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
                       </Avatar>
                       <p className="text-lg font-semibold text-card-foreground">{client.clientName}</p>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                      <div className="flex justify-end">
-                        <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
-                            <Button variant="ghost" size="sm">
-                                Gerar Relatório
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                      </div>
+                      <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
+                          <Button variant="ghost" size="sm">
+                              Gerar Relatório
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                      </Link>
                   </CardContent>
               </Card>
             ))}
