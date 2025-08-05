@@ -4,27 +4,19 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
-import { type ClientData } from "@/lib/types";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import type { ClientData } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, ArrowRight, Users, Search, Contact } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 
-const getInitials = (name: string) => {
-    const names = name.split(' ');
+const getInitials = (name: string = '') => {
+    const names = name.split(' ').filter(Boolean);
     if (names.length > 1) {
-        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
-};
-
-const getInitialData = (): ClientData[] => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-  const savedData = localStorage.getItem('clientData');
-  return savedData ? JSON.parse(savedData) : [];
 };
 
 export default function Home() {
@@ -32,10 +24,19 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setClients(getInitialData());
+    try {
+      const savedData = localStorage.getItem('clientData');
+      setClients(savedData ? JSON.parse(savedData) : []);
+    } catch (error) {
+      console.error("Failed to parse client data from localStorage", error);
+      setClients([]);
+    }
   }, []);
 
   const filteredClients = useMemo(() => {
+    if (!searchTerm) {
+      return clients;
+    }
     return clients.filter(client => 
       client.clientName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -44,14 +45,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header>
-        <div className="flex items-center gap-4">
-            <Link href="/clients/new">
-                <Button>
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Adicionar Cliente
-                </Button>
-            </Link>
-        </div>
+        <Link href="/clients/new">
+            <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Adicionar Cliente
+            </Button>
+        </Link>
       </Header>
       <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">

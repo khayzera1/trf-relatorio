@@ -2,44 +2,39 @@
 "use client";
 
 import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Import for table functionality
 import type { ReportData, KpiCardData, CampaignReportData } from './types';
 
+// Extend jsPDF with autoTable, if it's not already defined
+interface jsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: any) => jsPDF;
+}
 
 const cleanText = (text: string | undefined | null): string => {
     if (!text) return '';
-    // Removes emojis and other special characters not supported by standard PDF fonts
-    return text.replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
-               .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Symbols & Pictographs
-               .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport & Map Symbols
-               .replace(/[\u{1F700}-\u{1F77F}]/gu, '') // Alchemical Symbols
-               .replace(/[\u{1F780}-\u{1F7FF}]/gu, '') // Geometric Shapes Extended
-               .replace(/[\u{1F800}-\u{1F8FF}]/gu, '') // Supplemental Arrows-C
-               .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // Supplemental Symbols and Pictographs
-               .replace(/[\u{1FA00}-\u{1FA6F}]/gu, '') // Chess Symbols
-               .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // Symbols and Pictographs Extended-A
-               .replace(/[\u{2600}-\u{26FF}]/gu, '')   // Miscellaneous Symbols
-               .replace(/[\u{2700}-\u{27BF}]/gu, '');  // Dingbats
+    // A more robust regex to remove unsupported characters, keeping common text and symbols
+    return text.replace(/[^\p{L}\p{N}\p{P}\p{Z}\p{S}]/gu, '').trim();
 };
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235); // border-gray-200
-    doc.roundedRect(x, y, width, height, 5, 5, 'FD'); // Fill and Draw for border
+    doc.roundedRect(x, y, width, height, 5, 5, 'FD');
     
-    // KPI Title (e.g., "Impressões")
+    // KPI Title
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128); // text-muted-foreground (text-gray-500)
+    doc.setTextColor(107, 114, 128); // text-gray-500
     doc.text(cleanText(card.title), x + 10, y + 18);
 
-    // KPI Value (e.g., "35.671")
+    // KPI Value
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39); // text-foreground (text-gray-900)
+    doc.setTextColor(17, 24, 39); // text-gray-900
     doc.text(cleanText(card.value), x + 10, y + 38);
     
     if (card.description) {
-        doc.setFontSize(10);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
         const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20);
@@ -47,7 +42,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     }
 };
 
-const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
+const drawCampaignSection = (doc: jsPDFWithAutoTable, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
 
     // --- Campaign Name Header ---
@@ -57,37 +52,30 @@ const drawCampaignSection = (doc: jsPDF, campaignData: CampaignReportData, start
     doc.text(cleanText(campaignData.campaignName), margin, cursorY);
     cursorY += 25;
 
-    // --- Grid de KPIs ---
+    // --- KPIs Grid ---
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 70;
     
-    let rowIndex = 0;
-
     campaignData.kpiCards.forEach((card, index) => {
+        const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
-        const currentX = margin + colIndex * (cardWidth + cardGap);
-        let currentY = cursorY + rowIndex * (cardHeight + cardGap);
         
-        if (colIndex === 0 && index > 0) {
-            rowIndex++;
-            currentY = cursorY + rowIndex * (cardHeight + cardGap); 
-        }
+        const currentX = margin + colIndex * (cardWidth + cardGap);
+        const currentY = cursorY + rowIndex * (cardHeight + cardGap);
 
+        // Check if a new page is needed BEFORE drawing the card
         if (currentY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            cursorY = margin; 
-            rowIndex = 0; 
-            currentY = cursorY; // Start at the top for the new row
-            drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
-        } else {
-             drawKpiCard(doc, card, currentX, currentY, cardWidth, cardHeight);
+            cursorY = margin - (rowIndex * (cardHeight + cardGap)); // Adjust cursorY for the new page
         }
+        
+        drawKpiCard(doc, card, currentX, cursorY + rowIndex * (cardHeight + cardGap), cardWidth, cardHeight);
     });
 
     const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
-    return cursorY + totalRows * (cardHeight + cardGap) - cardGap; 
+    return cursorY + totalRows * (cardHeight + cardGap); 
 };
 
 export function generatePdf(data: ReportData, clientName?: string | null) {
@@ -97,51 +85,48 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
         return;
     }
 
-    const doc = new jsPDF({ unit: 'pt' });
-
+    const doc = new jsPDF({ unit: 'pt' }) as jsPDFWithAutoTable;
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
-    let headerCursorY = 45;
+    let cursorY = 0;
 
-    // --- Header com fundo azul ---
+    // --- Header with blue background ---
     doc.setFillColor(29, 78, 216); // bg-blue-700
     doc.rect(0, 0, pageWidth, 120, 'F');
     
-    // Client Name
+    cursorY = 45;
+
     if (clientName) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(255, 255, 255);
-        doc.text(`Cliente: ${cleanText(clientName)}`, margin, headerCursorY);
-        headerCursorY += 25;
+        doc.text(`Cliente: ${cleanText(clientName)}`, margin, cursorY);
+        cursorY += 25;
     }
 
-    // Report Title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
-    const title = cleanText(data.reportTitle);
-    doc.text(title, margin, headerCursorY);
-    headerCursorY += 25;
+    doc.text(cleanText(data.reportTitle), margin, cursorY);
+    cursorY += 25;
 
-
-    // Report Period
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(229, 231, 235); // primary-foreground/90
-    const period = cleanText(data.reportPeriod);
-    doc.text(period, margin, headerCursorY);
+    doc.text(cleanText(data.reportPeriod), margin, cursorY);
 
-
-    // --- Área de conteúdo ---
+    // --- Content Area ---
     let contentCursorY = 150;
     
     data.campaigns.forEach((campaign, index) => {
-        if (contentCursorY + 120 > doc.internal.pageSize.getHeight() - margin) { 
+        const sectionHeightEstimate = 120 + Math.ceil(campaign.kpiCards.length / 4) * 85;
+
+        if (contentCursorY + sectionHeightEstimate > pageHeight - margin) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
-           contentCursorY += 20;
+           contentCursorY += 40; // Space between campaigns
         }
         
         contentCursorY = drawCampaignSection(doc, campaign, contentCursorY, pageWidth, margin);

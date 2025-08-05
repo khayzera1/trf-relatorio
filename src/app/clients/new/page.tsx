@@ -21,7 +21,6 @@ import Link from "next/link";
 import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import type { ClientData } from "@/lib/types";
 
 const formSchema = z.object({
@@ -35,7 +34,6 @@ export type NewClientFormData = z.infer<typeof formSchema>;
 export default function NewClientPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<NewClientFormData>({
         resolver: zodResolver(formSchema),
@@ -44,27 +42,32 @@ export default function NewClientPage() {
         },
     });
 
+    const { formState: { isSubmitting } } = form;
+
     async function onSubmit(values: NewClientFormData) {
-        setIsSubmitting(true);
+        try {
+            const newClient: ClientData = {
+              id: `CLI${Date.now()}`, 
+              ...values,
+            };
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const newClient: ClientData = {
-          id: `CLI${Date.now()}`, 
-          ...values,
-        };
+            const existingData = JSON.parse(localStorage.getItem('clientData') || '[]');
+            localStorage.setItem('clientData', JSON.stringify([...existingData, newClient]));
 
-        const existingData = JSON.parse(localStorage.getItem('clientData') || '[]');
-        localStorage.setItem('clientData', JSON.stringify([...existingData, newClient]));
+            toast({
+                title: "Cliente Cadastrado com Sucesso!",
+                description: `O cliente ${values.clientName} foi adicionado.`,
+            });
 
-        toast({
-            title: "Cliente Cadastrado com Sucesso!",
-            description: `O cliente ${values.clientName} foi adicionado.`,
-        });
-
-        router.push("/");
-        
-        setTimeout(() => setIsSubmitting(false), 300);
+            router.push("/");
+        } catch (error) {
+            console.error("Failed to save client:", error);
+            toast({
+                variant: "destructive",
+                title: "Erro ao Salvar",
+                description: "Não foi possível cadastrar o cliente. Tente novamente.",
+            });
+        }
     }
 
     return (
