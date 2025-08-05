@@ -66,7 +66,8 @@ function ReportsPageContent() {
                     <Link href="/">
                         <Button variant="outline" disabled>
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            Voltar para Clientes
+                            <span className="hidden sm:inline">Voltar para Clientes</span>
+                            <span className="inline sm:hidden">Voltar</span>
                         </Button>
                     </Link>
                 </Header>
@@ -85,7 +86,8 @@ function ReportsPageContent() {
                 <Link href="/">
                     <Button variant="outline">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para Clientes
+                        <span className="hidden sm:inline">Voltar para Clientes</span>
+                        <span className="inline sm:hidden">Voltar</span>
                     </Button>
                 </Link>
             </Header>
