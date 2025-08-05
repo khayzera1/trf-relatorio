@@ -6,10 +6,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { FileText, Download, X, Tag, Calendar, User, BarChart2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { generatePdf } from "@/lib/pdf-utils";
 
 interface ReportPreviewProps {
   data: ReportData;
-  onGeneratePdf: () => void;
   onCancel: () => void;
   clientName?: string | null;
 }
@@ -44,7 +44,14 @@ const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData })
     );
 };
 
-export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: ReportPreviewProps) {
+export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps) {
+  
+  const handleGeneratePdf = () => {
+    if (data) {
+        generatePdf(data, clientName);
+    }
+  };
+
   return (
     <Card className="shadow-lg animate-fade-in">
       <CardHeader>
@@ -96,7 +103,7 @@ export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: Rep
       </CardContent>
       <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
-        <Button onClick={onGeneratePdf} disabled={data.campaigns.length === 0} className="w-full sm:w-auto">
+        <Button onClick={handleGeneratePdf} disabled={data.campaigns.length === 0} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>
