@@ -4,7 +4,7 @@
 import type { ReportData, KpiCardData, CampaignReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar, User, BarChart2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface ReportPreviewProps {
@@ -16,7 +16,7 @@ interface ReportPreviewProps {
 
 const KpiCard = ({ card }: { card: KpiCardData }) => {
     return (
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
+        <div className="bg-card p-4 rounded-lg shadow-sm border border-border flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-primary/50">
             <div>
                 <p className="text-sm text-muted-foreground break-words">{card.title}</p>
                 <p className="text-2xl font-bold text-foreground my-2 break-words">{card.value}</p>
@@ -46,7 +46,7 @@ const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData })
 
 export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: ReportPreviewProps) {
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg animate-fade-in">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
@@ -58,16 +58,15 @@ export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: Rep
                     Revise os dados extraídos pela IA. Se tudo estiver correto, clique em "Gerar PDF".
                 </CardDescription>
             </div>
-            <Button variant="ghost" size="icon" onClick={onCancel}>
+            <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancelar">
                 <X className="h-5 w-5" />
             </Button>
         </div>
       </CardHeader>
       <CardContent>
         <Separator className="my-4" />
-        <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg border mt-6" id="pdf-content">
-            {/* Header Azul */}
-            <div className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg">
+        <div className="p-4 sm:p-6 lg:p-8 bg-muted/30 rounded-lg border" id="pdf-content">
+            <div className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg shadow-md">
                 {clientName && (
                   <div className="flex items-center gap-2 mb-3 text-primary-foreground/90">
                     <User className="h-4 w-4 flex-shrink-0" />
@@ -81,13 +80,16 @@ export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: Rep
                 </div>
             </div>
             
-            <div className="pt-8">
+            <div className="bg-card p-6 rounded-b-lg">
               {data.campaigns.length > 0 ? (
                   data.campaigns.map((campaign, index) => (
                      <CampaignSection key={index} campaignData={campaign} />
                   ))
               ) : (
-                  <p className="text-muted-foreground text-center py-8">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
+                  <div className="text-center py-8">
+                    <BarChart2 className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <p className="mt-4 text-muted-foreground">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
+                  </div>
               )}
             </div>
         </div>

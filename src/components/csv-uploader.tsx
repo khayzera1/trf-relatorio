@@ -14,12 +14,13 @@ import { FileText } from "lucide-react";
 
 interface CsvUploaderProps {
     onReportGenerated: (data: ReportData) => void;
+    onGenerating: () => void;
     clientName?: string | null;
 }
 
-export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps) {
+export function CsvUploader({ onReportGenerated, onGenerating, clientName }: CsvUploaderProps) {
     const [file, setFile] = useState<File | null>(null);
-    const [isGenerating, setIsGenerating] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -48,14 +49,16 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
             return;
         }
 
-        setIsGenerating(true);
+        setIsLoading(true);
+        onGenerating(); 
+
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             const csvText = e.target?.result as string;
             if (!csvText) {
                 toast({ variant: "destructive", title: "Erro", description: "Não foi possível ler o arquivo." });
-                setIsGenerating(false);
+                setIsLoading(false);
                 return;
             }
 
@@ -70,7 +73,7 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
                     description: `Falha na comunicação com a IA: ${errorMessage}`,
                 });
             } finally {
-                setIsGenerating(false);
+                setIsLoading(false);
             }
         };
 
@@ -80,7 +83,7 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
                 title: "Erro ao ler o arquivo",
                 description: "Não foi possível processar o arquivo selecionado.",
             });
-            setIsGenerating(false);
+            setIsLoading(false);
         };
 
         reader.readAsText(file);
@@ -143,8 +146,8 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
                             )}
                         </div>
 
-                        <Button onClick={handleGeneratePreview} disabled={!file || isGenerating} className="w-full text-base py-6">
-                            {isGenerating ? (
+                        <Button onClick={handleGeneratePreview} disabled={!file || isLoading} className="w-full text-base py-6">
+                            {isLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Analisando e Gerando...
