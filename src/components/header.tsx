@@ -1,5 +1,6 @@
 
 import type { ReactNode } from 'react';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header({ children }: { children?: ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export function Header({ children }: { children?: ReactNode }) {
         <div className="flex items-center justify-end h-20">
           <div className="flex items-center gap-4">
             {children}
+            <ThemeToggle />
           </div>
         </div>
       </div>

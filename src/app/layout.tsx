@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
 import Loading from './loading';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,12 +20,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={inter.className}>
+    <html lang="pt-BR" className={inter.className} suppressHydrationWarning>
       <body className="antialiased">
-        <Suspense fallback={<Loading />}>
-            {children}
-        </Suspense>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={<Loading />}>
+              {children}
+          </Suspense>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
