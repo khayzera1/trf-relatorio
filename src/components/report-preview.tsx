@@ -18,10 +18,10 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
     return (
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between">
             <div>
-                <p className="text-sm text-muted-foreground">{card.title}</p>
-                <p className="text-2xl font-bold text-foreground my-2">{card.value}</p>
+                <p className="text-sm text-muted-foreground break-words">{card.title}</p>
+                <p className="text-2xl font-bold text-foreground my-2 break-words">{card.value}</p>
                 {card.description && (
-                    <p className="text-sm font-semibold text-primary">{card.description}</p>
+                    <p className="text-sm font-semibold text-primary break-words">{card.description}</p>
                 )}
             </div>
         </div>
@@ -32,10 +32,10 @@ const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData })
     return (
         <div className="mb-10">
             <div className="flex items-center gap-3 mb-4">
-                <Tag className="h-5 w-5 text-primary" />
-                <h3 className="text-xl font-semibold text-foreground">{campaignData.campaignName}</h3>
+                <Tag className="h-5 w-5 text-primary flex-shrink-0" />
+                <h3 className="text-xl font-semibold text-foreground break-words">{campaignData.campaignName}</h3>
             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {campaignData.kpiCards.map((card, index) => (
                     <KpiCard key={index} card={card} />
                 ))}
@@ -48,13 +48,13 @@ export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: Rep
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <div className="flex justify-between items-start">
-            <div>
+        <div className="flex justify-between items-start gap-4">
+            <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                    <FileText className="h-6 w-6 text-primary"/>
-                    <CardTitle className="text-2xl font-headline">Pré-visualização do Relatório</CardTitle>
+                    <FileText className="h-6 w-6 text-primary flex-shrink-0"/>
+                    <CardTitle className="text-2xl font-headline break-words">Pré-visualização do Relatório</CardTitle>
                 </div>
-                <CardDescription>
+                <CardDescription className="break-words">
                     Revise os dados extraídos pela IA. Se tudo estiver correto, clique em "Gerar PDF".
                 </CardDescription>
             </div>
@@ -65,34 +65,36 @@ export function ReportPreview({ data, onGeneratePdf, onCancel, clientName }: Rep
       </CardHeader>
       <CardContent>
         <Separator className="my-4" />
-        <div className="p-8 bg-gray-50 rounded-lg border mt-6" id="pdf-content">
+        <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg border mt-6" id="pdf-content">
             {/* Header Azul */}
-            <div className="bg-primary text-primary-foreground p-6 rounded-t-lg -m-8 mb-8">
+            <div className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg">
                 {clientName && (
                   <div className="flex items-center gap-2 mb-3 text-primary-foreground/90">
-                    <User className="h-4 w-4" />
-                    <p className="font-semibold text-lg">{clientName}</p>
+                    <User className="h-4 w-4 flex-shrink-0" />
+                    <p className="font-semibold text-lg break-words">{clientName}</p>
                   </div>
                 )}
-                <h2 className="text-2xl font-bold">{data.reportTitle}</h2>
+                <h2 className="text-2xl font-bold break-words">{data.reportTitle}</h2>
                 <div className="flex items-center gap-2 mt-2 text-primary-foreground/90">
-                  <Calendar className="h-4 w-4" />
-                  <p className="font-medium">{data.reportPeriod}</p>
+                  <Calendar className="h-4 w-4 flex-shrink-0" />
+                  <p className="font-medium break-words">{data.reportPeriod}</p>
                 </div>
             </div>
             
-            {data.campaigns.length > 0 ? (
-                data.campaigns.map((campaign, index) => (
-                   <CampaignSection key={index} campaignData={campaign} />
-                ))
-            ) : (
-                <p className="text-muted-foreground text-center py-8">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
-            )}
+            <div className="pt-8">
+              {data.campaigns.length > 0 ? (
+                  data.campaigns.map((campaign, index) => (
+                     <CampaignSection key={index} campaignData={campaign} />
+                  ))
+              ) : (
+                  <p className="text-muted-foreground text-center py-8">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
+              )}
+            </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-4">
-        <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button onClick={onGeneratePdf} disabled={data.campaigns.length === 0}>
+      <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
+        <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
+        <Button onClick={onGeneratePdf} disabled={data.campaigns.length === 0} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>

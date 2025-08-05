@@ -76,7 +76,8 @@ export default function NewClientPage() {
                 <Link href="/">
                     <Button variant="outline">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para Clientes
+                        <span className="hidden sm:inline">Voltar para Clientes</span>
+                        <span className="inline sm:hidden">Voltar</span>
                     </Button>
                 </Link>
             </Header>
@@ -109,11 +110,11 @@ export default function NewClientPage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <div className="flex justify-end gap-4 pt-4">
-                                        <Button type="button" variant="ghost" onClick={() => router.push('/')} disabled={isSubmitting}>
+                                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 pt-4">
+                                        <Button type="button" variant="ghost" onClick={() => router.push('/')} disabled={isSubmitting} className="w-full sm:w-auto">
                                             Cancelar
                                         </Button>
-                                        <Button type="submit" disabled={isSubmitting}>
+                                        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                             Salvar Cliente
                                         </Button>

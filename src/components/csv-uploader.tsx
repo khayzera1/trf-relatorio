@@ -96,10 +96,10 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
             <Card className="shadow-lg border-primary/10">
                 <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                        <FileText className="h-6 w-6 text-primary"/>
+                        <FileText className="h-6 w-6 text-primary flex-shrink-0"/>
                         <CardTitle className="text-2xl">Gerador de Relatório PDF</CardTitle>
                     </div>
-                    <CardDescription>
+                    <CardDescription className="break-words">
                         {clientName ? `Gerando relatório para o cliente: ` : `Envie um arquivo CSV para gerar um relatório de KPIs.`}
                          {clientName && <span className="font-bold text-primary">{clientName}</span>}
                     </CardDescription>
@@ -115,7 +115,7 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
                         </Alert>
 
                         <div 
-                            className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-8 w-full flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent transition-colors"
+                            className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 sm:p-8 w-full flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent transition-colors"
                             onClick={triggerFileSelect}
                             onDrop={(e) => { e.preventDefault(); handleFileChange({ target: { files: e.dataTransfer.files } } as ChangeEvent<HTMLInputElement>); }}
                             onDragOver={(e) => e.preventDefault()}
@@ -137,13 +137,13 @@ export function CsvUploader({ onReportGenerated, clientName }: CsvUploaderProps)
                             ) : (
                                 <>
                                     <FileCheck className="h-12 w-12 text-primary" />
-                                    <p className="mt-4 text-lg font-semibold">Arquivo Selecionado</p>
-                                    <p className="text-sm text-muted-foreground">{file.name}</p>
+                                    <p className="mt-4 text-lg font-semibold break-all px-2">Arquivo Selecionado</p>
+                                    <p className="text-sm text-muted-foreground break-all px-2">{file.name}</p>
                                 </>
                             )}
                         </div>
 
-                        <Button onClick={handleGeneratePreview} disabled={!file || isGenerating} className="w-full">
+                        <Button onClick={handleGeneratePreview} disabled={!file || isGenerating} className="w-full text-base py-6">
                             {isGenerating ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

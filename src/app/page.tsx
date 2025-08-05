@@ -53,7 +53,7 @@ export default function Home() {
         </Link>
       </Header>
       <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div className="flex items-center gap-3">
             <Contact className="h-8 w-8 text-primary" />
             <div>
@@ -61,7 +61,7 @@ export default function Home() {
               <p className="text-muted-foreground">Gerencie seus clientes e gere relatórios.</p>
             </div>
           </div>
-          <div className="relative w-full max-w-sm">
+          <div className="relative w-full sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
               placeholder="Buscar cliente..." 
@@ -92,11 +92,11 @@ export default function Home() {
             ))}
           </div>
         ) : (
-            <div className="text-center py-20 border-2 border-dashed rounded-lg bg-card mt-10">
+            <div className="text-center py-12 sm:py-20 border-2 border-dashed rounded-lg bg-card mt-10 px-4">
                 <Users className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-medium text-foreground">Nenhum cliente encontrado</h3>
-                <p className="mt-2 text-md text-muted-foreground">
-                    {clients.length > 0 ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente."}
+                <p className="mt-2 text-md text-muted-foreground max-w-md mx-auto">
+                    {clients.length > 0 ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente para visualizar aqui."}
                 </p>
                 {clients.length === 0 && (
                   <div className="mt-8">
