@@ -85,9 +85,7 @@
     background-attachment: fixed;
   }
   .dark body {
-     background-image: radial-gradient(circle at 20% 25%, hsl(222 84% 10% / 0.3), transparent 40%),
-                      radial-gradient(circle at 80% 75%, hsl(217 91% 60% / 0.2), transparent 40%),
-                      url('https://placehold.co/1920x1080/0a192f/0a192f.png');
+     background-image: url('https://placehold.co/1920x1080/0a192f/0a192f.png');
      background-blend-mode: screen;
   }
 }

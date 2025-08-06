@@ -143,110 +143,113 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen text-foreground">
-       <Header>
-        <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar cliente..." 
-                className="pl-10 bg-black/20"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+       <Header/>
+      <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-[calc(100vh-64px)]">
+        <div className="w-full max-w-5xl">
+            <div className="glass-card p-6 mb-8">
+                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="flex items-center gap-4">
+                        <Contact className="h-8 w-8 text-primary" />
+                        <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Feed de Clientes</h1>
+                        <p className="text-muted-foreground">Gerencie seus clientes e gere relatórios.</p>
+                        </div>
+                    </div>
+                    <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
+                        <div className="relative w-full">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input 
+                            placeholder="Buscar cliente..." 
+                            className="pl-10 bg-transparent"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        </div>
+                        <Link href="/clients/new">
+                            <Button className="flex-shrink-0">
+                                <UserPlus className="mr-2 h-4 w-4" />
+                                Adicionar
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
             </div>
-            <Link href="/clients/new">
-                <Button className="flex-shrink-0">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Adicionar
-                </Button>
-            </Link>
-        </div>
-      </Header>
-      <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
-          <div className="flex items-center gap-3">
-            <Contact className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Feed de Clientes</h1>
-              <p className="text-muted-foreground">Gerencie seus clientes e gere relatórios.</p>
-            </div>
-          </div>
-        </div>
-        
-        {filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredClients.map((client, index) => (
-              <Card key={client.id} className="glass-card overflow-hidden flex flex-col animate-fade-in transition-all duration-300 hover:border-white/30 hover:scale-105" style={{ animationDelay: `${index * 100}ms`}}>
-                  <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
-                      <Avatar className="h-16 w-16 text-xl">
-                          <AvatarFallback className="bg-primary/10 text-primary font-bold border-2 border-primary/50">{getInitials(client.clientName)}</AvatarFallback>
-                      </Avatar>
-                      <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
-                      <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
-                          <Button variant="ghost" size="sm">
-                              Gerar Relatório
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                      </Link>
-                  </CardContent>
-                  <CardFooter className="bg-black/20 p-2 flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                      onClick={() => {
-                        setClientToEdit(client);
-                        setNewClientName(client.clientName);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Editar Cliente</span>
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Apagar Cliente</span>
+            
+            {filteredClients.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredClients.map((client, index) => (
+                <Card key={client.id} className="glass-card overflow-hidden flex flex-col animate-fade-in transition-all duration-300 hover:border-white/30 hover:scale-105" style={{ animationDelay: `${index * 100}ms`}}>
+                    <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
+                        <Avatar className="h-16 w-16 text-xl">
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold border-2 border-primary/50">{getInitials(client.clientName)}</AvatarFallback>
+                        </Avatar>
+                        <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
+                        <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
+                            <Button variant="ghost" size="sm">
+                                Gerar Relatório
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
+                    </CardContent>
+                    <CardFooter className="bg-black/20 p-2 flex justify-end gap-2">
+                        <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={() => {
+                            setClientToEdit(client);
+                            setNewClientName(client.clientName);
+                        }}
+                        >
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Editar Cliente</span>
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="glass-card">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Essa ação não pode ser desfeita. Isso irá apagar permanentemente o cliente <span className="font-bold">{client.clientName}</span> e todos os seus dados associados.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
-                            Sim, apagar cliente
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-            <div className="text-center py-12 sm:py-20 border-2 border-dashed rounded-lg bg-card/50 mt-10 px-4">
-                <Users className="mx-auto h-16 w-16 text-muted-foreground" />
-                <h3 className="mt-4 text-xl font-medium text-foreground">Nenhum cliente encontrado</h3>
-                <p className="mt-2 text-md text-muted-foreground max-w-md mx-auto">
-                    {hasClients ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente para visualizar aqui."}
-                </p>
-                {!hasClients && (
-                  <div className="mt-8">
-                       <Link href="/clients/new">
-                          <Button size="lg">
-                              <UserPlus className="mr-2 h-5 w-5" />
-                              Adicionar Primeiro Cliente
-                          </Button>
-                      </Link>
-                  </div>
-                )}
+                        <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Apagar Cliente</span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="glass-card">
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Essa ação não pode ser desfeita. Isso irá apagar permanentemente o cliente <span className="font-bold">{client.clientName}</span> e todos os seus dados associados.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
+                                Sim, apagar cliente
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                        </AlertDialog>
+                    </CardFooter>
+                </Card>
+                ))}
             </div>
-        )}
+            ) : (
+                <div className="text-center py-12 sm:py-20 border-2 border-dashed rounded-2xl glass-card mt-10 px-4">
+                    <Users className="mx-auto h-16 w-16 text-muted-foreground" />
+                    <h3 className="mt-4 text-xl font-medium text-foreground">Nenhum cliente encontrado</h3>
+                    <p className="mt-2 text-md text-muted-foreground max-w-md mx-auto">
+                        {hasClients ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente para visualizar aqui."}
+                    </p>
+                    {!hasClients && (
+                    <div className="mt-8">
+                        <Link href="/clients/new">
+                            <Button size="lg">
+                                <UserPlus className="mr-2 h-5 w-5" />
+                                Adicionar Primeiro Cliente
+                            </Button>
+                        </Link>
+                    </div>
+                    )}
+                </div>
+            )}
+        </div>
       </main>
 
       {/* Edit Client Dialog */}

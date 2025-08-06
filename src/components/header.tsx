@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { ThemeToggle } from './theme-toggle';
 import { useAuth } from '@/context/auth-context';
 import { Button } from './ui/button';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from './ui/avatar';
+import Link from 'next/link';
 
 
 export function Header({ children }: { children?: ReactNode }) {
@@ -36,9 +37,10 @@ export function Header({ children }: { children?: ReactNode }) {
     <header className="glass-header sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-4">
-            {/* Logo or App Name can go here */}
-          </div>
+          <Link href="/" className="flex items-center gap-2 text-foreground">
+            <BarChart3 className="h-6 w-6 text-primary" />
+            <span className="text-lg font-bold">Painel de Relatórios</span>
+          </Link>
           <div className="flex items-center gap-4">
             {children}
             {user && (
