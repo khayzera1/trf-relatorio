@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label as UiLabel } from '../ui/label';
-import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft, Check, Paperclip, Link as LinkIcon, Upload, Loader2 } from 'lucide-react';
+import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft, Check, Paperclip, Link as LinkIcon, Upload, Loader2, FileText } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { v4 as uuidv4 } from 'uuid';
 import { Progress } from '../ui/progress';
@@ -17,6 +17,7 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { storage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 const labelColorOptions = [
     'bg-blue-500', 'bg-purple-500', 'bg-red-500', 'bg-green-500', 
