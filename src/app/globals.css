@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* Sophisticated dark theme with purple and pink accents */
+    /* Sophisticated dark theme with purple and cyan accents */
     --background: 240 10% 4%; /* Near-black, deep blue */
     --foreground: 210 40% 98%;
 
@@ -27,8 +27,8 @@
     --muted: 240 10% 15%;
     --muted-foreground: 215 20% 65%;
 
-    /* A vibrant pink/magenta for accents */
-    --accent: 330 80% 55%;
+    /* A cool, complementary cyan for accents */
+    --accent: 180 80% 45%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
@@ -41,10 +41,10 @@
     
     /* Chart colors with new theme */
     --chart-1: 260 80% 60%;   /* Purple */
-    --chart-2: 330 80% 55%;   /* Pink/Magenta */
-    --chart-3: 180 80% 45%;   /* Cyan (as a tertiary option) */
-    --chart-4: 43 74% 66%;    /* Yellow */
-    --chart-5: 27 87% 67%;    /* Orange */
+    --chart-2: 180 80% 45%;   /* Cyan */
+    --chart-3: 43 74% 66%;    /* Yellow */
+    --chart-4: 27 87% 67%;    /* Orange */
+    --chart-5: 0 84.2% 60.2%; /* Red */
     
     --radius: 0.75rem;
   }
@@ -60,7 +60,7 @@
 }
 
 @layer components {
-  /* A clean, dark card style */
+  /* A clean, dark card style with a glass effect */
   .glass-card {
     background-color: hsl(var(--card) / 0.8);
     @apply border border-white/10 rounded-2xl shadow-xl shadow-black/20 backdrop-blur-xl;
@@ -78,7 +78,7 @@
       radial-gradient(circle at 10% 20%, hsl(var(--primary) / 0.25), transparent 30%),
       radial-gradient(circle at 80% 30%, hsl(var(--accent) / 0.25), transparent 30%),
       radial-gradient(circle at 25% 80%, hsl(var(--primary) / 0.2), transparent 40%),
-      radial-gradient(circle at 90% 85%, hsl(var(--chart-3) / 0.2), transparent 40%);
+      radial-gradient(circle at 90% 85%, hsl(var(--accent) / 0.2), transparent 40%);
     background-size: 200% 200%;
     animation: particle-flow 40s ease-in-out infinite;
   }
