@@ -12,7 +12,7 @@ interface KanbanCardProps {
 
 export function KanbanCard({ task }: KanbanCardProps) {
     return (
-        <Card className="glass-card bg-card/70 mb-4 p-4 rounded-lg shadow-sm hover:border-primary/20 transition-all cursor-grab">
+        <Card className="glass-card bg-card/70 mb-4 p-4 rounded-xl shadow-md hover:border-primary/20 transition-all">
             <CardContent className="p-0">
                 <div className="flex justify-between items-start mb-2">
                     <p className="font-semibold text-base text-card-foreground break-words">{task.title}</p>
