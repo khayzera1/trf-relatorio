@@ -10,13 +10,16 @@ export interface KpiCardData {
   description?: string;
 }
 
-export interface CampaignReportData {
-  campaignName: string;
+export interface CategoryReportData {
+  categoryName: string;
+  totalInvestment: string;
   kpiCards: KpiCardData[];
 }
 
 export interface ReportData {
   reportTitle: string;
   reportPeriod: string;
-  campaigns: CampaignReportData[];
+  categories: CategoryReportData[];
 }
+
+    

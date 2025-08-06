@@ -1,10 +1,10 @@
 
 "use client";
 
-import type { ReportData, KpiCardData, CampaignReportData } from "@/lib/types";
+import type { ReportData, KpiCardData, CategoryReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User, BarChart2 } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { generatePdf } from "@/lib/pdf-utils";
 
@@ -28,15 +28,22 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
     );
 };
 
-const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData }) => {
+const CategorySection = ({ categoryData }: { categoryData: CategoryReportData }) => {
     return (
         <div className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
-                <Tag className="h-5 w-5 text-primary flex-shrink-0" />
-                <h3 className="text-xl font-semibold text-foreground break-words">{campaignData.campaignName}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                    <Tag className="h-5 w-5 text-primary flex-shrink-0" />
+                    <h3 className="text-xl font-semibold text-foreground break-words">{categoryData.categoryName}</h3>
+                </div>
+                <div className="flex items-center gap-2 text-md font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-md">
+                   <DollarSign className="h-4 w-4 text-muted-foreground"/>
+                   <span>Investimento Total:</span>
+                   <span className="text-primary">{categoryData.totalInvestment}</span>
+                </div>
             </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {campaignData.kpiCards.map((card, index) => (
+                {categoryData.kpiCards.map((card, index) => (
                     <KpiCard key={index} card={card} />
                 ))}
             </div>
@@ -62,7 +69,7 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
                     <CardTitle className="text-2xl font-headline break-words">Pré-visualização do Relatório</CardTitle>
                 </div>
                 <CardDescription className="break-words">
-                    Revise os dados extraídos pela IA. Se tudo estiver correto, clique em "Gerar PDF".
+                    Revise os dados extraídos e agrupados pela IA. Se tudo estiver correto, clique em "Gerar PDF".
                 </CardDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancelar">
@@ -88,9 +95,9 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
             </div>
             
             <div className="bg-card p-6 rounded-b-lg">
-              {data.campaigns.length > 0 ? (
-                  data.campaigns.map((campaign, index) => (
-                     <CampaignSection key={index} campaignData={campaign} />
+              {data.categories && data.categories.length > 0 ? (
+                  data.categories.map((category, index) => (
+                     <CategorySection key={index} categoryData={category} />
                   ))
               ) : (
                   <div className="text-center py-8">
@@ -103,7 +110,7 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
       </CardContent>
       <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
-        <Button onClick={handleGeneratePdf} disabled={data.campaigns.length === 0} className="w-full sm:w-auto">
+        <Button onClick={handleGeneratePdf} disabled={!data.categories || data.categories.length === 0} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>
@@ -111,3 +118,5 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
     </Card>
   );
 }
+
+    

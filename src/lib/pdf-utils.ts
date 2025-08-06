@@ -3,7 +3,7 @@
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // Import for table functionality
-import type { ReportData, KpiCardData, CampaignReportData } from './types';
+import type { ReportData, KpiCardData, CategoryReportData } from './types';
 
 // Extend jsPDF with autoTable, if it's not already defined
 interface jsPDFWithAutoTable extends jsPDF {
@@ -43,15 +43,23 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     }
 };
 
-const drawCampaignSection = (doc: jsPDFWithAutoTable, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
+const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
 
-    // --- Campaign Name Header ---
+    // --- Category Name & Investment Header ---
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-gray-900
-    doc.text(cleanText(campaignData.campaignName), margin, cursorY);
-    cursorY += 25;
+    doc.text(cleanText(categoryData.categoryName), margin, cursorY);
+    
+    const investmentText = `Investimento Total: ${cleanText(categoryData.totalInvestment)}`;
+    const investmentTextWidth = doc.getTextWidth(investmentText);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(55, 65, 81); // text-gray-600
+    doc.text(investmentText, pageWidth - margin - investmentTextWidth, cursorY);
+
+    cursorY += 35; // increased space after header
 
     // --- KPIs Grid ---
     const cardsPerRow = 4;
@@ -61,33 +69,34 @@ const drawCampaignSection = (doc: jsPDFWithAutoTable, campaignData: CampaignRepo
     
     let currentY = cursorY;
 
-    campaignData.kpiCards.forEach((card, index) => {
+    categoryData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
         
-        const cardX = margin + colIndex * (cardWidth + cardGap);
-        const cardY = cursorY + rowIndex * (cardHeight + cardGap);
+        let cardX = margin + colIndex * (cardWidth + cardGap);
+        let cardY = cursorY + rowIndex * (cardHeight + cardGap);
 
         // Check if a new page is needed BEFORE drawing the card
         if (cardY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            // Reset cursorY for the new page, considering we are in a new row
-            cursorY = margin - (rowIndex * (cardHeight + cardGap));
+            // Reset cursorY for the new page
+            cursorY = margin - (rowIndex * (cardHeight + cardGap)); 
+            currentY = margin;
         }
         
         // Recalculate cardY after potential page break
-        const finalCardY = cursorY + rowIndex * (cardHeight + cardGap);
-        drawKpiCard(doc, card, cardX, finalCardY, cardWidth, cardHeight);
+        cardY = cursorY + rowIndex * (cardHeight + cardGap);
+        drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
     });
 
-    const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
+    const totalRows = Math.ceil(categoryData.kpiCards.length / cardsPerRow);
     // Return the Y position after the last row of cards
     return cursorY + totalRows * (cardHeight + cardGap);
 };
 
 
 export function generatePdf(data: ReportData, clientName?: string | null) {
-    if (!data || !data.reportTitle || !data.campaigns) {
+    if (!data || !data.reportTitle || !data.categories) {
         console.error("Invalid data provided to generatePdf");
         alert("Não foi possível gerar o PDF. Dados inválidos ou ausentes.");
         return;
@@ -127,19 +136,21 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     // --- Content Area ---
     let contentCursorY = 150;
     
-    data.campaigns.forEach((campaign, index) => {
-        const sectionHeightEstimate = 120 + Math.ceil(campaign.kpiCards.length / 4) * 85;
+    data.categories.forEach((category, index) => {
+        const sectionHeightEstimate = 120 + Math.ceil(category.kpiCards.length / 4) * 85;
 
         if (contentCursorY + sectionHeightEstimate > pageHeight - margin) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
-           contentCursorY += 40; // Space between campaigns
+           contentCursorY += 40; // Space between categories
         }
         
-        contentCursorY = drawCampaignSection(doc, campaign, contentCursorY, pageWidth, margin);
+        contentCursorY = drawCategorySection(doc, category, contentCursorY, pageWidth, margin);
     });
 
     const safeFileName = clientName ? `relatorio_${cleanText(clientName)}` : "relatorio";
     doc.save(`${safeFileName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
 }
+
+    
