@@ -24,4 +24,15 @@ export interface ReportData {
   categories: CategoryReportData[];
 }
 
-    
+// Types for Kanban Board
+export interface Task {
+  id: string;
+  title: string;
+  content?: string;
+}
+
+export interface Column {
+  id: string;
+  title: string;
+  taskIds: string[];
+}

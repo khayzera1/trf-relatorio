@@ -4,8 +4,8 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { Button } from './ui/button';
-import { LogOut, BarChart3 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { LogOut, BarChart3, LayoutDashboard } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import Link from 'next/link';
 export function Header({ children }: { children?: ReactNode }) {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,6 +33,8 @@ export function Header({ children }: { children?: ReactNode }) {
     return name.charAt(0).toUpperCase();
   };
 
+  const isBoardPage = pathname === '/board';
+
   return (
     <header className="glass-header sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,6 +45,17 @@ export function Header({ children }: { children?: ReactNode }) {
           </Link>
           <div className="flex items-center gap-4">
             {children}
+            
+            {!isBoardPage && (
+              <Link href="/board">
+                <Button variant="outline">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Ir para o Quadro</span>
+                  <span className="inline sm:hidden">Quadro</span>
+                </Button>
+              </Link>
+            )}
+            
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
