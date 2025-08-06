@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import type { ClientData } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, Loader2 } from "lucide-react";
+import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, Loader2, Server, Globe } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,6 +35,8 @@ import { Label } from "@/components/ui/label";
 import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
 import { useAuth } from "@/context/auth-context";
 import ProtectedRoute from "@/components/protected-route";
+import { ClockWidget } from "@/components/clock-widget";
+import { StatusWidget } from "@/components/status-widget";
 
 const getInitials = (name: string = '') => {
     const names = name.split(' ').filter(Boolean);
@@ -144,8 +146,16 @@ function HomePageContent() {
   return (
     <div className="min-h-screen text-foreground">
        <Header/>
-      <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-[calc(100vh-64px)]">
-        <div className="w-full max-w-5xl">
+      <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          {/* Coluna da Esquerda com Widgets */}
+          <div className="lg:col-span-1 flex flex-col gap-8">
+            <ClockWidget />
+            <StatusWidget />
+          </div>
+
+          {/* Coluna da Direita com Painel de Clientes */}
+          <div className="lg:col-span-2 w-full">
             <div className="glass-card p-6 mb-8">
                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div className="flex items-center gap-4">
@@ -176,7 +186,7 @@ function HomePageContent() {
             </div>
             
             {filteredClients.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredClients.map((client, index) => (
                 <Card key={client.id} className="glass-card overflow-hidden flex flex-col animate-fade-in transition-all duration-300 hover:border-white/30 hover:scale-105" style={{ animationDelay: `${index * 100}ms`}}>
                     <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
@@ -249,6 +259,7 @@ function HomePageContent() {
                     )}
                 </div>
             )}
+          </div>
         </div>
       </main>
 

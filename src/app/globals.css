@@ -79,20 +79,19 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: url('https://placehold.co/1920x1080/0a192f/0a192f.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
   }
   .dark body {
-     background-image: url('https://placehold.co/1920x1080/0a192f/0a192f.png');
-     background-blend-mode: screen;
+    background-color: #0d1117;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(253, 100%, 7%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 98% 1%, hsla(217, 100%, 7%, 0.3) 0px, transparent 50%);
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl;
+    background-color: hsl(var(--card));
+    @apply backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl;
   }
    .glass-header {
     @apply bg-card/70 backdrop-blur-xl border-b border-white/10;
