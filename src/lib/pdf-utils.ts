@@ -19,22 +19,23 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    const internalSpacing = 8; // Consistent spacing between text blocks
 
     // Draw card background and border
     doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(229, 231, 235);
+    doc.setDrawColor(229, 231, 235); // Light grey border
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
 
-    // --- Prepare All Content and Calculate Total Height ---
+    const contentWidth = width - padding * 2;
+
+    // --- Content Preparation ---
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
+    const titleLines = doc.splitTextToSize(cleanText(card.title), contentWidth);
     const titleHeight = doc.getTextDimensions(titleLines).h;
 
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
+    const valueLines = doc.splitTextToSize(cleanText(card.value), contentWidth);
     const valueHeight = doc.getTextDimensions(valueLines).h;
 
     let descriptionHeight = 0;
@@ -42,40 +43,38 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
+        descriptionLines = doc.splitTextToSize(cleanText(card.description), contentWidth);
         descriptionHeight = doc.getTextDimensions(descriptionLines).h;
     }
 
-    // Calculate total height of all content blocks including spacing
+    const internalSpacing = 8; // Spacing between text elements
     let totalContentHeight = titleHeight + valueHeight;
     if (descriptionHeight > 0) {
         totalContentHeight += internalSpacing + descriptionHeight;
     }
 
-    // --- Calculate Positioning ---
-    // Starting Y position to vertically center the entire content block
+    // --- Drawing Logic ---
     let cursorY = y + (height - totalContentHeight) / 2;
 
-    // --- Draw Content Sequentially ---
     // 1. Draw Title
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128);
+    doc.setTextColor(107, 114, 128); // Muted foreground color
     doc.text(titleLines, x + padding, cursorY, { baseline: 'top' });
-    cursorY += titleHeight + internalSpacing; 
+    cursorY += titleHeight + internalSpacing;
 
     // 2. Draw Value
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39);
+    doc.setTextColor(17, 24, 39); // Default foreground color
     doc.text(valueLines, x + padding, cursorY, { baseline: 'top' });
-    
+    cursorY += valueHeight + internalSpacing;
+
     // 3. Draw Description (if it exists)
     if (card.description) {
-        cursorY += valueHeight + internalSpacing;
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(29, 78, 216);
+        doc.setTextColor(29, 78, 216); // Primary color
         doc.text(descriptionLines, x + padding, cursorY, { baseline: 'top' });
     }
 };
@@ -100,7 +99,7 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     cursorY += 35; // Space between category title and KPI cards
 
     // --- Draw KPI Cards ---
-    const cardsPerRow = 4;
+    const cardsPerRow = 3; // Changed from 4 to 3
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 85; 
@@ -109,7 +108,7 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
         const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
         
-        const cardX = margin + colIndex * (cardWidth + cardGap);
+        let cardX = margin + colIndex * (cardWidth + cardGap);
         let cardY = cursorY + rowIndex * (cardHeight + cardGap);
 
         // Check if card will go off the page, if so, add a new page
@@ -192,7 +191,7 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     
     data.categories.forEach((category, index) => {
         // Estimate section height to check for page breaks
-        const kpiRows = Math.ceil(category.kpiCards.length / 4);
+        const kpiRows = Math.ceil(category.kpiCards.length / 3); // Changed to 3
         const sectionHeightEstimate = 50 + (kpiRows * 100); // Title height + (rows * (card height + gap))
 
         // If the estimated height will overflow and it's not the first category on the page
