@@ -31,7 +31,8 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setTextColor(107, 114, 128); // text-gray-500
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
     doc.text(titleLines, x + padding, cursorY);
-    cursorY += (titleLines.length * 10) + 6; // Move cursor down based on title height + spacing
+    // Increase spacing after title. The multiplier (10) is the line height. The added value (8) is the margin.
+    cursorY += (titleLines.length * 10) + 8;
 
     // KPI Value
     doc.setFontSize(16);
@@ -39,7 +40,6 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setTextColor(17, 24, 39); // text-gray-900
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
     doc.text(valueLines, x + padding, cursorY);
-    cursorY += (valueLines.length * 16); // Move cursor down
     
     if (card.description) {
         doc.setFontSize(9);
