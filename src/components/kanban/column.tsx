@@ -99,7 +99,7 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                     ref={provided.innerRef}
                     className="w-80 flex-shrink-0 h-full flex flex-col"
                 >
-                    <div className="flex items-center justify-between p-2 mb-2 bg-card/70 rounded-t-xl" {...provided.dragHandleProps}>
+                    <div className="flex items-center justify-between p-2 mb-2" {...provided.dragHandleProps}>
                         {isEditingTitle ? (
                              <Input
                                 ref={titleInputRef}
@@ -156,7 +156,7 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                    <div className="bg-card/70 rounded-b-xl flex flex-col flex-grow">
+                    <div className="bg-card/70 rounded-xl flex flex-col flex-grow">
                         <Droppable droppableId={column.id} type="task">
                             {(provided, snapshot) => (
                                 <div 
