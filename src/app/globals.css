@@ -7,43 +7,43 @@
 
 @layer base {
   :root {
-    /* Sophisticated dark theme with purple and yellow accents */
-    --background: 240 10% 4%; /* Near-black, deep blue */
+    /* Google Material-inspired dark theme with violet and blue accents */
+    --background: 222 47% 11%; /* Dark Slate Blue */
     --foreground: 210 40% 98%;
 
-    --card: 240 10% 9%;
+    --card: 222 47% 14%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 240 10% 9%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    /* A vibrant, deep purple for primary actions */
-    --primary: 260 80% 60%;
+    /* A vibrant violet for primary actions */
+    --primary: 262 80% 58%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 240 10% 15%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 10% 15%;
+    --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
-    /* A complementary yellow for accents */
-    --accent: 43 74% 66%;
-    --accent-foreground: 240 10% 4%;
+    /* A Google-inspired blue for accents */
+    --accent: 217 91% 60%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
 
-    --ring: 260 80% 65%;
+    --ring: 262 80% 65%;
     
     /* Chart colors with new theme */
-    --chart-1: 260 80% 60%;   /* Purple */
-    --chart-2: 43 74% 66%;    /* Yellow */
-    --chart-3: 180 80% 45%;   /* Cyan (kept for chart diversity if needed, but not as main accent) */
-    --chart-4: 27 87% 67%;    /* Orange */
+    --chart-1: 262 80% 58%;   /* Violet */
+    --chart-2: 217 91% 60%;   /* Blue */
+    --chart-3: 16 91% 60%;    /* Orange */
+    --chart-4: 343 91% 60%;   /* Pink */
     --chart-5: 0 84.2% 60.2%; /* Red */
     
     --radius: 0.75rem;
