@@ -7,15 +7,15 @@
 
 @layer base {
   :root {
-    --background: 240 5% 96%; /* zinc-100 */
-    --foreground: 240 10% 3.9%; /* zinc-950 */
+    --background: 240 5% 96%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 217 91% 60%; /* blue-500 */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%; /* zinc-100 */
+    --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
@@ -23,7 +23,7 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 5.9% 90%; /* zinc-200 */
+    --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 217 91% 60%;
     --chart-1: 217 91% 60%;
@@ -31,29 +31,29 @@
     --chart-3: 0 72% 51%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%; /* zinc-950 */
-    --foreground: 0 0% 98%; /* zinc-50 */
-    --card: 240 5.9% 10%; /* zinc-900 */
-    --card-foreground: 0 0% 98%;
-    --popover: 240 5.9% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 15.9%; /* zinc-800 */
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 217 91% 60%;
+    --background: 224 71% 4%; /* Deep, dark blue */
+    --foreground: 210 40% 98%; /* Almost white, soft */
+    --card: 223 47% 11%; /* Dark slate blue */
+    --card-foreground: 210 40% 98%;
+    --popover: 223 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%; /* Vibrant blue from before */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 223 47% 11%; /* Same as card */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%; /* Muted slate gray */
+    --accent: 223 47% 11%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%; /* Darker slate border */
+    --input: 217 33% 17%;
+    --ring: 216 91% 54%;
     --chart-1: 217 91% 60%;
     --chart-2: 173 80% 40%;
     --chart-3: 0 72% 51%;
@@ -68,5 +68,10 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .dark body {
+    background-image: radial-gradient(circle at 10% 20%, hsl(217 30% 15% / 0.5) 0%, transparent 50%),
+                      radial-gradient(circle at 90% 80%, hsl(224 71% 10% / 0.5) 0%, transparent 50%);
   }
 }

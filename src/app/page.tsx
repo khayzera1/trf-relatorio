@@ -144,7 +144,25 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+       <Header>
+        <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar cliente..." 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Link href="/clients/new">
+                <Button className="flex-shrink-0">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Adicionar
+                </Button>
+            </Link>
+        </div>
+      </Header>
       <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div className="flex items-center gap-3">
@@ -154,29 +172,12 @@ function HomePageContent() {
               <p className="text-muted-foreground">Gerencie seus clientes e gere relatórios.</p>
             </div>
           </div>
-           <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input 
-                  placeholder="Buscar cliente..." 
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Link href="/clients/new">
-                  <Button className="flex-shrink-0">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Adicionar
-                  </Button>
-              </Link>
-          </div>
         </div>
         
         {filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {filteredClients.map((client) => (
-              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-border/50 flex flex-col">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredClients.map((client, index) => (
+              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-border/50 flex flex-col animate-fade-in" style={{ animationDelay: `${index * 100}ms`}}>
                   <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
                       <Avatar className="h-16 w-16 text-xl">
                           <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
