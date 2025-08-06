@@ -12,7 +12,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import type { ReportData } from '@/lib/types';
 
 
@@ -82,7 +82,7 @@ const prompt = ai.definePrompt({
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
-    2.  **Create a Report Title:** Generate a single, professional title for the overall report.
+    2.  **Create a Report Title:** Generate a single, professional title for the overall report. Example: 'Relatório de Desempenho de Campanhas'
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as "De DD/MM/AAAA a DD/MM/AAAA". If you cannot determine the dates, return "Período não encontrado".
     4.  **Group Campaigns into Categories:** You MUST group all campaigns from the CSV into one of three main categories based on their objectives. The categories are: "Reconhecimento & Engajamento", "Contato", and "Vendas".
 
@@ -99,11 +99,11 @@ const prompt = ai.definePrompt({
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   For "Custo por Resultado", specify what the result is in the 'description' field (e.g., "Custo por Compra", "Custo por Lead").
+            -   For "Custo por Resultado", the 'title' should be specific (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
         *   **Relevant Metrics per Category:**
-            -   **Reconhecimento & Engajamento:** Focus on 'Alcance', 'Impressões', 'CPM (Custo por mil impressões)', 'Custo por ThruPlay', 'Engajamentos', 'Visitas ao Perfil'.
-            -   **Contato:** Focus on 'Resultados' (e.g., Leads, Conversas), 'Custo por Resultado' (CPL, Custo por Conversa), 'Cliques no link', 'CTR (taxa de cliques no link)'.
-            -   **Vendas:** Focus on 'Resultados' (e.g., Compras), 'Valor de conversão de compras', 'ROAS (retorno do investimento em anúncios)', 'Custo por Resultado' (CPA).
+            -   **Reconhecimento & Engajamento:** Focus on 'Alcance', 'Impressões', 'CPM (Custo por mil impressões)'. Also, you MUST create specific KPI cards for any results found in the 'Resultados' column for these campaigns, such as 'Custo por ThruPlay', 'ThruPlays', 'Engajamentos com a publicação', and 'Visitas ao Perfil'. The title of the card should be the name of the result.
+            -   **Contato:** Focus on 'Cliques no link', 'CTR (taxa de cliques no link)'. You MUST create specific KPI cards for any results found in the 'Resultados' column (e.g., 'Leads', 'Conversas iniciadas') and their corresponding costs ('Custo por Resultado').
+            -   **Vendas:** Focus on 'Valor de conversão de compras', 'ROAS (retorno do investimento em anúncios)'. You MUST create specific KPI cards for any results found in the 'Resultados' column (e.g., 'Compras') and their corresponding costs ('Custo por Resultado').
     
     6.  **Final Output:** Create an object containing the report title, period, and an array of these category objects. Only include categories that have campaigns. If a category has no campaigns, do not include it in the final array.
 
