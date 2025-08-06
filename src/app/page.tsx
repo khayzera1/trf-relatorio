@@ -34,7 +34,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
 import { useAuth } from "@/context/auth-context";
-import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/protected-route";
 
 const getInitials = (name: string = '') => {
@@ -136,21 +135,21 @@ function HomePageContent() {
 
   if (isLoading) {
       return (
-          <div className="flex min-h-screen w-full items-center justify-center bg-background">
+          <div className="flex min-h-screen w-full items-center justify-center bg-transparent">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </div>
       );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground">
        <Header>
         <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input 
                 placeholder="Buscar cliente..." 
-                className="pl-10"
+                className="pl-10 bg-black/20"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -177,10 +176,10 @@ function HomePageContent() {
         {filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredClients.map((client, index) => (
-              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-border/50 flex flex-col animate-fade-in" style={{ animationDelay: `${index * 100}ms`}}>
+              <Card key={client.id} className="glass-card overflow-hidden flex flex-col animate-fade-in transition-all duration-300 hover:border-white/30 hover:scale-105" style={{ animationDelay: `${index * 100}ms`}}>
                   <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
                       <Avatar className="h-16 w-16 text-xl">
-                          <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold border-2 border-primary/50">{getInitials(client.clientName)}</AvatarFallback>
                       </Avatar>
                       <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
                       <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
@@ -190,7 +189,7 @@ function HomePageContent() {
                           </Button>
                       </Link>
                   </CardContent>
-                  <CardFooter className="bg-muted/50 p-2 flex justify-end gap-2">
+                  <CardFooter className="bg-black/20 p-2 flex justify-end gap-2">
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -210,7 +209,7 @@ function HomePageContent() {
                           <span className="sr-only">Apagar Cliente</span>
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="glass-card">
                         <AlertDialogHeader>
                           <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
                           <AlertDialogDescription>
@@ -230,7 +229,7 @@ function HomePageContent() {
             ))}
           </div>
         ) : (
-            <div className="text-center py-12 sm:py-20 border-2 border-dashed rounded-lg bg-card mt-10 px-4">
+            <div className="text-center py-12 sm:py-20 border-2 border-dashed rounded-lg bg-card/50 mt-10 px-4">
                 <Users className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-medium text-foreground">Nenhum cliente encontrado</h3>
                 <p className="mt-2 text-md text-muted-foreground max-w-md mx-auto">
@@ -252,7 +251,7 @@ function HomePageContent() {
 
       {/* Edit Client Dialog */}
       <Dialog open={!!clientToEdit} onOpenChange={(isOpen) => !isOpen && setClientToEdit(null)}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] glass-card">
           <DialogHeader>
             <DialogTitle>Editar Cliente</DialogTitle>
             <DialogDescription>

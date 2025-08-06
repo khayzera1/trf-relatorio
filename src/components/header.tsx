@@ -33,7 +33,7 @@ export function Header({ children }: { children?: ReactNode }) {
   };
 
   return (
-    <header className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-10">
+    <header className="glass-header sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
@@ -45,13 +45,13 @@ export function Header({ children }: { children?: ReactNode }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
-                     <Avatar className="h-7 w-7">
-                        <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">{getInitials(user.email ?? '')}</AvatarFallback>
+                     <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/20 text-primary font-bold text-sm border-2 border-primary/50">{getInitials(user.email ?? '')}</AvatarFallback>
                      </Avatar>
                      <span className="hidden sm:inline">{user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 glass-card">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">Minha Conta</p>
@@ -61,7 +61,7 @@ export function Header({ children }: { children?: ReactNode }) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>

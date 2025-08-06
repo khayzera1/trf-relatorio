@@ -66,10 +66,10 @@ function NewClientPageContent() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen text-foreground">
             <Header>
                 <Link href="/">
-                    <Button variant="outline">
+                    <Button variant="outline" className="bg-transparent">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         <span className="hidden sm:inline">Voltar para Clientes</span>
                         <span className="inline sm:hidden">Voltar</span>
@@ -78,7 +78,7 @@ function NewClientPageContent() {
             </Header>
             <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
-                    <Card className="shadow-md border-border/50">
+                    <Card className="glass-card">
                         <CardHeader>
                             <div className="flex items-center gap-3 mb-2">
                                 <UserPlus className="h-6 w-6 text-primary"/>
@@ -131,5 +131,3 @@ export default function NewClientPage() {
         </ProtectedRoute>
     )
 }
-
-    
