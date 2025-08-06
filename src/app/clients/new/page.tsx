@@ -78,7 +78,7 @@ function NewClientPageContent() {
             </Header>
             <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto">
-                    <Card className="shadow-lg border-primary/20">
+                    <Card className="shadow-md border-border/50">
                         <CardHeader>
                             <div className="flex items-center gap-3 mb-2">
                                 <UserPlus className="h-6 w-6 text-primary"/>

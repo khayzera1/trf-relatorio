@@ -176,10 +176,10 @@ function HomePageContent() {
         {filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {filteredClients.map((client) => (
-              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary flex flex-col">
+              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-border/50 flex flex-col">
                   <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
                       <Avatar className="h-16 w-16 text-xl">
-                          <AvatarFallback className="bg-primary/20 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
                       </Avatar>
                       <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
                       <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>

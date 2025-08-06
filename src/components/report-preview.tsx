@@ -16,7 +16,7 @@ interface ReportPreviewProps {
 
 const KpiCard = ({ card }: { card: KpiCardData }) => {
     return (
-        <div className="bg-card p-4 rounded-lg shadow-sm border border-border flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-primary/50">
+        <div className="bg-card p-4 rounded-lg shadow-sm border flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-primary/20">
             <div>
                 <p className="text-sm text-muted-foreground break-words">{card.title}</p>
                 <p className="text-2xl font-bold text-foreground my-2 break-words">{card.value}</p>
@@ -36,7 +36,7 @@ const CategorySection = ({ categoryData }: { categoryData: CategoryReportData })
                     <Tag className="h-5 w-5 text-primary flex-shrink-0" />
                     <h3 className="text-xl font-semibold text-foreground break-words">{categoryData.categoryName}</h3>
                 </div>
-                <div className="flex items-center gap-2 text-md font-bold text-foreground bg-muted/70 px-3 py-1.5 rounded-md">
+                <div className="flex items-center gap-2 text-md font-bold text-foreground bg-muted px-3 py-1.5 rounded-md">
                    <DollarSign className="h-4 w-4 text-muted-foreground"/>
                    <span>Investimento Total:</span>
                    <span className="text-primary">{categoryData.totalInvestment}</span>
@@ -81,8 +81,8 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
       </CardHeader>
       <CardContent>
         <Separator className="my-4" />
-        <div className="p-4 sm:p-6 lg:p-8 bg-muted/30 rounded-lg border" id="pdf-content">
-            <div className="bg-primary text-primary-foreground p-4 sm:p-6 rounded-t-lg shadow-md">
+        <div className="p-4 sm:p-6 lg:p-8 bg-muted/50 rounded-lg border" id="pdf-content">
+            <div className="bg-primary text-primary-foreground p-6 rounded-t-lg shadow-md">
                 {clientName && (
                   <div className="flex items-center gap-2 mb-3 text-primary-foreground/90">
                     <User className="h-4 w-4 flex-shrink-0" />

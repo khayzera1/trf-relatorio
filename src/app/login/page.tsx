@@ -66,7 +66,7 @@ export default function LoginPage() {
           <BarChart3 className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold">Painel de Relatórios</span>
       </div>
-      <Card className="w-full max-w-sm shadow-2xl border-primary/20">
+      <Card className="w-full max-w-sm shadow-md border-border/50">
         <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-3 mb-2">
                 <LogIn className="h-6 w-6 text-primary"/>
