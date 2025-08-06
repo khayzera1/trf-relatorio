@@ -137,6 +137,11 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         
         handleBackToLabelList();
     };
+
+    const handleDeleteLabel = (labelId: string) => {
+        onDeleteLabel(labelId);
+        handleBackToLabelList();
+    };
     
     const handleBackToLabelList = () => {
         setEditingLabel(null);
@@ -168,10 +173,10 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                 ))}
                             </div>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-2">
                             <Button onClick={handleSaveLabel} className="w-full">{isCreatingLabel ? 'Criar' : 'Salvar'}</Button>
                             {editingLabel && (
-                                <Button variant="destructive" size="icon" onClick={() => onDeleteLabel(editingLabel.id)}><Trash2/></Button>
+                                <Button variant="destructive" size="icon" onClick={() => handleDeleteLabel(editingLabel.id)}><Trash2 className="h-4 w-4"/></Button>
                             )}
                         </div>
                     </div>
