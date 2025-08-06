@@ -7,37 +7,37 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%; /* Deep, dark blue, almost black */
-    --foreground: 210 40% 98%; /* Almost white, for high contrast */
+    --background: 210 40% 98%; /* Light, slightly cool gray */
+    --foreground: 224 71% 4%; /* Deep, dark blue for text */
 
-    /* Glassmorphism Card Style */
-    --card: 224 71% 4% / 0.5; /* Semi-transparent dark blue */
-    --card-foreground: 210 40% 98%;
+    /* Glassmorphism Card Style for Light Theme */
+    --card: 0 0% 100% / 0.7; /* Semi-transparent white */
+    --card-foreground: 224 71% 4%;
 
-    --popover: 223 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
     /* A more vibrant, "electric" blue, inspired by iOS accents */
     --primary: 217 91% 60%; 
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 215 28% 17%;
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 215 28% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 63% 31%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     /* Subtle border for the glass effect */
-    --border: 217 33% 17%; 
-    --input: 217 33% 17%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
 
-    --ring: 216 91% 54%;
+    --ring: 222.2 84% 4.9%;
     
     /* Vibrant chart colors inspired by Apple's colorful icons */
     --chart-1: 217 91% 60%; /* Blue */
@@ -56,24 +56,24 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* This creates a "wallpaper" like effect with vibrant spots of color */
+    /* This creates a subtle "wallpaper" like effect with vibrant spots of color for light mode */
     background-color: hsl(var(--background));
     background-image: 
-      radial-gradient(at 20% 25%, hsla(260, 80%, 30%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 80% 20%, hsla(217, 91%, 60%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 50% 80%, hsla(340, 70%, 50%, 0.2) 0px, transparent 50%);
+      radial-gradient(at 20% 25%, hsla(260, 80%, 55%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, hsla(217, 91%, 60%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, hsla(340, 70%, 55%, 0.1) 0px, transparent 50%);
   }
 }
 
 @layer components {
-  /* Enhanced Glassmorphism effect */
+  /* Enhanced Glassmorphism effect for Light Theme */
   .glass-card {
     background-color: hsl(var(--card));
-    @apply backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl;
+    @apply backdrop-blur-2xl border border-black/10 rounded-2xl shadow-xl shadow-black/5;
   }
 
   /* Header style for a floating effect */
   .glass-header {
-    @apply bg-card/60 backdrop-blur-xl border-b border-white/10;
+    @apply bg-card/60 backdrop-blur-xl border-b border-black/10;
   }
 }
