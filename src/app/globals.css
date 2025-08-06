@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,41 +7,45 @@
 
 @layer base {
   :root {
-    --background: 222 84% 4%; /* Deep, dark blue */
-    --foreground: 210 40% 98%; /* Almost white, soft */
-    
-    /* Glassmorphism card */
-    --card: 223 47% 11% / 0.5; 
+    --background: 224 71% 4%; /* Deep, dark blue, almost black */
+    --foreground: 210 40% 98%; /* Almost white, for high contrast */
+
+    /* Glassmorphism Card Style */
+    --card: 224 71% 4% / 0.5; /* Semi-transparent dark blue */
     --card-foreground: 210 40% 98%;
-    
+
     --popover: 223 47% 11%;
     --popover-foreground: 210 40% 98%;
-    
-    --primary: 217 91% 60%; /* Vibrant blue */
+
+    /* A more vibrant, "electric" blue, inspired by iOS accents */
+    --primary: 217 91% 60%; 
     --primary-foreground: 210 40% 98%;
-    
+
     --secondary: 215 28% 17%;
     --secondary-foreground: 210 40% 98%;
-    
-    --muted: 215 28% 17% / 0.5;
-    --muted-foreground: 215 20% 65%; /* Muted slate gray */
-    
-    --accent: 215 28% 17% / 0.5;
+
+    --muted: 215 28% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 28% 17%;
     --accent-foreground: 210 40% 98%;
-    
+
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    
-    /* Glassmorphism border */
-    --border: 217 33% 17% / 0.7; 
-    --input: 217 33% 17% / 0.7;
-    
+
+    /* Subtle border for the glass effect */
+    --border: 217 33% 17%; 
+    --input: 217 33% 17%;
+
     --ring: 216 91% 54%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 173 80% 40%;
-    --chart-3: 0 72% 51%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    
+    /* Vibrant chart colors inspired by Apple's colorful icons */
+    --chart-1: 217 91% 60%; /* Blue */
+    --chart-2: 173 80% 40%; /* Green */
+    --chart-3: 0 72% 51%;   /* Red */
+    --chart-4: 43 74% 66%;  /* Yellow */
+    --chart-5: 27 87% 67%;  /* Orange */
+    
     --radius: 0.75rem;
   }
 }
@@ -52,19 +56,24 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-color: #0d1117;
+    /* This creates a "wallpaper" like effect with vibrant spots of color */
+    background-color: hsl(var(--background));
     background-image: 
-      radial-gradient(at 0% 0%, hsla(253, 100%, 7%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 98% 1%, hsla(217, 100%, 7%, 0.3) 0px, transparent 50%);
+      radial-gradient(at 20% 25%, hsla(260, 80%, 30%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, hsla(217, 91%, 60%, 0.2) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, hsla(340, 70%, 50%, 0.2) 0px, transparent 50%);
   }
 }
 
 @layer components {
+  /* Enhanced Glassmorphism effect */
   .glass-card {
     background-color: hsl(var(--card));
-    @apply backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl;
+    @apply backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl;
   }
-   .glass-header {
-    @apply bg-card/70 backdrop-blur-xl border-b border-white/10;
+
+  /* Header style for a floating effect */
+  .glass-header {
+    @apply bg-card/60 backdrop-blur-xl border-b border-white/10;
   }
 }

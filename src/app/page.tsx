@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import type { ClientData } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, Loader2, Server, Globe } from "lucide-react";
+import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {

@@ -7,7 +7,10 @@ import { Inter } from 'next/font/google';
 import Loading from './loading';
 import { AuthProvider } from '@/context/auth-context';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: 'Painel de Clientes',
@@ -20,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={inter.className}>
-      <body className="antialiased">
+    <html lang="pt-BR" className={inter.variable}>
+      <body className="antialiased font-sans">
           <AuthProvider>
             <Suspense fallback={<Loading />}>
                 {children}

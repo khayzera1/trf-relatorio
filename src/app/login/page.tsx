@@ -62,6 +62,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4">
+       <div className="absolute top-8 flex items-center gap-2 text-foreground">
+            <BarChart3 className="h-6 w-6 text-primary" />
+            <span className="text-lg font-bold">Painel de Relatórios</span>
+        </div>
       <Card className="w-full max-w-sm glass-card">
         <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-3 mb-2">

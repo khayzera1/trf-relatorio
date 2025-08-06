@@ -18,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -89,10 +92,6 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-in-out forwards",
-      },
-      fontFamily: {
-        sans: ["var(--font-sans)"],
-        headline: ["var(--font-headline)"],
       },
     },
   },
