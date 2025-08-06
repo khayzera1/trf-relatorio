@@ -16,13 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Header } from "@/components/header";
-import Link from "next/link";
-import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
+import { UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { addClient } from "@/lib/firebase/client";
 import ProtectedRoute from "@/components/protected-route";
+import { Sidebar } from "@/components/sidebar";
 
 const formSchema = z.object({
   clientName: z.string().min(2, {
@@ -66,17 +65,9 @@ function NewClientPageContent() {
     }
 
     return (
-        <div className="min-h-screen text-foreground">
-            <Header>
-                <Link href="/">
-                    <Button variant="outline" className="bg-transparent">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        <span className="hidden sm:inline">Voltar para Clientes</span>
-                        <span className="inline sm:hidden">Voltar</span>
-                    </Button>
-                </Link>
-            </Header>
-            <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-screen text-foreground bg-background">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 <div className="max-w-2xl mx-auto">
                     <Card className="glass-card">
                         <CardHeader>

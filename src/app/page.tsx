@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { Header } from "@/components/header";
+import { Sidebar } from "@/components/sidebar";
 import type { ClientData } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
-import { useAuth } from "@/context/auth-context";
 import ProtectedRoute from "@/components/protected-route";
 import { ClockWidget } from "@/components/clock-widget";
 import { RecentClientsWidget } from "@/components/recent-clients-widget";
@@ -144,9 +143,9 @@ function HomePageContent() {
   }
 
   return (
-    <div className="min-h-screen text-foreground">
-       <Header/>
-      <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen text-foreground bg-background">
+       <Sidebar />
+       <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Coluna da Esquerda com Widgets */}
           <div className="lg:col-span-1 flex flex-col gap-8">

@@ -3,11 +3,8 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from 'next/navigation';
-import { Header } from "@/components/header";
+import { Sidebar } from "@/components/sidebar";
 import { CsvUploader } from "@/components/csv-uploader";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import Loading from "@/app/loading";
 import ProtectedRoute from "@/components/protected-route";
 
@@ -16,17 +13,9 @@ function ReportsPageContent() {
     const clientName = searchParams.get('clientName');
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
-            <Header>
-                <Link href="/">
-                    <Button variant="outline">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        <span className="hidden sm:inline">Voltar para Clientes</span>
-                        <span className="inline sm:hidden">Voltar</span>
-                    </Button>
-                </Link>
-            </Header>
-            <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-h-screen bg-background text-foreground">
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                  <CsvUploader 
                     clientName={clientName} 
                 />
@@ -50,5 +39,3 @@ export default function ReportsPage() {
         </ProtectedRoute>
     );
 }
-
-    
