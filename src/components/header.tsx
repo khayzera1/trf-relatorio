@@ -46,15 +46,15 @@ export function Header({ children }: { children?: ReactNode }) {
           <div className="flex items-center gap-4">
             {children}
             
-            {!isBoardPage && (
-              <Link href="/board">
-                <Button variant="outline">
+            <Link href="/board" legacyBehavior passHref>
+              <Button variant="outline" asChild disabled={isBoardPage} className={isBoardPage ? 'bg-accent text-accent-foreground' : ''}>
+                <a>
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Ir para o Quadro</span>
                   <span className="inline sm:hidden">Quadro</span>
-                </Button>
-              </Link>
-            )}
+                </a>
+              </Button>
+            </Link>
             
             {user && (
               <DropdownMenu>

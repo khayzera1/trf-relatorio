@@ -17,6 +17,17 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const labelColorOptions = [
     'bg-blue-500', 'bg-purple-500', 'bg-red-500', 'bg-green-500', 
@@ -463,14 +474,32 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                      </Popover>
                     
                      <div className="border-t border-border/10 pt-4 mt-auto">
-                        <Button 
-                            variant="ghost" 
-                            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={handleDeleteTask}
-                        >
-                            <Trash2 className="mr-2" />
-                            Excluir Tarefa
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                 <Button 
+                                    variant="ghost" 
+                                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                    <Trash2 className="mr-2" />
+                                    Excluir Tarefa
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="glass-card">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Essa ação não pode ser desfeita. Isso irá apagar permanentemente a tarefa
+                                        <span className="font-bold"> "{task.title}"</span>.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDeleteTask}>
+                                        Sim, excluir tarefa
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </div>
             </div>
