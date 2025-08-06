@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* Sophisticated dark theme with purple and cyan accents */
+    /* Sophisticated dark theme with purple and yellow accents */
     --background: 240 10% 4%; /* Near-black, deep blue */
     --foreground: 210 40% 98%;
 
@@ -27,9 +27,9 @@
     --muted: 240 10% 15%;
     --muted-foreground: 215 20% 65%;
 
-    /* A cool, complementary cyan for accents */
-    --accent: 180 80% 45%;
-    --accent-foreground: 210 40% 98%;
+    /* A complementary yellow for accents */
+    --accent: 43 74% 66%;
+    --accent-foreground: 240 10% 4%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -41,8 +41,8 @@
     
     /* Chart colors with new theme */
     --chart-1: 260 80% 60%;   /* Purple */
-    --chart-2: 180 80% 45%;   /* Cyan */
-    --chart-3: 43 74% 66%;    /* Yellow */
+    --chart-2: 43 74% 66%;    /* Yellow */
+    --chart-3: 180 80% 45%;   /* Cyan (kept for chart diversity if needed, but not as main accent) */
     --chart-4: 27 87% 67%;    /* Orange */
     --chart-5: 0 84.2% 60.2%; /* Red */
     
