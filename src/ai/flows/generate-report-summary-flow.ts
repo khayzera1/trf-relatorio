@@ -33,7 +33,7 @@ const KpiCardDataSchema = z.object({
 });
 
 const CampaignReportSchema = z.object({
-  campaignName: z.string().describe("The name of the campaign, extracted directly from the CSV data."),
+  campaignName: z.string().describe("A summarized, clean name for the campaign based on its objective."),
   kpiCards: z.array(KpiCardDataSchema).describe("An array of KPI card objects for this specific campaign."),
 });
 
@@ -82,9 +82,16 @@ const prompt = ai.definePrompt({
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
     2.  **Create a Report Title:** Generate a single, professional title for the overall report in Brazilian Portuguese.
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as a string in Brazilian Portuguese like "De DD/MM/AAAA a DD/MM/AAAA". This will be the value for 'reportPeriod'. If you cannot determine the dates, return "Período não encontrado".
-    4.  **Identify All Campaigns:** The CSV may contain multiple campaigns. Identify each distinct campaign and its associated metrics.
+    4.  **Identify All Campaigns and Summarize Their Names:**
+        - Identify each distinct campaign and its associated metrics.
+        - **Summarize the campaign name based on its objective.** Instead of using the full, technical name from the CSV, create a summarized, user-friendly name. Follow these rules:
+          - If the objective is "contato no site", "lead no site", "lead no meta", or "conversas no whatsapp", use the name **"Campanha de Contato"**.
+          - If the objective is "visita no insta" or involves profile views, use the name **"Campanha para Ver o Perfil"**.
+          - If the objective is "vendas", "compras", or "add to cart", use the name **"Campanha de Vendas"**.
+          - If the objective is "reconhecimento" or "alcance" (reach), use the name **"Campanha de Reconhecimento"**.
+          - If none of the above apply, create a concise, logical name based on the available data.
     5.  **Group KPIs by Campaign:** For each campaign you identify, create a campaign object.
-        -   **campaignName:** The name of the campaign.
+        -   **campaignName:** The summarized name you created in the previous step.
         -   **kpiCards:** An array of relevant KPI objects belonging *only* to that campaign. Extract as many relevant KPIs as you can find, such as "Impressões", "Cliques", "Custo Total", "CTR", "CPC", "Custo por Resultado", and the main "Resultado".
             -   **title:** The name of the metric (e.g., "Impressões", "Cliques", "Custo por Resultado").
             -   **value:** The primary, current value of the metric. Format it appropriately for Brazilian Portuguese standards. **IMPORTANT:**
@@ -98,33 +105,6 @@ const prompt = ai.definePrompt({
     **CSV Data:**
     \`\`\`csv
     {{{csvData}}}
-    \`\`\`
-
-    **Example Output Structure for Multiple Campaigns:**
-    \`\`\`json
-    {
-      "reportTitle": "Análise de Desempenho das Campanhas",
-      "reportPeriod": "De 01/05/2024 a 31/05/2024",
-      "campaigns": [
-        {
-          "campaignName": "Google Ads - Pesquisa Local",
-          "kpiCards": [
-            { "title": "Impressões", "value": "35.671" },
-            { "title": "Cliques", "value": "1.234" },
-            { "title": "Custo por Resultado", "value": "R$5,88", "description": "Conversa no WhatsApp" },
-            { "title": "CPC", "value": "R$1,20" }
-          ]
-        },
-        {
-            "campaignName": "Meta Ads - Tráfego Site",
-            "kpiCards": [
-              { "title": "Cliques", "value": "1.250" },
-              { "title": "Custo por Clique", "value": "R$1,44" },
-              { "title": "Impressões", "value": "150.987" }
-            ]
-        }
-      ]
-    }
     \`\`\`
   `,
 });
