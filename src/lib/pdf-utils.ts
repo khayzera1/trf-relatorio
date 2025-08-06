@@ -19,35 +19,63 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    let cursorY = y + 18;
+    const spacing = 15; // The gap between title and value
 
+    // Draw card background and border
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235);
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
 
+    // --- Prepare Content ---
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128);
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
-    doc.text(titleLines, x + padding, cursorY);
-    
-    // Calculate Y position for the value dynamically based on the title's height.
-    // The '10' is the line height for the title's font size.
-    // The '+ 12' adds a consistent margin like the 'my-2' class.
-    cursorY += (titleLines.length * 10) + 12;
+    const titleHeight = doc.getTextDimensions(titleLines).h;
 
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39);
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
-    doc.text(valueLines, x + padding, cursorY);
+    const valueHeight = doc.getTextDimensions(valueLines).h;
 
+    let descriptionHeight = 0;
+    let descriptionLines: string[] = [];
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216);
-        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
-        doc.text(descriptionLines, x + padding, y + height - 12);
+        descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
+        descriptionHeight = doc.getTextDimensions(descriptionLines).h;
+    }
+
+    // --- Calculate Positioning ---
+    // Total height of all content blocks (title + spacing + value + spacing + description)
+    const contentHeight = titleHeight + valueHeight + (descriptionHeight > 0 ? descriptionHeight + spacing : 0);
+    
+    // Starting Y position to vertically center the content block within the card's available height
+    const startY = y + (height - contentHeight) / 2;
+
+    let cursorY = startY;
+
+    // --- Draw Content ---
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(107, 114, 128);
+    doc.text(titleLines, x + padding, cursorY, { baseline: 'top' });
+    cursorY += titleHeight + spacing; // Move cursor down past the title and the spacing
+
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 24, 39);
+    doc.text(valueLines, x + padding, cursorY, { baseline: 'top' });
+
+    if (card.description) {
+        cursorY += valueHeight + spacing;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(29, 78, 216);
+        doc.text(descriptionLines, x + padding, cursorY, { baseline: 'top' });
     }
 };
 
@@ -74,7 +102,7 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 70;
+    const cardHeight = 85; // Increased height to accommodate content better
     
     categoryData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
@@ -149,7 +177,7 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     data.categories.forEach((category, index) => {
         // Estimate section height to check for page breaks
         const kpiRows = Math.ceil(category.kpiCards.length / 4);
-        const sectionHeightEstimate = 50 + (kpiRows * 85); // Title height + (rows * (card height + gap))
+        const sectionHeightEstimate = 50 + (kpiRows * 100); // Title height + (rows * (card height + gap))
 
         // If the estimated height will overflow and it's not the first category on the page
         if (contentCursorY + sectionHeightEstimate > pageHeight - margin && contentCursorY > 150) { 
