@@ -45,7 +45,7 @@ const firebaseConfig = {
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
-const storage: FirebaseStorage = getStorage(app);
+const storage: FirebaseStorage | null = getApps().length ? getStorage(app) : null;
 
 // Firestore Collections
 const clientsCollection = collection(db, 'clients');

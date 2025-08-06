@@ -15,7 +15,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { storage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 
@@ -161,7 +160,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         setIsCreatingLabel(false);
     };
 
-    const handleAddAttachment = () => {
+    const handleAddAttachmentLink = () => {
         if (attachmentUrl.trim() && attachmentName.trim()) {
             const newAttachment: Attachment = {
                 id: uuidv4(),
@@ -182,67 +181,48 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         const file = event.target.files?.[0];
         if (!file) return;
 
+        if (file.size > 1048576) { // 1MB limit
+            toast({
+                variant: 'destructive',
+                title: 'Arquivo muito grande',
+                description: 'Por favor, selecione arquivos com menos de 1MB.',
+            });
+            return;
+        }
+
         setAttachmentPopoverOpen(false);
         setIsUploading(true);
 
-        try {
-            const filePath = `attachments/${task.id}/${uuidv4()}-${file.name}`;
-            const fileRef = storageRef(storage, filePath);
-            await uploadBytes(fileRef, file);
-            const downloadURL = await getDownloadURL(fileRef);
-
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
             const newAttachment: Attachment = {
                 id: uuidv4(),
                 name: file.name,
-                url: downloadURL,
+                url: reader.result as string, // Base64 data URI
                 type: 'file',
-                storagePath: filePath,
                 createdAt: new Date().toISOString(),
             };
             
             const newAttachments = [...(task.attachments || []), newAttachment];
             handleUpdate('attachments', newAttachments);
-            
-            toast({ title: 'Sucesso!', description: 'Arquivo anexado com sucesso.' });
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            toast({ variant: 'destructive', title: 'Erro de Upload', description: 'Não foi possível anexar o arquivo.' });
-        } finally {
             setIsUploading(false);
-        }
+            toast({ title: 'Sucesso!', description: 'Arquivo anexado com sucesso.' });
+        };
+        reader.onerror = (error) => {
+            console.error("Error converting file to Base64:", error);
+            toast({ variant: 'destructive', title: 'Erro de Leitura', description: 'Não foi possível ler o arquivo.' });
+            setIsUploading(false);
+        };
     };
 
     const handleDeleteAttachment = async (attachmentToDelete: Attachment) => {
         const newAttachments = attachments.filter(att => att.id !== attachmentToDelete.id);
-        
-        if (attachmentToDelete.type === 'file' && attachmentToDelete.storagePath) {
-            try {
-                const fileRef = storageRef(storage, attachmentToDelete.storagePath);
-                await deleteObject(fileRef);
-                toast({ title: 'Anexo removido', description: 'O arquivo foi removido do armazenamento.'});
-            } catch (error) {
-                console.error("Error deleting file from storage:", error);
-                toast({ variant: 'destructive', title: 'Erro ao remover arquivo', description: 'O arquivo não pode ser removido do armazenamento.'});
-                return;
-            }
-        }
-        
         handleUpdate('attachments', newAttachments);
+        toast({ title: 'Anexo removido' });
     };
 
-    const handleDeleteTaskAndAttachments = async () => {
-        if (attachments) {
-            for (const attachment of attachments) {
-                if (attachment.type === 'file' && attachment.storagePath) {
-                    try {
-                        const fileRef = storageRef(storage, attachment.storagePath);
-                        await deleteObject(fileRef);
-                    } catch (error) {
-                        console.error(`Failed to delete attachment ${attachment.storagePath} from storage:`, error);
-                    }
-                }
-            }
-        }
+    const handleDeleteTask = async () => {
         onDeleteTask(task.id);
     };
 
@@ -323,7 +303,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 {isUploading && (
                     <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p className="mt-4 font-semibold text-foreground">Enviando arquivo...</p>
+                        <p className="mt-4 font-semibold text-foreground">Processando arquivo...</p>
                     </div>
                 )}
                 <div className="md:col-span-2 space-y-6 overflow-y-auto">
@@ -466,8 +446,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                 <div className="space-y-2">
                                     <UiLabel htmlFor="attachment-url">Anexar um link</UiLabel>
                                     <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
-                                    <Input id="attachment-name" placeholder="Nome do Link (Opcional)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
-                                    <Button onClick={handleAddAttachment} className="w-full">Anexar Link</Button>
+                                    <Input id="attachment-name" placeholder="Nome do Link (Obrigatório)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
+                                    <Button onClick={handleAddAttachmentLink} className="w-full">Anexar Link</Button>
                                 </div>
                                 <Separator/>
                                 <div className="space-y-2">
@@ -486,7 +466,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         <Button 
                             variant="ghost" 
                             className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={handleDeleteTaskAndAttachments}
+                            onClick={handleDeleteTask}
                         >
                             <Trash2 className="mr-2" />
                             Excluir Tarefa

@@ -280,6 +280,11 @@ export function KanbanBoard() {
         )
     }
 
+    const openTaskModal = (task: Task) => {
+        const fullTask = boardData.tasks[task.id];
+        setSelectedTask(fullTask);
+    };
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
             <div className="flex flex-col h-full w-full py-8 px-4 sm:px-6 lg:px-8">
@@ -310,7 +315,7 @@ export function KanbanBoard() {
                                         onUpdateTitle={updateColumnTitle}
                                         onDelete={deleteColumn}
                                         onAddTask={addTask}
-                                        onOpenTaskModal={(task) => setSelectedTask(task)}
+                                        onOpenTaskModal={openTaskModal}
                                     />
                                 );
                             })}
@@ -341,5 +346,7 @@ export function KanbanBoard() {
         </DragDropContext>
     );
 }
+
+    
 
     

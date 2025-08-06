@@ -41,10 +41,9 @@ export interface Label {
 export interface Attachment {
   id: string;
   name: string;
-  url: string;
+  url: string; // For links, it's a regular URL. For files, it's a Base64 Data URI.
   type: 'link' | 'file';
   createdAt: string;
-  storagePath?: string; // Path for files stored in Firebase Storage
 }
 
 export interface Task {
@@ -72,5 +71,7 @@ export interface BoardData {
     labels: Record<string, Label>;
     userId?: string; // To associate the board with a user
 }
+
+    
 
     
