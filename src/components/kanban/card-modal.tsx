@@ -62,9 +62,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
 
 
     useEffect(() => {
-        // This effect syncs the modal's internal state with the task prop.
-        // This is crucial for when the task is updated from the parent (e.g., drag-and-drop)
-        // or after an async operation like file upload.
         if (task) {
             setTitle(task.title);
             setDescription(task.description || '');
@@ -174,7 +171,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 createdAt: new Date().toISOString(),
             };
             const newAttachments = [...attachments, newAttachment];
-            // No need to call setAttachments here, as the useEffect will sync it
             handleUpdate('attachments', newAttachments);
             setAttachmentUrl('');
             setAttachmentName('');
@@ -186,8 +182,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         const file = event.target.files?.[0];
         if (!file) return;
 
+        setAttachmentPopoverOpen(false);
         setIsUploading(true);
-        setAttachmentPopoverOpen(false); // Close popover to show main modal loader if needed
 
         try {
             const filePath = `attachments/${task.id}/${uuidv4()}-${file.name}`;
@@ -204,7 +200,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 createdAt: new Date().toISOString(),
             };
             
-            const newAttachments = [...(attachments || []), newAttachment];
+            const newAttachments = [...(task.attachments || []), newAttachment];
             handleUpdate('attachments', newAttachments);
             
             toast({ title: 'Sucesso!', description: 'Arquivo anexado com sucesso.' });
@@ -227,7 +223,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
             } catch (error) {
                 console.error("Error deleting file from storage:", error);
                 toast({ variant: 'destructive', title: 'Erro ao remover arquivo', description: 'O arquivo não pode ser removido do armazenamento.'});
-                // If deletion fails, we should probably not update the task state
                 return;
             }
         }
@@ -236,7 +231,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     };
 
     const handleDeleteTaskAndAttachments = async () => {
-        // First, delete all attachments from storage
         if (attachments) {
             for (const attachment of attachments) {
                 if (attachment.type === 'file' && attachment.storagePath) {
@@ -249,7 +243,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 }
             }
         }
-        // Then, delete the task itself from the board state
         onDeleteTask(task.id);
     };
 
@@ -326,7 +319,13 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                     Edite os detalhes da tarefa. O título acima é editável.
                 </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 px-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 px-1 relative">
+                {isUploading && (
+                    <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p className="mt-4 font-semibold text-foreground">Enviando arquivo...</p>
+                    </div>
+                )}
                 <div className="md:col-span-2 space-y-6 overflow-y-auto">
                     <div className="flex flex-wrap gap-4 items-center">
                         {labelIds.length > 0 && (
@@ -464,30 +463,21 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         <PopoverContent className="w-80 p-4 glass-card" align="start">
                             <div className="space-y-4">
                                 <h4 className="font-semibold text-center mb-2">Anexar</h4>
-                                {isUploading ? (
-                                    <div className="flex items-center justify-center p-4">
-                                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                                        <span>Carregando...</span>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="space-y-2">
-                                            <UiLabel htmlFor="attachment-url">Anexar um link</UiLabel>
-                                            <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
-                                            <Input id="attachment-name" placeholder="Nome do Link (Opcional)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
-                                            <Button onClick={handleAddAttachment} className="w-full">Anexar Link</Button>
-                                        </div>
-                                        <Separator/>
-                                        <div className="space-y-2">
-                                             <UiLabel htmlFor="file-upload">Carregar um arquivo</UiLabel>
-                                             <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                                                <Upload className="mr-2"/>
-                                                Escolher do computador
-                                             </Button>
-                                             <Input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden"/>
-                                        </div>
-                                    </>
-                                )}
+                                <div className="space-y-2">
+                                    <UiLabel htmlFor="attachment-url">Anexar um link</UiLabel>
+                                    <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
+                                    <Input id="attachment-name" placeholder="Nome do Link (Opcional)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
+                                    <Button onClick={handleAddAttachment} className="w-full">Anexar Link</Button>
+                                </div>
+                                <Separator/>
+                                <div className="space-y-2">
+                                     <UiLabel htmlFor="file-upload">Carregar um arquivo</UiLabel>
+                                     <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                                        <Upload className="mr-2"/>
+                                        Escolher do computador
+                                     </Button>
+                                     <Input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden"/>
+                                </div>
                             </div>
                         </PopoverContent>
                      </Popover>
@@ -508,3 +498,5 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     </Dialog>
   );
 }
+
+    
