@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { Task, ChecklistItem, Label } from '@/lib/types';
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label as UiLabel } from '../ui/label';
-import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft } from 'lucide-react';
+import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft, Check } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { v4 as uuidv4 } from 'uuid';
 import { Progress } from '../ui/progress';
@@ -204,12 +204,17 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="glass-card sm:max-w-2xl grid-rows-[auto,1fr,auto] max-h-[90vh]">
             <DialogHeader>
-                 <Input 
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    onBlur={() => handleUpdate('title', title)}
-                    className="text-2xl font-semibold leading-none tracking-tight border-transparent focus-visible:border-input focus-visible:ring-1 bg-transparent"
-                 />
+                <DialogTitle>
+                    <Input 
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={() => handleUpdate('title', title)}
+                        className="text-2xl font-semibold leading-none tracking-tight border-transparent focus-visible:border-input focus-visible:ring-1 bg-transparent"
+                    />
+                </DialogTitle>
+                <DialogDescription className="sr-only">
+                    Edite os detalhes da tarefa. O título acima é editável.
+                </DialogDescription>
             </DialogHeader>
             <div className="py-4 space-y-6 overflow-y-auto px-1">
                 <div className="flex flex-wrap gap-4 items-center">
@@ -218,8 +223,9 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                             <UiLabel className="flex items-center gap-2 text-sm text-muted-foreground"><Tag className="h-4 w-4"/> Etiquetas</UiLabel>
                             <div className="flex flex-wrap gap-1">
                                 {labelIds.map(labelId => (
-                                    <span key={labelId} className={`px-2 py-1 rounded text-xs font-semibold text-white ${allLabels[labelId]?.color || ''}`}>
-                                        {allLabels[labelId]?.name}
+                                    allLabels[labelId] &&
+                                    <span key={labelId} className={`px-2 py-1 rounded text-xs font-semibold text-white ${allLabels[labelId].color}`}>
+                                        {allLabels[labelId].name}
                                     </span>
                                 ))}
                             </div>
@@ -329,5 +335,3 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     </Dialog>
   );
 }
-
-    
