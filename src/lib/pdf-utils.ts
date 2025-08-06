@@ -19,37 +19,33 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    let cursorY = y + 18; // Initial Y position for text inside the card
+    let cursorY = y + 18;
 
-    // Draw card background and border
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235);
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
-    
-    // --- Draw Title ---
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128); // Muted foreground color
+    doc.setTextColor(107, 114, 128);
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
     doc.text(titleLines, x + padding, cursorY);
     
-    // --- Update Cursor Y Position based on title height ---
-    // The '10' is an approximation of the line height for font size 10
-    cursorY += (titleLines.length * 10) + 8; // Add extra space for margin
+    // Calculate Y position for the value dynamically based on the title's height.
+    // The '10' is the line height for the title's font size.
+    // The '+ 12' adds a consistent margin like the 'my-2' class.
+    cursorY += (titleLines.length * 10) + 12;
 
-    // --- Draw Value ---
-    doc.setFontSize(16);
+    doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39); // Default foreground color
+    doc.setTextColor(17, 24, 39);
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
     doc.text(valueLines, x + padding, cursorY);
-    
-    // --- Draw Description (if it exists) ---
-    // Positioned at the bottom of the card
+
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(29, 78, 216); // Primary color
+        doc.setTextColor(29, 78, 216);
         const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
         doc.text(descriptionLines, x + padding, y + height - 12);
     }
@@ -156,7 +152,7 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
         const sectionHeightEstimate = 50 + (kpiRows * 85); // Title height + (rows * (card height + gap))
 
         // If the estimated height will overflow and it's not the first category on the page
-        if (contentCursorY + sectionHeightEstimate > pageHeight - margin && index > 0) { 
+        if (contentCursorY + sectionHeightEstimate > pageHeight - margin && contentCursorY > 150) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
