@@ -36,7 +36,7 @@ import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
 import { useAuth } from "@/context/auth-context";
 import ProtectedRoute from "@/components/protected-route";
 import { ClockWidget } from "@/components/clock-widget";
-import { StatusWidget } from "@/components/status-widget";
+import { RecentClientsWidget } from "@/components/recent-clients-widget";
 
 const getInitials = (name: string = '') => {
     const names = name.split(' ').filter(Boolean);
@@ -151,7 +151,7 @@ function HomePageContent() {
           {/* Coluna da Esquerda com Widgets */}
           <div className="lg:col-span-1 flex flex-col gap-8">
             <ClockWidget />
-            <StatusWidget />
+            <RecentClientsWidget />
           </div>
 
           {/* Coluna da Direita com Painel de Clientes */}
