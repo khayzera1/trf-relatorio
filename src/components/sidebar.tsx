@@ -52,16 +52,18 @@ export function Sidebar() {
                 if (item.href === '/reports' && !pathname.startsWith('/reports')) return null;
 
                 return(
-                <Link key={item.label} href={item.href} legacyBehavior passHref>
-                    <a className={cn(
+                <Link 
+                    key={item.label} 
+                    href={item.href}
+                    className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActive 
                             ? "bg-primary text-primary-foreground" 
                             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    )}>
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </a>
+                    )}
+                >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
                 </Link>
             )})}
         </nav>
