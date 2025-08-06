@@ -19,6 +19,8 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
+    let cursorY = y + 18; // Start Y for text content
+
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235); // border-gray-200
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
@@ -28,23 +30,27 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128); // text-gray-500
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
-    doc.text(titleLines, x + padding, y + 18);
+    doc.text(titleLines, x + padding, cursorY);
+    cursorY += (titleLines.length * 10) + 6; // Move cursor down based on title height + spacing
 
     // KPI Value
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-gray-900
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
-    doc.text(valueLines, x + padding, y + 38);
+    doc.text(valueLines, x + padding, cursorY);
+    cursorY += (valueLines.length * 16); // Move cursor down
     
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
         const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
-        doc.text(descriptionLines, x + padding, y + 55);
+        // Position description at the bottom of the card for consistency
+        doc.text(descriptionLines, x + padding, y + height - 12);
     }
 };
+
 
 const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
