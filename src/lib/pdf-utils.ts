@@ -19,7 +19,7 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    const spacing = 15; // Proportional gap between elements
+    const internalSpacing = 8; // Consistent spacing between text blocks
 
     // Draw card background and border
     doc.setFillColor(255, 255, 255);
@@ -29,13 +29,11 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     // --- Prepare All Content and Calculate Total Height ---
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128);
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
     const titleHeight = doc.getTextDimensions(titleLines).h;
 
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39);
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
     const valueHeight = doc.getTextDimensions(valueLines).h;
 
@@ -44,21 +42,19 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(29, 78, 216);
         descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
         descriptionHeight = doc.getTextDimensions(descriptionLines).h;
     }
 
     // Calculate total height of all content blocks including spacing
-    let contentHeight = titleHeight + valueHeight;
+    let totalContentHeight = titleHeight + valueHeight;
     if (descriptionHeight > 0) {
-        contentHeight += descriptionHeight + spacing / 2; // Space between value and description
+        totalContentHeight += internalSpacing + descriptionHeight;
     }
-    contentHeight += spacing; // Space between title and value
 
     // --- Calculate Positioning ---
     // Starting Y position to vertically center the entire content block
-    let cursorY = y + (height - contentHeight) / 2 + padding;
+    let cursorY = y + (height - totalContentHeight) / 2;
 
     // --- Draw Content Sequentially ---
     // 1. Draw Title
@@ -66,18 +62,17 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128);
     doc.text(titleLines, x + padding, cursorY, { baseline: 'top' });
-    cursorY += titleHeight + spacing; // Move cursor down past the title and the main spacing
+    cursorY += titleHeight + internalSpacing; 
 
     // 2. Draw Value
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39);
     doc.text(valueLines, x + padding, cursorY, { baseline: 'top' });
-    cursorY += valueHeight;
-
+    
     // 3. Draw Description (if it exists)
     if (card.description) {
-        cursorY += spacing / 2; // Add space before description
+        cursorY += valueHeight + internalSpacing;
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216);
@@ -108,7 +103,7 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
-    const cardHeight = 85; // Increased height to accommodate content better
+    const cardHeight = 85; 
     
     categoryData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
