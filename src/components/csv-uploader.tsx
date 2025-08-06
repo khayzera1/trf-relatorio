@@ -1,26 +1,30 @@
-
 "use client";
 
 import { useState, useRef, ChangeEvent, MouseEvent } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, FileCheck, Loader2, Bot } from 'lucide-react';
+import { UploadCloud, FileCheck, Loader2, Bot, FileText } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { generateReportSummary } from '@/ai/flows/generate-report-summary-flow';
 import type { ReportData } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import Loading from '@/app/loading';
+
+const ReportPreview = dynamic(() => import('@/components/report-preview').then(mod => mod.ReportPreview), {
+    ssr: false,
+    loading: () => <Loading />,
+});
 
 interface CsvUploaderProps {
-    onReportGenerated: (data: ReportData) => void;
-    onGenerating: () => void;
     clientName?: string | null;
 }
 
-export function CsvUploader({ onReportGenerated, onGenerating, clientName }: CsvUploaderProps) {
+export function CsvUploader({ clientName }: CsvUploaderProps) {
     const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [reportData, setReportData] = useState<ReportData | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -39,7 +43,7 @@ export function CsvUploader({ onReportGenerated, onGenerating, clientName }: Csv
         }
     };
 
-    const handleGeneratePreview = async () => {
+    const handleGenerateReport = async () => {
         if (!file) {
             toast({
                 variant: "destructive",
@@ -50,7 +54,7 @@ export function CsvUploader({ onReportGenerated, onGenerating, clientName }: Csv
         }
 
         setIsLoading(true);
-        onGenerating(); 
+        setReportData(null); 
 
         const reader = new FileReader();
 
@@ -64,12 +68,12 @@ export function CsvUploader({ onReportGenerated, onGenerating, clientName }: Csv
 
             try {
                 const summaryResult = await generateReportSummary({ csvData: csvText });
-                onReportGenerated(summaryResult);
+                setReportData(summaryResult);
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : "Um erro desconhecido ocorreu.";
                 toast({
                     variant: "destructive",
-                    title: "Erro ao Gerar Pré-visualização",
+                    title: "Erro ao Gerar Relatório",
                     description: `Falha na comunicação com a IA: ${errorMessage}`,
                 });
             } finally {
@@ -93,6 +97,32 @@ export function CsvUploader({ onReportGenerated, onGenerating, clientName }: Csv
         e.preventDefault();
         fileInputRef.current?.click();
     };
+    
+    const handleReset = () => {
+        setReportData(null);
+        setFile(null);
+        setIsLoading(false);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center text-center p-10">
+                <Loader2 className="h-16 w-16 text-primary animate-spin mb-6" />
+                <h2 className="text-2xl font-semibold text-foreground mb-2">Analisando e gerando seu relatório...</h2>
+                <p className="text-muted-foreground">Isso pode levar alguns instantes. Por favor, aguarde.</p>
+            </div>
+        );
+    }
+    
+    if (reportData) {
+        return (
+            <ReportPreview 
+                data={reportData} 
+                onCancel={handleReset}
+                clientName={clientName}
+            />
+        )
+    }
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -146,15 +176,8 @@ export function CsvUploader({ onReportGenerated, onGenerating, clientName }: Csv
                             )}
                         </div>
 
-                        <Button onClick={handleGeneratePreview} disabled={!file || isLoading} className="w-full text-base py-6">
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Analisando e Gerando...
-                                </>
-                            ) : (
-                                'Gerar Pré-visualização com IA'
-                            )}
+                        <Button onClick={handleGenerateReport} disabled={!file} className="w-full text-base py-6">
+                           Gerar Relatório com IA
                         </Button>
                     </div>
                 </CardContent>
