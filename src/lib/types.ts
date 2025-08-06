@@ -25,10 +25,19 @@ export interface ReportData {
 }
 
 // Types for Kanban Board
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
+  labels?: string[];
+  dueDate?: string;
+  checklist?: ChecklistItem[];
 }
 
 export interface Column {
@@ -36,5 +45,3 @@ export interface Column {
   title: string;
   taskIds: string[];
 }
-
-    
