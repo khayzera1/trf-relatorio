@@ -33,19 +33,21 @@ interface CardModalProps {
 }
 
 export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }: CardModalProps) {
-    const [title, setTitle] = useState(task.title);
-    const [description, setDescription] = useState(task.description || '');
-    const [checklist, setChecklist] = useState<ChecklistItem[]>(task.checklist || []);
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
     const [newChecklistItem, setNewChecklistItem] = useState('');
-    const [labels, setLabels] = useState<string[]>(task.labels || []);
-    const [dueDate, setDueDate] = useState<Date | undefined>(task.dueDate ? parseISO(task.dueDate) : undefined);
+    const [labels, setLabels] = useState<string[]>([]);
+    const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
     
     useEffect(() => {
-        setTitle(task.title);
-        setDescription(task.description || '');
-        setChecklist(task.checklist || []);
-        setLabels(task.labels || []);
-        setDueDate(task.dueDate ? parseISO(task.dueDate) : undefined);
+        if (task) {
+            setTitle(task.title);
+            setDescription(task.description || '');
+            setChecklist(task.checklist || []);
+            setLabels(task.labels || []);
+            setDueDate(task.dueDate ? parseISO(task.dueDate) : undefined);
+        }
     }, [task]);
 
     const handleUpdate = (field: keyof Task, value: any) => {
@@ -77,8 +79,9 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }:
     };
 
     const checklistProgress = useMemo(() => {
+        if (!checklist || checklist.length === 0) return 0;
         const completed = checklist.filter(item => item.completed).length;
-        return checklist.length > 0 ? (completed / checklist.length) * 100 : 0;
+        return (completed / checklist.length) * 100;
     }, [checklist]);
 
     const toggleLabel = (label: string) => {
@@ -91,6 +94,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }:
         setDueDate(date);
         handleUpdate('dueDate', date ? date.toISOString() : undefined);
     };
+
+    if (!task) return null;
 
     return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -230,3 +235,5 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }:
     </Dialog>
   );
 }
+
+    
