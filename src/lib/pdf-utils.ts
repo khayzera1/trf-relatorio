@@ -52,13 +52,13 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     // Calculate total height of all content blocks including spacing
     let contentHeight = titleHeight + valueHeight;
     if (descriptionHeight > 0) {
-        contentHeight += descriptionHeight + spacing; // Space between value and description
+        contentHeight += descriptionHeight + spacing / 2; // Space between value and description
     }
     contentHeight += spacing; // Space between title and value
 
     // --- Calculate Positioning ---
     // Starting Y position to vertically center the entire content block
-    let cursorY = y + (height - contentHeight) / 2;
+    let cursorY = y + (height - contentHeight) / 2 + padding;
 
     // --- Draw Content Sequentially ---
     // 1. Draw Title
@@ -77,7 +77,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
 
     // 3. Draw Description (if it exists)
     if (card.description) {
-        cursorY += spacing; // Add space before description
+        cursorY += spacing / 2; // Add space before description
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216);
@@ -144,41 +144,56 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 40;
-    let cursorY = 0;
+    const headerHeight = 120;
 
     // --- Draw Header ---
     doc.setFillColor(29, 78, 216); // Primary blue color
-    doc.rect(0, 0, pageWidth, 120, 'F');
+    doc.rect(0, 0, pageWidth, headerHeight, 'F');
     
-    cursorY = 45;
+    // --- Calculate total height of header content ---
+    let totalContentHeight = 0;
+    let clientTextLines: string[] = [];
+    if (clientName) {
+        doc.setFontSize(14);
+        clientTextLines = doc.splitTextToSize(`Cliente: ${cleanText(clientName)}`, pageWidth - margin * 2);
+        totalContentHeight += doc.getTextDimensions(clientTextLines).h + 10;
+    }
+    
+    doc.setFontSize(22);
+    const titleLines = doc.splitTextToSize(cleanText(data.reportTitle), pageWidth - margin * 2);
+    totalContentHeight += doc.getTextDimensions(titleLines).h + 5;
 
+    doc.setFontSize(11);
+    const periodLines = doc.splitTextToSize(cleanText(data.reportPeriod), pageWidth - margin * 2);
+    totalContentHeight += doc.getTextDimensions(periodLines).h;
+
+    // --- Vertically center the content ---
+    let cursorY = (headerHeight - totalContentHeight) / 2;
+    
     // Client Name (if provided)
     if (clientName) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(255, 255, 255);
-        const clientText = `Cliente: ${cleanText(clientName)}`;
-        const clientTextLines = doc.splitTextToSize(clientText, pageWidth - margin * 2);
-        doc.text(clientTextLines, margin, cursorY);
-        cursorY += (clientTextLines.length * 14) + 10;
+        doc.text(clientTextLines, margin, cursorY, { baseline: 'top' });
+        cursorY += doc.getTextDimensions(clientTextLines).h + 10;
     }
 
     // Report Title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
-    const titleLines = doc.splitTextToSize(cleanText(data.reportTitle), pageWidth - margin * 2);
-    doc.text(titleLines, margin, cursorY);
-    cursorY += (titleLines.length * 22) + 5;
+    doc.text(titleLines, margin, cursorY, { baseline: 'top' });
+    cursorY += doc.getTextDimensions(titleLines).h + 5;
 
     // Report Period
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(229, 231, 235); // Lighter white
-    doc.text(cleanText(data.reportPeriod), margin, cursorY);
+    doc.text(periodLines, margin, cursorY, { baseline: 'top' });
 
     // --- Draw Main Content ---
-    let contentCursorY = 150; // Start content below the header
+    let contentCursorY = headerHeight + 30; // Start content below the header
     
     data.categories.forEach((category, index) => {
         // Estimate section height to check for page breaks
@@ -186,7 +201,7 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
         const sectionHeightEstimate = 50 + (kpiRows * 100); // Title height + (rows * (card height + gap))
 
         // If the estimated height will overflow and it's not the first category on the page
-        if (contentCursorY + sectionHeightEstimate > pageHeight - margin && contentCursorY > 150) { 
+        if (contentCursorY + sectionHeightEstimate > pageHeight - margin && contentCursorY > (headerHeight + 30)) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
