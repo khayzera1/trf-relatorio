@@ -19,14 +19,14 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    const spacing = 15; // The gap between title and value
+    const spacing = 15; // Proportional gap between elements
 
     // Draw card background and border
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235);
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
 
-    // --- Prepare Content ---
+    // --- Prepare All Content and Calculate Total Height ---
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128);
@@ -49,29 +49,35 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
         descriptionHeight = doc.getTextDimensions(descriptionLines).h;
     }
 
+    // Calculate total height of all content blocks including spacing
+    let contentHeight = titleHeight + valueHeight;
+    if (descriptionHeight > 0) {
+        contentHeight += descriptionHeight + spacing; // Space between value and description
+    }
+    contentHeight += spacing; // Space between title and value
+
     // --- Calculate Positioning ---
-    // Total height of all content blocks (title + spacing + value + spacing + description)
-    const contentHeight = titleHeight + valueHeight + (descriptionHeight > 0 ? descriptionHeight + spacing : 0);
-    
-    // Starting Y position to vertically center the content block within the card's available height
-    const startY = y + (height - contentHeight) / 2;
+    // Starting Y position to vertically center the entire content block
+    let cursorY = y + (height - contentHeight) / 2;
 
-    let cursorY = startY;
-
-    // --- Draw Content ---
+    // --- Draw Content Sequentially ---
+    // 1. Draw Title
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128);
     doc.text(titleLines, x + padding, cursorY, { baseline: 'top' });
-    cursorY += titleHeight + spacing; // Move cursor down past the title and the spacing
+    cursorY += titleHeight + spacing; // Move cursor down past the title and the main spacing
 
+    // 2. Draw Value
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39);
     doc.text(valueLines, x + padding, cursorY, { baseline: 'top' });
+    cursorY += valueHeight;
 
+    // 3. Draw Description (if it exists)
     if (card.description) {
-        cursorY += valueHeight + spacing;
+        cursorY += spacing; // Add space before description
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216);
