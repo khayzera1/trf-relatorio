@@ -160,34 +160,24 @@ export function KanbanBoard() {
     };
 
     const updateTask = (taskId: string, newValues: Partial<Task>) => {
-        const newTasks = { ...boardData.tasks };
-        newTasks[taskId] = { ...newTasks[taskId], ...newValues };
-        setBoardData(prev => ({ ...prev, tasks: newTasks }));
-        if (selectedTask && selectedTask.id === taskId) {
-            setSelectedTask(newTasks[taskId]);
-        }
+        setBoardData(prev => {
+            const newTasks = { ...prev.tasks };
+            newTasks[taskId] = { ...newTasks[taskId], ...newValues };
+            if (selectedTask && selectedTask.id === taskId) {
+                setSelectedTask(newTasks[taskId]);
+            }
+            return { ...prev, tasks: newTasks };
+        });
     };
+    
 
     const deleteTask = async (taskId: string) => {
         const taskToDelete = boardData.tasks[taskId];
         if (!taskToDelete) return;
     
-        // Delete all associated attachments from Firebase Storage
-        if (taskToDelete.attachments) {
-            for (const attachment of taskToDelete.attachments) {
-                if (attachment.type === 'file' && attachment.storagePath) {
-                    try {
-                        const fileRef = storageRef(storage, attachment.storagePath);
-                        await deleteObject(fileRef);
-                    } catch (error) {
-                        console.error(`Failed to delete attachment ${attachment.storagePath} from storage:`, error);
-                        // Optionally, show a toast to the user
-                    }
-                }
-            }
-        }
+        // This is now handled in the CardModal to ensure files are deleted from storage.
+        // The modal will call onUpdateTask with attachments set to [] before calling this.
     
-        // Delete the task from the state
         const newTasks = { ...boardData.tasks };
         delete newTasks[taskId];
     

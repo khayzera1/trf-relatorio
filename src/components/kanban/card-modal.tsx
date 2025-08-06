@@ -62,6 +62,9 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
 
 
     useEffect(() => {
+        // This effect syncs the modal's internal state with the task prop.
+        // This is crucial for when the task is updated from the parent (e.g., drag-and-drop)
+        // or after an async operation like file upload.
         if (task) {
             setTitle(task.title);
             setDescription(task.description || '');
@@ -171,7 +174,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 createdAt: new Date().toISOString(),
             };
             const newAttachments = [...attachments, newAttachment];
-            setAttachments(newAttachments);
+            // No need to call setAttachments here, as the useEffect will sync it
             handleUpdate('attachments', newAttachments);
             setAttachmentUrl('');
             setAttachmentName('');
@@ -184,6 +187,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         if (!file) return;
 
         setIsUploading(true);
+        setAttachmentPopoverOpen(false); // Close popover to show main modal loader if needed
 
         try {
             const filePath = `attachments/${task.id}/${uuidv4()}-${file.name}`;
@@ -201,7 +205,6 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
             };
             
             const newAttachments = [...(attachments || []), newAttachment];
-            setAttachments(newAttachments);
             handleUpdate('attachments', newAttachments);
             
             toast({ title: 'Sucesso!', description: 'Arquivo anexado com sucesso.' });
@@ -210,28 +213,45 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
             toast({ variant: 'destructive', title: 'Erro de Upload', description: 'Não foi possível anexar o arquivo.' });
         } finally {
             setIsUploading(false);
-            setAttachmentPopoverOpen(false);
         }
     };
 
-
-    const handleDeleteAttachment = async (attachment: Attachment) => {
-        const newAttachments = attachments.filter(att => att.id !== attachment.id);
-        setAttachments(newAttachments);
-        handleUpdate('attachments', newAttachments);
-
-        if (attachment.type === 'file' && attachment.storagePath) {
+    const handleDeleteAttachment = async (attachmentToDelete: Attachment) => {
+        const newAttachments = attachments.filter(att => att.id !== attachmentToDelete.id);
+        
+        if (attachmentToDelete.type === 'file' && attachmentToDelete.storagePath) {
             try {
-                const fileRef = storageRef(storage, attachment.storagePath);
+                const fileRef = storageRef(storage, attachmentToDelete.storagePath);
                 await deleteObject(fileRef);
                 toast({ title: 'Anexo removido', description: 'O arquivo foi removido do armazenamento.'});
             } catch (error) {
                 console.error("Error deleting file from storage:", error);
                 toast({ variant: 'destructive', title: 'Erro ao remover arquivo', description: 'O arquivo não pode ser removido do armazenamento.'});
+                // If deletion fails, we should probably not update the task state
+                return;
             }
         }
+        
+        handleUpdate('attachments', newAttachments);
     };
 
+    const handleDeleteTaskAndAttachments = async () => {
+        // First, delete all attachments from storage
+        if (attachments) {
+            for (const attachment of attachments) {
+                if (attachment.type === 'file' && attachment.storagePath) {
+                    try {
+                        const fileRef = storageRef(storage, attachment.storagePath);
+                        await deleteObject(fileRef);
+                    } catch (error) {
+                        console.error(`Failed to delete attachment ${attachment.storagePath} from storage:`, error);
+                    }
+                }
+            }
+        }
+        // Then, delete the task itself from the board state
+        onDeleteTask(task.id);
+    };
 
     if (!task) return null;
 
@@ -476,7 +496,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         <Button 
                             variant="ghost" 
                             className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => onDeleteTask(task.id)}
+                            onClick={handleDeleteTaskAndAttachments}
                         >
                             <Trash2 className="mr-2" />
                             Excluir Tarefa
