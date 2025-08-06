@@ -44,13 +44,17 @@ export default function LoginPage() {
         description: 'Você será redirecionado em breve.',
       });
       router.push('/');
-    } catch (error) {
-      console.error('Login failed:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Falha no Login',
-        description: 'Credenciais inválidas. Verifique seu e-mail e senha.',
-      });
+    } catch (error: any) {
+        let description = 'Ocorreu um erro inesperado. Tente novamente.';
+        if (error.code === 'auth/invalid-credential') {
+            description = 'O e-mail ou a senha estão incorretos. Verifique suas credenciais e tente novamente.';
+        }
+        console.error('Login failed:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Falha no Login',
+            description: description,
+        });
     } finally {
       setIsLoading(false);
     }
@@ -116,5 +120,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
