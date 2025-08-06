@@ -19,29 +19,37 @@ const cleanText = (text: string | undefined | null): string => {
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
     const padding = 10;
-    let cursorY = y + 18;
+    let cursorY = y + 18; // Initial Y position for text inside the card
 
+    // Draw card background and border
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235);
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
     
+    // --- Draw Title ---
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(107, 114, 128);
+    doc.setTextColor(107, 114, 128); // Muted foreground color
     const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
     doc.text(titleLines, x + padding, cursorY);
-    cursorY += (titleLines.length * 10) + 8;
+    
+    // --- Update Cursor Y Position based on title height ---
+    // The '10' is an approximation of the line height for font size 10
+    cursorY += (titleLines.length * 10) + 8; // Add extra space for margin
 
+    // --- Draw Value ---
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(17, 24, 39);
+    doc.setTextColor(17, 24, 39); // Default foreground color
     const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
     doc.text(valueLines, x + padding, cursorY);
     
+    // --- Draw Description (if it exists) ---
+    // Positioned at the bottom of the card
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(29, 78, 216);
+        doc.setTextColor(29, 78, 216); // Primary color
         const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
         doc.text(descriptionLines, x + padding, y + height - 12);
     }
@@ -51,6 +59,7 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
 const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
 
+    // --- Draw Category Title and Total Investment ---
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39);
@@ -63,8 +72,9 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     doc.setTextColor(55, 65, 81);
     doc.text(investmentText, pageWidth - margin - investmentTextWidth, cursorY);
 
-    cursorY += 35;
+    cursorY += 35; // Space between category title and KPI cards
 
+    // --- Draw KPI Cards ---
     const cardsPerRow = 4;
     const cardGap = 15;
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
@@ -77,8 +87,10 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
         const cardX = margin + colIndex * (cardWidth + cardGap);
         let cardY = cursorY + rowIndex * (cardHeight + cardGap);
 
+        // Check if card will go off the page, if so, add a new page
         if (cardY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
+            // Reset the cursor Y position, subtracting the space already occupied by previous rows
             cursorY = margin - (rowIndex * (cardHeight + cardGap)); 
             cardY = cursorY + rowIndex * (cardHeight + cardGap);
         }
@@ -104,11 +116,13 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     const margin = 40;
     let cursorY = 0;
 
-    doc.setFillColor(29, 78, 216);
+    // --- Draw Header ---
+    doc.setFillColor(29, 78, 216); // Primary blue color
     doc.rect(0, 0, pageWidth, 120, 'F');
     
     cursorY = 45;
 
+    // Client Name (if provided)
     if (clientName) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -119,6 +133,7 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
         cursorY += (clientTextLines.length * 14) + 10;
     }
 
+    // Report Title
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
@@ -126,23 +141,26 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     doc.text(titleLines, margin, cursorY);
     cursorY += (titleLines.length * 22) + 5;
 
-
+    // Report Period
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
-    doc.setTextColor(229, 231, 235);
+    doc.setTextColor(229, 231, 235); // Lighter white
     doc.text(cleanText(data.reportPeriod), margin, cursorY);
 
-    let contentCursorY = 150;
+    // --- Draw Main Content ---
+    let contentCursorY = 150; // Start content below the header
     
     data.categories.forEach((category, index) => {
+        // Estimate section height to check for page breaks
         const kpiRows = Math.ceil(category.kpiCards.length / 4);
-        const sectionHeightEstimate = 50 + (kpiRows * 85); 
+        const sectionHeightEstimate = 50 + (kpiRows * 85); // Title height + (rows * (card height + gap))
 
+        // If the estimated height will overflow and it's not the first category on the page
         if (contentCursorY + sectionHeightEstimate > pageHeight - margin && index > 0) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
-           contentCursorY += 20;
+           contentCursorY += 20; // Add space between categories
         }
         
         contentCursorY = drawCategorySection(doc, category, contentCursorY, pageWidth, margin);
