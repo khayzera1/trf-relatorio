@@ -28,7 +28,7 @@ export interface ReportData {
 export interface Task {
   id: string;
   title: string;
-  content?: string;
+  description?: string;
 }
 
 export interface Column {
@@ -36,3 +36,5 @@ export interface Column {
   title: string;
   taskIds: string[];
 }
+
+    

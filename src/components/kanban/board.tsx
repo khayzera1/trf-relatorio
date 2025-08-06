@@ -2,20 +2,22 @@
 "use client";
 
 import { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, OnDragEndResponder } from "@hello-pangea/dnd";
 import { KanbanColumn } from './column';
 import type { Task, Column as ColumnType } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
+import { v4 as uuidv4 } from 'uuid';
+import { CardModal } from './card-modal';
 
 const initialTasks: Record<string, Task> = {
-    'task-1': { id: 'task-1', title: 'Configurar ambiente de desenvolvimento', content: 'Instalar todas as dependências necessárias e configurar o Next.js.' },
-    'task-2': { id: 'task-2', title: 'Desenvolver layout do board', content: 'Criar os componentes de coluna e cartão com base no design.' },
-    'task-3': { id: 'task-3', title: 'Implementar o cabeçalho', content: 'Adicionar navegação e menu do usuário.' },
-    'task-4': { id: 'task-4', title: 'Criar fluxo de autenticação', content: 'Configurar a página de login e a lógica de autenticação com Firebase.' },
-    'task-5': { id: 'task-5', title: 'Testar responsividade da UI', content: 'Garantir que o layout funcione bem em desktops e dispositivos móveis.' },
-    'task-6': { id: 'task-6', title: 'Conectar ao banco de dados', content: 'Criar funções para ler e escrever dados no Firestore.' },
-    'task-7': { id: 'task-7', title: 'Adicionar funcionalidade de drag-and-drop', content: 'Implementar a biblioteca de D&D para mover cartões e colunas.' },
+    'task-1': { id: 'task-1', title: 'Configurar ambiente de desenvolvimento', description: 'Instalar todas as dependências necessárias e configurar o Next.js.' },
+    'task-2': { id: 'task-2', title: 'Desenvolver layout do board', description: 'Criar os componentes de coluna e cartão com base no design.' },
+    'task-3': { id: 'task-3', title: 'Implementar o cabeçalho', description: 'Adicionar navegação e menu do usuário.' },
+    'task-4': { id: 'task-4', title: 'Criar fluxo de autenticação', description: 'Configurar a página de login e a lógica de autenticação com Firebase.' },
+    'task-5': { id: 'task-5', title: 'Testar responsividade da UI', description: 'Garantir que o layout funcione bem em desktops e dispositivos móveis.' },
+    'task-6': { id: 'task-6', title: 'Conectar ao banco de dados', description: 'Criar funções para ler e escrever dados no Firestore.' },
+    'task-7': { id: 'task-7', title: 'Adicionar funcionalidade de drag-and-drop', description: 'Implementar a biblioteca de D&D para mover cartões e colunas.' },
 };
 
 const initialColumns: Record<string, ColumnType> = {
@@ -39,21 +41,18 @@ export function KanbanBoard() {
         columns: initialColumns,
         columnOrder: initialColumnOrder,
     });
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const onDragEnd: OnDragEndResponder = (result) => {
         const { destination, source, draggableId, type } = result;
 
         if (!destination) return;
-
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
-            return;
-        }
+        if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
         if (type === 'column') {
             const newColumnOrder = Array.from(boardData.columnOrder);
             newColumnOrder.splice(source.index, 1);
             newColumnOrder.splice(destination.index, 0, draggableId);
-
             setBoardData(prev => ({ ...prev, columnOrder: newColumnOrder }));
             return;
         }
@@ -65,19 +64,14 @@ export function KanbanBoard() {
             const newTaskIds = Array.from(startColumn.taskIds);
             newTaskIds.splice(source.index, 1);
             newTaskIds.splice(destination.index, 0, draggableId);
-
             const newColumn = { ...startColumn, taskIds: newTaskIds };
             setBoardData(prev => ({
                 ...prev,
-                columns: {
-                    ...prev.columns,
-                    [newColumn.id]: newColumn,
-                },
+                columns: { ...prev.columns, [newColumn.id]: newColumn },
             }));
             return;
         }
         
-        // Moving from one list to another
         const startTaskIds = Array.from(startColumn.taskIds);
         startTaskIds.splice(source.index, 1);
         const newStartColumn = { ...startColumn, taskIds: startTaskIds };
@@ -95,6 +89,87 @@ export function KanbanBoard() {
             }
         }));
     };
+    
+    const addColumn = () => {
+        const newColumnId = `col-${uuidv4()}`;
+        const newColumn: ColumnType = {
+            id: newColumnId,
+            title: 'Nova Lista',
+            taskIds: [],
+        };
+        setBoardData(prev => ({
+            ...prev,
+            columns: { ...prev.columns, [newColumnId]: newColumn },
+            columnOrder: [...prev.columnOrder, newColumnId],
+        }));
+    };
+
+    const updateColumnTitle = (columnId: string, newTitle: string) => {
+        const newColumns = { ...boardData.columns };
+        newColumns[columnId].title = newTitle;
+        setBoardData(prev => ({ ...prev, columns: newColumns }));
+    };
+
+    const deleteColumn = (columnId: string) => {
+        const columnToDelete = boardData.columns[columnId];
+        const taskIdsToDelete = new Set(columnToDelete.taskIds);
+
+        const newTasks = { ...boardData.tasks };
+        taskIdsToDelete.forEach(taskId => delete newTasks[taskId]);
+
+        const newColumns = { ...boardData.columns };
+        delete newColumns[columnId];
+        
+        const newColumnOrder = boardData.columnOrder.filter(id => id !== columnId);
+
+        setBoardData({
+            tasks: newTasks,
+            columns: newColumns,
+            columnOrder: newColumnOrder,
+        });
+    };
+
+    const addTask = (columnId: string, title: string) => {
+        const newTaskId = `task-${uuidv4()}`;
+        const newTask: Task = { id: newTaskId, title, description: '' };
+        
+        const column = boardData.columns[columnId];
+        const newTaskIds = [...column.taskIds, newTaskId];
+
+        setBoardData(prev => ({
+            ...prev,
+            tasks: { ...prev.tasks, [newTaskId]: newTask },
+            columns: {
+                ...prev.columns,
+                [columnId]: { ...column, taskIds: newTaskIds },
+            },
+        }));
+    };
+
+    const updateTask = (taskId: string, newTitle: string, newDescription: string) => {
+        const newTasks = { ...boardData.tasks };
+        newTasks[taskId].title = newTitle;
+        newTasks[taskId].description = newDescription;
+        setBoardData(prev => ({ ...prev, tasks: newTasks }));
+    };
+
+    const deleteTask = (taskId: string) => {
+        const newTasks = { ...boardData.tasks };
+        delete newTasks[taskId];
+
+        const newColumns = { ...boardData.columns };
+        Object.keys(newColumns).forEach(colId => {
+            newColumns[colId].taskIds = newColumns[colId].taskIds.filter(id => id !== taskId);
+        });
+
+        setBoardData(prev => ({
+            ...prev,
+            tasks: newTasks,
+            columns: newColumns,
+        }));
+        setSelectedTask(null); // Close modal on delete
+    };
+
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -104,10 +179,6 @@ export function KanbanBoard() {
                         <h1 className="text-3xl font-bold tracking-tight">Quadro de Tarefas</h1>
                         <p className="text-muted-foreground">Organize seu projeto com o fluxo de trabalho Kanban.</p>
                     </div>
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nova Tarefa
-                    </Button>
                 </div>
 
                 <Droppable droppableId="all-columns" direction="horizontal" type="column">
@@ -121,22 +192,21 @@ export function KanbanBoard() {
                                 const column = boardData.columns[columnId];
                                 const tasks = column.taskIds.map(taskId => boardData.tasks[taskId]);
                                 return (
-                                    <Draggable key={column.id} draggableId={column.id} index={index}>
-                                        {(provided) => (
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                            >
-                                                <KanbanColumn column={column} tasks={tasks} />
-                                            </div>
-                                        )}
-                                    </Draggable>
+                                    <KanbanColumn 
+                                        key={column.id} 
+                                        column={column} 
+                                        tasks={tasks} 
+                                        index={index}
+                                        onUpdateTitle={updateColumnTitle}
+                                        onDelete={deleteColumn}
+                                        onAddTask={addTask}
+                                        onOpenTaskModal={(task) => setSelectedTask(task)}
+                                    />
                                 );
                             })}
                             {provided.placeholder}
                              <div className="w-80 flex-shrink-0">
-                                <Button variant="outline" className="w-full h-12 bg-white/5 border-dashed hover:bg-white/10">
+                                <Button variant="outline" className="w-full h-12 bg-white/5 border-dashed hover:bg-white/10" onClick={addColumn}>
                                     <Plus className="mr-2 h-4 w-4"/>
                                     Adicionar nova lista
                                 </Button>
@@ -145,6 +215,17 @@ export function KanbanBoard() {
                     )}
                 </Droppable>
             </div>
+            {selectedTask && (
+                <CardModal 
+                    task={selectedTask}
+                    isOpen={!!selectedTask}
+                    onClose={() => setSelectedTask(null)}
+                    onUpdateTask={updateTask}
+                    onDeleteTask={deleteTask}
+                />
+            )}
         </DragDropContext>
     );
 }
+
+    
