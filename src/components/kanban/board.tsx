@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { DragDropContext, Droppable, OnDragEndResponder } from "@hello-pangea/dnd";
 import { KanbanColumn } from './column';
-import type { Task, Column as ColumnType, Label, ChecklistItem } from '@/lib/types';
+import type { Task, Column as ColumnType, Label, ChecklistItem, Attachment } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { v4 as uuidv4 } from 'uuid';
@@ -142,7 +142,7 @@ export function KanbanBoard() {
 
     const addTask = (columnId: string, title: string) => {
         const newTaskId = `task-${uuidv4()}`;
-        const newTask: Task = { id: newTaskId, title, description: '', labelIds: [], checklist: [] };
+        const newTask: Task = { id: newTaskId, title, description: '', labelIds: [], checklist: [], attachments: [] };
         
         const column = boardData.columns[columnId];
         const newTaskIds = [...column.taskIds, newTaskId];
@@ -270,5 +270,3 @@ export function KanbanBoard() {
         </DragDropContext>
     );
 }
-
-    

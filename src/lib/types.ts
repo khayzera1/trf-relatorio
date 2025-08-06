@@ -37,6 +37,14 @@ export interface Label {
   color: string;
 }
 
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: 'link' | 'file';
+  createdAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -44,6 +52,7 @@ export interface Task {
   labelIds?: string[];
   dueDate?: string;
   checklist?: ChecklistItem[];
+  attachments?: Attachment[];
 }
 
 export interface Column {
@@ -51,5 +60,3 @@ export interface Column {
   title: string;
   taskIds: string[];
 }
-
-    

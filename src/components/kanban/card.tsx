@@ -4,7 +4,7 @@
 import type { Task, Label } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from 'date-fns';
-import { Calendar, CheckSquare } from "lucide-react";
+import { Calendar, CheckSquare, Paperclip } from "lucide-react";
 
 interface KanbanCardProps {
     task: Task;
@@ -18,6 +18,8 @@ export function KanbanCard({ task, labels, isDragging }: KanbanCardProps) {
         : 0;
     
     const taskLabels = task.labelIds?.map(id => labels[id]).filter(Boolean) || [];
+
+    const attachmentCount = task.attachments?.length || 0;
 
     return (
         <Card className={`glass-card bg-card/80 mb-2 p-3 rounded-lg shadow-sm hover:border-primary/20 transition-all cursor-pointer ${isDragging ? 'shadow-2xl scale-105 border-primary/40' : ''}`}>
@@ -43,10 +45,14 @@ export function KanbanCard({ task, labels, isDragging }: KanbanCardProps) {
                             <span>{checklistProgress}/{task.checklist.length}</span>
                         </div>
                     )}
+                    {attachmentCount > 0 && (
+                         <div className="flex items-center gap-1">
+                            <Paperclip className="h-3 w-3" />
+                            <span>{attachmentCount}</span>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
     );
 }
-
-    
