@@ -4,7 +4,7 @@
 import type { Task, Label } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from 'date-fns';
-import { Calendar, CheckSquare, Paperclip } from "lucide-react";
+import { Calendar, CheckSquare, Paperclip, FileText } from "lucide-react";
 
 interface KanbanCardProps {
     task: Task;

@@ -9,6 +9,8 @@ import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { v4 as uuidv4 } from 'uuid';
 import { CardModal } from './card-modal';
+import { storage, deleteObject, ref as storageRef } from '@/lib/firebase/client';
+
 
 const initialLabels: Record<string, Label> = {
     'label-1': { id: 'label-1', name: 'dev', color: 'bg-blue-500' },
@@ -166,15 +168,34 @@ export function KanbanBoard() {
         }
     };
 
-    const deleteTask = (taskId: string) => {
+    const deleteTask = async (taskId: string) => {
+        const taskToDelete = boardData.tasks[taskId];
+        if (!taskToDelete) return;
+    
+        // Delete all associated attachments from Firebase Storage
+        if (taskToDelete.attachments) {
+            for (const attachment of taskToDelete.attachments) {
+                if (attachment.type === 'file' && attachment.storagePath) {
+                    try {
+                        const fileRef = storageRef(storage, attachment.storagePath);
+                        await deleteObject(fileRef);
+                    } catch (error) {
+                        console.error(`Failed to delete attachment ${attachment.storagePath} from storage:`, error);
+                        // Optionally, show a toast to the user
+                    }
+                }
+            }
+        }
+    
+        // Delete the task from the state
         const newTasks = { ...boardData.tasks };
         delete newTasks[taskId];
-
+    
         const newColumns = { ...boardData.columns };
         Object.keys(newColumns).forEach(colId => {
             newColumns[colId].taskIds = newColumns[colId].taskIds.filter(id => id !== taskId);
         });
-
+    
         setBoardData(prev => ({
             ...prev,
             tasks: newTasks,

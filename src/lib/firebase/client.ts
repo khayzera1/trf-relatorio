@@ -15,13 +15,21 @@ import {
     orderBy,
     Firestore
 } from 'firebase/firestore';
+import { 
+    getStorage, 
+    ref, 
+    uploadBytes, 
+    getDownloadURL, 
+    deleteObject,
+    FirebaseStorage
+} from "firebase/storage";
 import type { ClientData, ClientDataInput } from '@/lib/types';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
   "projectId": "data-exporter-b59ih",
   "appId": "1:783413603123:web:e4b5f3c6b164e974d06c46",
-  "storageBucket": "data-exporter-b59ih.firebasestorage.app",
+  "storageBucket": "data-exporter-b59ih.appspot.com",
   "apiKey": "AIzaSyAv-V2apXjSLB8HIFoi9hPXgfEX4y9g5eo",
   "authDomain": "data-exporter-b59ih.firebaseapp.com",
   "measurementId": "",
@@ -32,6 +40,7 @@ const firebaseConfig = {
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
+const storage: FirebaseStorage = getStorage(app);
 
 const clientsCollection = collection(db, 'clients');
 
@@ -101,7 +110,15 @@ export async function deleteClient(id: string): Promise<void> {
     }
 }
 
-export { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut };
+export { 
+    auth, 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    signOut,
+    storage, // Export storage instance
+    ref, 
+    uploadBytes, 
+    getDownloadURL,
+    deleteObject
+};
 export type { User };
-
-    

@@ -43,6 +43,7 @@ export interface Attachment {
   url: string;
   type: 'link' | 'file';
   createdAt: string;
+  storagePath?: string; // Path for files stored in Firebase Storage
 }
 
 export interface Task {

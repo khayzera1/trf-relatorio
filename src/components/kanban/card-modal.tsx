@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Task, ChecklistItem, Label, Attachment } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label as UiLabel } from '../ui/label';
-import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft, Check, Paperclip, Link as LinkIcon } from 'lucide-react';
+import { AlignLeft, Trash2, CheckSquare, Tag, Calendar as CalendarIcon, Plus, X, Pencil, ArrowLeft, Check, Paperclip, Link as LinkIcon, Upload, Loader2 } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { v4 as uuidv4 } from 'uuid';
 import { Progress } from '../ui/progress';
@@ -15,6 +15,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { storage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from '@/lib/firebase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const labelColorOptions = [
     'bg-blue-500', 'bg-purple-500', 'bg-red-500', 'bg-green-500', 
@@ -41,6 +43,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     const [newChecklistItem, setNewChecklistItem] = useState('');
     const [labelIds, setLabelIds] = useState<string[]>([]);
     const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+    const { toast } = useToast();
     
     // State for labels popover
     const [labelPopoverOpen, setLabelPopoverOpen] = useState(false);
@@ -53,6 +56,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     const [attachmentPopoverOpen, setAttachmentPopoverOpen] = useState(false);
     const [attachmentUrl, setAttachmentUrl] = useState('');
     const [attachmentName, setAttachmentName] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
 
     useEffect(() => {
@@ -173,10 +178,57 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         }
     };
 
-    const handleDeleteAttachment = (attachmentId: string) => {
-        const newAttachments = attachments.filter(att => att.id !== attachmentId);
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+
+        try {
+            const filePath = `attachments/${task.id}/${uuidv4()}-${file.name}`;
+            const fileRef = storageRef(storage, filePath);
+            await uploadBytes(fileRef, file);
+            const downloadURL = await getDownloadURL(fileRef);
+
+            const newAttachment: Attachment = {
+                id: uuidv4(),
+                name: file.name,
+                url: downloadURL,
+                type: 'file',
+                storagePath: filePath,
+                createdAt: new Date().toISOString(),
+            };
+            
+            const newAttachments = [...(attachments || []), newAttachment];
+            setAttachments(newAttachments);
+            handleUpdate('attachments', newAttachments);
+            
+            toast({ title: 'Sucesso!', description: 'Arquivo anexado com sucesso.' });
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            toast({ variant: 'destructive', title: 'Erro de Upload', description: 'Não foi possível anexar o arquivo.' });
+        } finally {
+            setIsUploading(false);
+            setAttachmentPopoverOpen(false);
+        }
+    };
+
+
+    const handleDeleteAttachment = async (attachment: Attachment) => {
+        const newAttachments = attachments.filter(att => att.id !== attachment.id);
         setAttachments(newAttachments);
         handleUpdate('attachments', newAttachments);
+
+        if (attachment.type === 'file' && attachment.storagePath) {
+            try {
+                const fileRef = storageRef(storage, attachment.storagePath);
+                await deleteObject(fileRef);
+                toast({ title: 'Anexo removido', description: 'O arquivo foi removido do armazenamento.'});
+            } catch (error) {
+                console.error("Error deleting file from storage:", error);
+                toast({ variant: 'destructive', title: 'Erro ao remover arquivo', description: 'O arquivo não pode ser removido do armazenamento.'});
+            }
+        }
     };
 
 
@@ -306,13 +358,13 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                 {attachments.map(att => (
                                     <div key={att.id} className="flex items-center gap-3 group bg-muted/50 p-2 rounded-md">
                                         <div className="bg-muted p-2 rounded">
-                                           <LinkIcon className="h-5 w-5"/>
+                                           {att.type === 'link' ? <LinkIcon className="h-5 w-5"/> : <FileText className="h-5 w-5"/>}
                                         </div>
                                         <div className="flex-grow">
                                             <a href={att.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-sm hover:underline break-all">{att.name}</a>
                                             <p className="text-xs text-muted-foreground">Adicionado em {format(parseISO(att.createdAt), "d MMM, yyyy 'às' HH:mm", {locale: ptBR})}</p>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteAttachment(att.id)}>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteAttachment(att)}>
                                             <Trash2 className="h-4 w-4"/>
                                         </Button>
                                     </div>
@@ -389,17 +441,32 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                             <Button variant="secondary" className="w-full justify-start"><Paperclip className="mr-2"/> Anexar</Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80 p-4 glass-card" align="start">
-                             <div className="space-y-4">
-                                <h4 className="font-semibold text-center">Anexar um link</h4>
-                                <div>
-                                    <UiLabel htmlFor="attachment-url">URL</UiLabel>
-                                    <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
-                                </div>
-                                <div>
-                                    <UiLabel htmlFor="attachment-name">Nome do Link (Opcional)</UiLabel>
-                                    <Input id="attachment-name" placeholder="Ex: Documento de Design" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
-                                </div>
-                                <Button onClick={handleAddAttachment} className="w-full">Anexar</Button>
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-center mb-2">Anexar</h4>
+                                {isUploading ? (
+                                    <div className="flex items-center justify-center p-4">
+                                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                                        <span>Carregando...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-2">
+                                            <UiLabel htmlFor="attachment-url">Anexar um link</UiLabel>
+                                            <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
+                                            <Input id="attachment-name" placeholder="Nome do Link (Opcional)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
+                                            <Button onClick={handleAddAttachment} className="w-full">Anexar Link</Button>
+                                        </div>
+                                        <Separator/>
+                                        <div className="space-y-2">
+                                             <UiLabel htmlFor="file-upload">Carregar um arquivo</UiLabel>
+                                             <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                                                <Upload className="mr-2"/>
+                                                Escolher do computador
+                                             </Button>
+                                             <Input id="file-upload" type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden"/>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </PopoverContent>
                      </Popover>
