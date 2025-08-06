@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, ChangeEvent, MouseEvent } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,16 +92,14 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
 
         reader.readAsText(file);
     };
-
-    const triggerFileSelect = (e: MouseEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        fileInputRef.current?.click();
-    };
     
     const handleReset = () => {
         setReportData(null);
         setFile(null);
         setIsLoading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
     };
 
     if (isLoading) {
@@ -149,7 +147,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
 
                         <div 
                             className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 sm:p-8 w-full flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent transition-colors"
-                            onClick={triggerFileSelect}
+                            onClick={() => fileInputRef.current?.click()}
                             onDrop={(e) => { e.preventDefault(); handleFileChange({ target: { files: e.dataTransfer.files } } as ChangeEvent<HTMLInputElement>); }}
                             onDragOver={(e) => e.preventDefault()}
                         >
