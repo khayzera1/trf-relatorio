@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={inter.variable}>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans animated-background">
           <AuthProvider>
             <Suspense fallback={<Loading />}>
                 {children}

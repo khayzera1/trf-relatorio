@@ -7,25 +7,24 @@
 
 @layer base {
   :root {
-    /* Dark, sophisticated theme inspired by fintech examples */
-    --background: 224 71% 4%; /* Deep, dark blue for the main background */
-    --foreground: 210 40% 98%; /* Light, almost white text for high contrast */
+    /* Sophisticated dark theme with purple and pink accents */
+    --background: 240 10% 4%; /* Near-black, deep blue */
+    --foreground: 210 40% 98%;
 
-    /* Cards are a slightly lighter shade of the background */
-    --card: 230 40% 9%;
+    --card: 240 10% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 230 40% 9%;
+    --popover: 240 10% 9%;
     --popover-foreground: 210 40% 98%;
 
-    /* A vibrant cyan for primary actions, as seen in the "BUY" button */
-    --primary: 180 80% 45%; 
-    --primary-foreground: 224 71% 4%; /* Dark text on primary buttons */
+    /* A vibrant, deep purple for primary actions */
+    --primary: 260 80% 60%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 230 40% 15%; /* A slightly lighter dark blue/purple for secondary elements */
+    --secondary: 240 10% 15%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 230 40% 15%;
+    --muted: 240 10% 15%;
     --muted-foreground: 215 20% 65%;
 
     /* A vibrant pink/magenta for accents */
@@ -35,15 +34,15 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 230 40% 20%;
-    --input: 230 40% 20%;
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
 
-    --ring: 180 80% 55%;
+    --ring: 260 80% 65%;
     
-    /* Chart colors inspired by the provided image */
-    --chart-1: 180 80% 45%;   /* Cyan */
+    /* Chart colors with new theme */
+    --chart-1: 260 80% 60%;   /* Purple */
     --chart-2: 330 80% 55%;   /* Pink/Magenta */
-    --chart-3: 260 80% 60%;   /* Purple */
+    --chart-3: 180 80% 45%;   /* Cyan (as a tertiary option) */
     --chart-4: 43 74% 66%;    /* Yellow */
     --chart-5: 27 87% 67%;    /* Orange */
     
@@ -63,7 +62,30 @@
 @layer components {
   /* A clean, dark card style */
   .glass-card {
-    background-color: hsl(var(--card));
-    @apply border border-white/10 rounded-2xl shadow-xl shadow-black/20;
+    background-color: hsl(var(--card) / 0.8);
+    @apply border border-white/10 rounded-2xl shadow-xl shadow-black/20 backdrop-blur-xl;
   }
+}
+
+@layer utilities {
+  .animated-background {
+    @apply relative w-full h-full overflow-hidden;
+  }
+  .animated-background::before {
+    content: '';
+    @apply absolute -z-10 top-0 left-0 w-full h-full;
+    background-image: 
+      radial-gradient(circle at 10% 20%, hsl(var(--primary) / 0.25), transparent 30%),
+      radial-gradient(circle at 80% 30%, hsl(var(--accent) / 0.25), transparent 30%),
+      radial-gradient(circle at 25% 80%, hsl(var(--primary) / 0.2), transparent 40%),
+      radial-gradient(circle at 90% 85%, hsl(var(--chart-3) / 0.2), transparent 40%);
+    background-size: 200% 200%;
+    animation: particle-flow 40s ease-in-out infinite;
+  }
+}
+
+@keyframes particle-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
