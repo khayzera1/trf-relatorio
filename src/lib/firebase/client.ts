@@ -13,7 +13,12 @@ import {
     deleteDoc,
     query,
     orderBy,
-    Firestore
+    Firestore,
+    writeBatch,
+    where,
+    limit,
+    setDoc,
+    getDoc,
 } from 'firebase/firestore';
 import { 
     getStorage, 
@@ -23,7 +28,7 @@ import {
     deleteObject,
     FirebaseStorage
 } from "firebase/storage";
-import type { ClientData, ClientDataInput } from '@/lib/types';
+import type { ClientData, ClientDataInput, BoardData } from '@/lib/types';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -42,18 +47,18 @@ const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 const storage: FirebaseStorage = getStorage(app);
 
+// Firestore Collections
 const clientsCollection = collection(db, 'clients');
+const kanbanBoardsCollection = collection(db, 'kanbanBoards');
 
-/**
- * Adds a new client to the Firestore database.
- * @param client - The client data to add.
- * @returns The ID of the newly created document.
- */
+
+// --- Client Management Functions ---
+
 export async function addClient(client: ClientDataInput): Promise<string> {
     try {
         const docRef = await addDoc(clientsCollection, {
             ...client,
-            createdAt: new Date(), // Add a timestamp for sorting
+            createdAt: new Date(), 
         });
         return docRef.id;
     } catch (e) {
@@ -62,10 +67,6 @@ export async function addClient(client: ClientDataInput): Promise<string> {
     }
 }
 
-/**
- * Fetches all clients from the Firestore database, ordered by creation date.
- * @returns A promise that resolves to an array of clients.
- */
 export async function getClients(): Promise<ClientData[]> {
     try {
         const q = query(clientsCollection, orderBy('createdAt', 'desc'));
@@ -81,11 +82,6 @@ export async function getClients(): Promise<ClientData[]> {
     }
 }
 
-/**
- * Updates an existing client's data in Firestore.
- * @param id - The ID of the client document to update.
- * @param clientName - The new name for the client.
- */
 export async function updateClient(id: string, clientName: string): Promise<void> {
     try {
         const clientDoc = doc(db, 'clients', id);
@@ -96,10 +92,6 @@ export async function updateClient(id: string, clientName: string): Promise<void
     }
 }
 
-/**
- * Deletes a client from the Firestore database.
- * @param id - The ID of the client document to delete.
- */
 export async function deleteClient(id: string): Promise<void> {
     try {
         const clientDoc = doc(db, 'clients', id);
@@ -110,15 +102,65 @@ export async function deleteClient(id: string): Promise<void> {
     }
 }
 
+
+// --- Kanban Board Functions ---
+
+/**
+ * Creates a default board for a new user.
+ * @param userId - The ID of the user.
+ * @param defaultData - The initial board data.
+ * @returns The created board data.
+ */
+export async function createDefaultBoard(userId: string, defaultData: BoardData): Promise<BoardData> {
+    const boardWithUser = { ...defaultData, userId };
+    const boardDocRef = doc(kanbanBoardsCollection, boardWithUser.id);
+    await setDoc(boardDocRef, boardWithUser);
+    return boardWithUser;
+}
+
+/**
+ * Fetches the Kanban board for a given user.
+ * @param userId - The ID of the user.
+ * @returns A promise that resolves to the user's board data or null if not found.
+ */
+export async function getBoardForUser(userId: string): Promise<BoardData | null> {
+    const q = query(kanbanBoardsCollection, where("userId", "==", userId), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+        return null;
+    }
+    
+    const boardDoc = querySnapshot.docs[0];
+    return { id: boardDoc.id, ...boardDoc.data() } as BoardData;
+}
+
+/**
+ * Updates an existing Kanban board in Firestore.
+ * @param userId - The ID of the user who owns the board.
+ * @param boardId - The ID of the board to update.
+ * @param data - The new data for the board.
+ */
+export async function updateBoard(userId: string, boardId: string, data: Partial<BoardData>): Promise<void> {
+    // Ensure the data being saved is associated with the correct user, just in case.
+    const boardDocRef = doc(db, 'kanbanBoards', boardId);
+    await updateDoc(boardDocRef, { ...data, userId });
+}
+
+
+// --- Exports ---
+
 export { 
     auth, 
     onAuthStateChanged, 
     signInWithEmailAndPassword, 
     signOut,
-    storage, // Export storage instance
+    storage, 
     ref, 
     uploadBytes, 
     getDownloadURL,
     deleteObject
 };
 export type { User };
+
+    

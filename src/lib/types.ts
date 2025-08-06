@@ -1,4 +1,5 @@
 
+
 export interface ClientData {
   id: string;
   clientName: string;
@@ -61,3 +62,15 @@ export interface Column {
   title: string;
   taskIds: string[];
 }
+
+export interface BoardData {
+    id: string;
+    name: string;
+    columns: Record<string, Column>;
+    tasks: Record<string, Task>;
+    columnOrder: string[];
+    labels: Record<string, Label>;
+    userId?: string; // To associate the board with a user
+}
+
+    
