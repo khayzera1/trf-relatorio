@@ -5,7 +5,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
 import Loading from './loading';
-import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/context/auth-context';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -21,24 +20,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={inter.className} suppressHydrationWarning>
+    <html lang="pt-BR" className={inter.className}>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
           <AuthProvider>
             <Suspense fallback={<Loading />}>
                 {children}
             </Suspense>
             <Toaster />
           </AuthProvider>
-        </ThemeProvider>
       </body>
     </html>
   );
 }
-
-    

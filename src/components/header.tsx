@@ -2,10 +2,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ThemeToggle } from './theme-toggle';
 import { useAuth } from '@/context/auth-context';
 import { Button } from './ui/button';
-import { LogOut, User, BarChart3 } from 'lucide-react';
+import { LogOut, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -70,7 +69,6 @@ export function Header({ children }: { children?: ReactNode }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-            <ThemeToggle />
           </div>
         </div>
       </div>
