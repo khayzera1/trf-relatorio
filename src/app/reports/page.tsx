@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from "react";
@@ -7,10 +8,11 @@ import { CsvUploader } from "@/components/csv-uploader";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Loading from "@/app/loading";
 
 function ReportsPageContent() {
     const searchParams = useSearchParams();
-    const clientName = searchParams.get('clientName') || null;
+    const clientName = searchParams.get('clientName');
 
     return (
         <div className="min-h-screen bg-background text-foreground">
@@ -32,9 +34,11 @@ function ReportsPageContent() {
     );
 }
 
+// Using a wrapper component for Suspense allows the page to access searchParams
+// without suspending the entire page layout.
 export default function ReportsPage() {
     return (
-        <Suspense>
+        <Suspense fallback={<Loading />}>
             <ReportsPageContent />
         </Suspense>
     );

@@ -51,23 +51,12 @@ export type GenerateReportSummaryOutput = z.infer<typeof GenerateReportSummaryOu
 export async function generateReportSummary(
   input: GenerateReportSummaryInput
 ): Promise<ReportData> {
-  try {
-    const result = await generateReportSummaryFlow(input);
-    // Ensure the output conforms to ReportData, providing defaults if necessary
-    return {
-      reportTitle: result.reportTitle || "Relatório de Métricas",
-      reportPeriod: result.reportPeriod || "Período não informado",
-      categories: result.categories || [],
-    };
-  } catch (error) {
-    console.error("Error in generateReportSummary:", error);
-    // Return a default empty structure on error
-    return {
-      reportTitle: "Erro ao Gerar Relatório",
-      reportPeriod: "Período não encontrado",
-      categories: []
-    };
-  }
+  // This function primarily acts as a clean, type-safe wrapper around the Genkit flow.
+  const result = await generateReportSummaryFlow(input);
+  
+  // The flow itself handles cases where 'output' might be null.
+  // We can trust the flow's output schema here.
+  return result;
 }
 
 const prompt = ai.definePrompt({
@@ -126,6 +115,7 @@ const generateReportSummaryFlow = ai.defineFlow(
     
     if (!output) {
       // Return a default empty structure if the AI fails to generate a valid output
+      console.error("AI failed to generate a valid report summary. Returning default structure.");
       return {
         reportTitle: "Relatório de Campanha",
         reportPeriod: "Período não encontrado",
@@ -136,5 +126,3 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

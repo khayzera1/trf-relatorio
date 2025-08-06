@@ -21,7 +21,7 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
                 <p className="text-sm text-muted-foreground break-words">{card.title}</p>
                 <p className="text-2xl font-bold text-foreground my-2 break-words">{card.value}</p>
                 {card.description && (
-                    <p className="text-sm font-semibold text-primary break-words">{card.description}</p>
+                    <p className="text-xs font-semibold text-primary break-words">{card.description}</p>
                 )}
             </div>
         </div>
@@ -30,7 +30,7 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
 
 const CategorySection = ({ categoryData }: { categoryData: CategoryReportData }) => {
     return (
-        <div className="mb-10">
+        <div className="mb-10 last-of-type:mb-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
                     <Tag className="h-5 w-5 text-primary flex-shrink-0" />
@@ -59,8 +59,10 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
     }
   };
 
+  const hasCategories = data.categories && data.categories.length > 0;
+
   return (
-    <Card className="shadow-lg animate-fade-in">
+    <Card className="shadow-lg animate-fade-in w-full">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
@@ -95,14 +97,14 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
             </div>
             
             <div className="bg-card p-6 rounded-b-lg">
-              {data.categories && data.categories.length > 0 ? (
+              {hasCategories ? (
                   data.categories.map((category, index) => (
                      <CategorySection key={index} categoryData={category} />
                   ))
               ) : (
                   <div className="text-center py-8">
                     <BarChart2 className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <p className="mt-4 text-muted-foreground">Nenhuma campanha encontrada nos dados fornecidos ou a IA não conseguiu processar o arquivo.</p>
+                    <p className="mt-4 text-muted-foreground">Nenhuma campanha encontrada ou a IA não conseguiu processar os dados.</p>
                   </div>
               )}
             </div>
@@ -110,7 +112,7 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
       </CardContent>
       <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
-        <Button onClick={handleGeneratePdf} disabled={!data.categories || data.categories.length === 0} className="w-full sm:w-auto">
+        <Button onClick={handleGeneratePdf} disabled={!hasCategories} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>
@@ -118,5 +120,3 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
     </Card>
   );
 }
-
-    

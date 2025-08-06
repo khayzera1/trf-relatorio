@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, ChangeEvent } from 'react';
@@ -12,6 +13,8 @@ import { generateReportSummary } from '@/ai/flows/generate-report-summary-flow';
 import type { ReportData } from '@/lib/types';
 import Loading from '@/app/loading';
 
+// Dynamically import the ReportPreview component to reduce the initial bundle size.
+// It will only be loaded when the report data is available.
 const ReportPreview = dynamic(() => import('@/components/report-preview').then(mod => mod.ReportPreview), {
     ssr: false,
     loading: () => <Loading />,
@@ -38,7 +41,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
             toast({
                 variant: "destructive",
                 title: "Formato de arquivo inválido",
-                description: "Por favor, selecione um arquivo .csv.",
+                description: "Por favor, selecione um arquivo no formato .csv.",
             });
         }
     };
@@ -61,7 +64,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
         reader.onload = async (e) => {
             const csvText = e.target?.result as string;
             if (!csvText) {
-                toast({ variant: "destructive", title: "Erro", description: "Não foi possível ler o arquivo." });
+                toast({ variant: "destructive", title: "Erro de Leitura", description: "Não foi possível ler o conteúdo do arquivo." });
                 setIsLoading(false);
                 return;
             }
@@ -70,6 +73,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
                 const summaryResult = await generateReportSummary({ csvData: csvText });
                 setReportData(summaryResult);
             } catch (error) {
+                console.error("Error generating report:", error);
                 const errorMessage = error instanceof Error ? error.message : "Um erro desconhecido ocorreu.";
                 toast({
                     variant: "destructive",
@@ -85,7 +89,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
             toast({
                 variant: "destructive",
                 title: "Erro ao ler o arquivo",
-                description: "Não foi possível processar o arquivo selecionado.",
+                description: "Ocorreu um problema ao processar o arquivo selecionado.",
             });
             setIsLoading(false);
         };
@@ -131,7 +135,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
                         <CardTitle className="text-2xl">Gerador de Relatório PDF</CardTitle>
                     </div>
                     <CardDescription className="break-words">
-                        {clientName ? `Gerando relatório para o cliente: ` : `Envie um arquivo CSV para gerar um relatório de KPIs.`}
+                        {clientName ? `Gerando relatório para o cliente: ` : `Envie um arquivo CSV com os dados de campanha para gerar um relatório de KPIs.`}
                          {clientName && <span className="font-bold text-primary">{clientName}</span>}
                     </CardDescription>
                 </CardHeader>
@@ -141,7 +145,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
                             <Bot className="h-4 w-4 text-primary" />
                             <AlertTitle className="font-semibold">Relatórios Inteligentes com IA</AlertTitle>
                             <AlertDescription>
-                                Nossa IA irá analisar os dados do seu CSV, extrair os KPIs e formatá-los em um relatório estilo dashboard.
+                                Nossa IA irá analisar os dados, agrupar por categoria e extrair os KPIs para formatar um relatório estilo dashboard.
                             </AlertDescription>
                         </Alert>
 
@@ -163,7 +167,7 @@ export function CsvUploader({ clientName }: CsvUploaderProps) {
                                 <>
                                     <UploadCloud className="h-12 w-12 text-muted-foreground" />
                                     <p className="mt-4 text-lg font-semibold">Arraste ou clique para enviar</p>
-                                    <p className="text-sm text-muted-foreground">Selecione um arquivo CSV</p>
+                                    <p className="text-sm text-muted-foreground">Selecione um arquivo no formato CSV</p>
                                 </>
                             ) : (
                                 <>

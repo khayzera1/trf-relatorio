@@ -26,7 +26,9 @@ export default function Home() {
   useEffect(() => {
     try {
       const savedData = localStorage.getItem('clientData');
-      setClients(savedData ? JSON.parse(savedData) : []);
+      if (savedData) {
+        setClients(JSON.parse(savedData));
+      }
     } catch (error) {
       console.error("Failed to parse client data from localStorage", error);
       setClients([]);
@@ -34,13 +36,15 @@ export default function Home() {
   }, []);
 
   const filteredClients = useMemo(() => {
-    if (!searchTerm) {
+    if (!searchTerm.trim()) {
       return clients;
     }
     return clients.filter(client => 
       client.clientName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [clients, searchTerm]);
+
+  const hasClients = clients.length > 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -96,9 +100,9 @@ export default function Home() {
                 <Users className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-medium text-foreground">Nenhum cliente encontrado</h3>
                 <p className="mt-2 text-md text-muted-foreground max-w-md mx-auto">
-                    {clients.length > 0 ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente para visualizar aqui."}
+                    {hasClients ? "Tente um termo de busca diferente." : "Comece adicionando um novo cliente para visualizar aqui."}
                 </p>
-                {clients.length === 0 && (
+                {!hasClients && (
                   <div className="mt-8">
                        <Link href="/clients/new">
                           <Button size="lg">

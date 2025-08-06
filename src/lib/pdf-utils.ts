@@ -18,6 +18,7 @@ const cleanText = (text: string | undefined | null): string => {
 };
 
 const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width: number, height: number) => {
+    const padding = 10;
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(229, 231, 235); // border-gray-200
     doc.roundedRect(x, y, width, height, 5, 5, 'FD');
@@ -26,20 +27,22 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(107, 114, 128); // text-gray-500
-    doc.text(cleanText(card.title), x + 10, y + 18);
+    const titleLines = doc.splitTextToSize(cleanText(card.title), width - padding * 2);
+    doc.text(titleLines, x + padding, y + 18);
 
     // KPI Value
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39); // text-gray-900
-    doc.text(cleanText(card.value), x + 10, y + 38);
+    const valueLines = doc.splitTextToSize(cleanText(card.value), width - padding * 2);
+    doc.text(valueLines, x + padding, y + 38);
     
     if (card.description) {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(29, 78, 216); // text-primary (blue-700)
-        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - 20);
-        doc.text(descriptionLines, x + 10, y + 55);
+        const descriptionLines = doc.splitTextToSize(cleanText(card.description), width - padding * 2);
+        doc.text(descriptionLines, x + padding, y + 55);
     }
 };
 
@@ -67,25 +70,22 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 70;
     
-    let currentY = cursorY;
-
     categoryData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
         
-        let cardX = margin + colIndex * (cardWidth + cardGap);
+        const cardX = margin + colIndex * (cardWidth + cardGap);
         let cardY = cursorY + rowIndex * (cardHeight + cardGap);
 
         // Check if a new page is needed BEFORE drawing the card
         if (cardY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            // Reset cursorY for the new page
+            // Reset cursorY for the new page based on the current row's position
             cursorY = margin - (rowIndex * (cardHeight + cardGap)); 
-            currentY = margin;
+            // Recalculate cardY for the new page
+            cardY = cursorY + rowIndex * (cardHeight + cardGap);
         }
         
-        // Recalculate cardY after potential page break
-        cardY = cursorY + rowIndex * (cardHeight + cardGap);
         drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
     });
 
@@ -118,15 +118,19 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
         doc.setTextColor(255, 255, 255);
-        doc.text(`Cliente: ${cleanText(clientName)}`, margin, cursorY);
-        cursorY += 25;
+        const clientText = `Cliente: ${cleanText(clientName)}`;
+        const clientTextLines = doc.splitTextToSize(clientText, pageWidth - margin * 2);
+        doc.text(clientTextLines, margin, cursorY);
+        cursorY += (clientTextLines.length * 14) + 10;
     }
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
-    doc.text(cleanText(data.reportTitle), margin, cursorY);
-    cursorY += 25;
+    const titleLines = doc.splitTextToSize(cleanText(data.reportTitle), pageWidth - margin * 2);
+    doc.text(titleLines, margin, cursorY);
+    cursorY += (titleLines.length * 22) + 5;
+
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
@@ -137,20 +141,21 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     let contentCursorY = 150;
     
     data.categories.forEach((category, index) => {
-        const sectionHeightEstimate = 120 + Math.ceil(category.kpiCards.length / 4) * 85;
+        // Estimate the height of the section to check for page breaks.
+        // This is an approximation. A more robust way would be to check card by card.
+        const kpiRows = Math.ceil(category.kpiCards.length / 4);
+        const sectionHeightEstimate = 50 + (kpiRows * 85); 
 
-        if (contentCursorY + sectionHeightEstimate > pageHeight - margin) { 
+        if (contentCursorY + sectionHeightEstimate > pageHeight - margin && index > 0) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
-           contentCursorY += 40; // Space between categories
+           contentCursorY += 20; // Space between categories on the same page
         }
         
         contentCursorY = drawCategorySection(doc, category, contentCursorY, pageWidth, margin);
     });
 
-    const safeFileName = clientName ? `relatorio_${cleanText(clientName)}` : "relatorio";
+    const safeFileName = clientName ? `relatorio_${cleanText(clientName)}` : "relatorio_de_campanha";
     doc.save(`${safeFileName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
 }
-
-    
