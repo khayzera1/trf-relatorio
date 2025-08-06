@@ -87,8 +87,8 @@ const prompt = ai.definePrompt({
     4.  **Group Campaigns into Categories:** You MUST group all campaigns from the CSV into one of three main categories based on their objectives. The categories are: "Reconhecimento & Engajamento", "Contato", and "Vendas".
 
         **Grouping Rules:**
-        *   **Reconhecimento & Engajamento:** Group campaigns whose objective is 'alcance' (reach), 'visualizações de vídeo' (video views / ThruPlay), 'seguidores' (followers), or 'engajamento' (engagement).
-        *   **Contato:** Group campaigns whose objective is 'geração de cadastros' (lead generation), 'formulários', 'mensagens', 'conversas' (conversations), or 'tráfego' (traffic) for lead capture purposes.
+        *   **Reconhecimento & Engajamento:** Group campaigns whose objective is 'alcance' (reach), 'visualizações de vídeo' (video views / ThruPlay), 'seguidores' (followers), 'visitas ao perfil' (profile visits), 'curtidas' (likes), 'engajamento' (engagement), or any other activity that does not generate a direct contact.
+        *   **Contato:** Group campaigns whose objective is strictly 'geração de cadastros' (lead generation), 'formulários' (forms), 'mensagens', 'conversas no WhatsApp' (WhatsApp conversations), 'leads no site', 'leads no Meta', or any other direct contact generation. Do NOT include 'tráfego' (traffic) unless it's explicitly for a lead capture page.
         *   **Vendas:** Group campaigns whose objective is 'compras' (purchases), 'adições ao carrinho' (add to cart), or 'finalizações de compra' (checkouts).
 
     5.  **For each category, you MUST:**
@@ -101,7 +101,7 @@ const prompt = ai.definePrompt({
             -   Include 'R$' for currency values.
             -   For "Custo por Resultado", specify what the result is in the 'description' field (e.g., "Custo por Compra", "Custo por Lead").
         *   **Relevant Metrics per Category:**
-            -   **Reconhecimento & Engajamento:** Focus on 'Alcance', 'Impressões', 'CPM (Custo por mil impressões)', 'Custo por ThruPlay', 'Engajamentos'.
+            -   **Reconhecimento & Engajamento:** Focus on 'Alcance', 'Impressões', 'CPM (Custo por mil impressões)', 'Custo por ThruPlay', 'Engajamentos', 'Visitas ao Perfil'.
             -   **Contato:** Focus on 'Resultados' (e.g., Leads, Conversas), 'Custo por Resultado' (CPL, Custo por Conversa), 'Cliques no link', 'CTR (taxa de cliques no link)'.
             -   **Vendas:** Focus on 'Resultados' (e.g., Compras), 'Valor de conversão de compras', 'ROAS (retorno do investimento em anúncios)', 'Custo por Resultado' (CPA).
     
