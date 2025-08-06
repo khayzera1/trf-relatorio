@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/sidebar";
 
 function BoardPageContent() {
     return (
-        <div className="flex h-screen text-foreground bg-background">
+        <div className="flex h-screen text-foreground bg-transparent">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">
                 <KanbanBoard />

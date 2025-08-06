@@ -13,7 +13,7 @@ function ReportsPageContent() {
     const clientName = searchParams.get('clientName');
 
     return (
-        <div className="flex min-h-screen bg-background text-foreground">
+        <div className="flex min-h-screen bg-transparent text-foreground">
             <Sidebar />
             <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                  <CsvUploader 

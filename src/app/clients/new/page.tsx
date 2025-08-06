@@ -65,7 +65,7 @@ function NewClientPageContent() {
     }
 
     return (
-        <div className="flex min-h-screen text-foreground bg-background">
+        <div className="flex min-h-screen text-foreground bg-transparent">
             <Sidebar />
             <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 <div className="max-w-2xl mx-auto">
