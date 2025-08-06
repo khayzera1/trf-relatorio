@@ -4,20 +4,28 @@
 import { useState } from 'react';
 import { DragDropContext, Droppable, OnDragEndResponder } from "@hello-pangea/dnd";
 import { KanbanColumn } from './column';
-import type { Task, Column as ColumnType, ChecklistItem } from '@/lib/types';
+import type { Task, Column as ColumnType, Label, ChecklistItem } from '@/lib/types';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { v4 as uuidv4 } from 'uuid';
 import { CardModal } from './card-modal';
 
+const initialLabels: Record<string, Label> = {
+    'label-1': { id: 'label-1', name: 'dev', color: 'bg-blue-500' },
+    'label-2': { id: 'label-2', name: 'ui', color: 'bg-purple-500' },
+    'label-3': { id: 'label-3', name: 'backend', color: 'bg-red-500' },
+    'label-4': { id: 'label-4', name: 'qa', color: 'bg-green-500' },
+    'label-5': { id: 'label-5', name: 'infra', color: 'bg-yellow-500' },
+};
+
 const initialTasks: Record<string, Task> = {
-    'task-1': { id: 'task-1', title: 'Configurar ambiente de desenvolvimento', description: 'Instalar todas as dependências necessárias e configurar o Next.js.', labels: ['infra'], dueDate: '2024-08-10' },
-    'task-2': { id: 'task-2', title: 'Desenvolver layout do board', description: 'Criar os componentes de coluna e cartão com base no design.', labels: ['ui', 'dev'], checklist: [{id: uuidv4(), text: 'Criar componente Column', completed: true}, {id: uuidv4(), text: 'Criar componente Card', completed: true}] },
-    'task-3': { id: 'task-3', title: 'Implementar o cabeçalho', description: 'Adicionar navegação e menu do usuário.', labels: ['ui'] },
-    'task-4': { id: 'task-4', title: 'Criar fluxo de autenticação', description: 'Configurar a página de login e a lógica de autenticação com Firebase.', labels: ['auth', 'backend'], dueDate: '2024-08-15' },
-    'task-5': { id: 'task-5', title: 'Testar responsividade da UI', description: 'Garantir que o layout funcione bem em desktops e dispositivos móveis.', labels: ['qa'], checklist: [{id: uuidv4(), text: 'Testar no Chrome', completed: true}, {id: uuidv4(), text: 'Testar no Firefox', completed: false}, {id: uuidv4(), text: 'Testar no Safari Mobile', completed: false}] },
-    'task-6': { id: 'task-6', title: 'Conectar ao banco de dados', description: 'Criar funções para ler e escrever dados no Firestore.', labels: ['backend'] },
-    'task-7': { id: 'task-7', title: 'Adicionar funcionalidade de drag-and-drop', description: 'Implementar a biblioteca de D&D para mover cartões e colunas.', labels: ['dev'] },
+    'task-1': { id: 'task-1', title: 'Configurar ambiente de desenvolvimento', description: 'Instalar todas as dependências necessárias e configurar o Next.js.', labelIds: ['label-5'], dueDate: '2024-08-10' },
+    'task-2': { id: 'task-2', title: 'Desenvolver layout do board', description: 'Criar os componentes de coluna e cartão com base no design.', labelIds: ['label-2', 'label-1'], checklist: [{id: uuidv4(), text: 'Criar componente Column', completed: true}, {id: uuidv4(), text: 'Criar componente Card', completed: true}] },
+    'task-3': { id: 'task-3', title: 'Implementar o cabeçalho', description: 'Adicionar navegação e menu do usuário.', labelIds: ['label-2'] },
+    'task-4': { id: 'task-4', title: 'Criar fluxo de autenticação', description: 'Configurar a página de login e a lógica de autenticação com Firebase.', labelIds: ['label-3'], dueDate: '2024-08-15' },
+    'task-5': { id: 'task-5', title: 'Testar responsividade da UI', description: 'Garantir que o layout funcione bem em desktops e dispositivos móveis.', labelIds: ['label-4'], checklist: [{id: uuidv4(), text: 'Testar no Chrome', completed: true}, {id: uuidv4(), text: 'Testar no Firefox', completed: false}, {id: uuidv4(), text: 'Testar no Safari Mobile', completed: false}] },
+    'task-6': { id: 'task-6', title: 'Conectar ao banco de dados', description: 'Criar funções para ler e escrever dados no Firestore.', labelIds: ['label-3'] },
+    'task-7': { id: 'task-7', title: 'Adicionar funcionalidade de drag-and-drop', description: 'Implementar a biblioteca de D&D para mover cartões e colunas.', labelIds: ['label-1'] },
 };
 
 const initialColumns: Record<string, ColumnType> = {
@@ -33,6 +41,7 @@ interface BoardData {
     tasks: Record<string, Task>;
     columns: Record<string, ColumnType>;
     columnOrder: string[];
+    labels: Record<string, Label>;
 }
 
 export function KanbanBoard() {
@@ -40,6 +49,7 @@ export function KanbanBoard() {
         tasks: initialTasks,
         columns: initialColumns,
         columnOrder: initialColumnOrder,
+        labels: initialLabels,
     });
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -123,6 +133,7 @@ export function KanbanBoard() {
         const newColumnOrder = boardData.columnOrder.filter(id => id !== columnId);
 
         setBoardData({
+            ...boardData,
             tasks: newTasks,
             columns: newColumns,
             columnOrder: newColumnOrder,
@@ -131,7 +142,7 @@ export function KanbanBoard() {
 
     const addTask = (columnId: string, title: string) => {
         const newTaskId = `task-${uuidv4()}`;
-        const newTask: Task = { id: newTaskId, title, description: '', labels: [], checklist: [] };
+        const newTask: Task = { id: newTaskId, title, description: '', labelIds: [], checklist: [] };
         
         const column = boardData.columns[columnId];
         const newTaskIds = [...column.taskIds, newTaskId];
@@ -150,7 +161,6 @@ export function KanbanBoard() {
         const newTasks = { ...boardData.tasks };
         newTasks[taskId] = { ...newTasks[taskId], ...newValues };
         setBoardData(prev => ({ ...prev, tasks: newTasks }));
-        // Also update the selectedTask state if it's currently open
         if (selectedTask && selectedTask.id === taskId) {
             setSelectedTask(newTasks[taskId]);
         }
@@ -170,9 +180,34 @@ export function KanbanBoard() {
             tasks: newTasks,
             columns: newColumns,
         }));
-        setSelectedTask(null); // Close modal on delete
+        setSelectedTask(null);
     };
 
+    const updateLabel = (label: Label) => {
+        const newLabels = { ...boardData.labels, [label.id]: label };
+        setBoardData(prev => ({ ...prev, labels: newLabels }));
+    };
+
+    const createLabel = (label: Label) => {
+        const newLabels = { ...boardData.labels, [label.id]: label };
+        setBoardData(prev => ({ ...prev, labels: newLabels }));
+    };
+
+    const deleteLabel = (labelId: string) => {
+        const newLabels = { ...boardData.labels };
+        delete newLabels[labelId];
+
+        // Also remove this labelId from all tasks
+        const newTasks = { ...boardData.tasks };
+        Object.keys(newTasks).forEach(taskId => {
+            const task = newTasks[taskId];
+            if (task.labelIds) {
+                task.labelIds = task.labelIds.filter(id => id !== labelId);
+            }
+        });
+        
+        setBoardData(prev => ({ ...prev, labels: newLabels, tasks: newTasks }));
+    };
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
@@ -200,6 +235,7 @@ export function KanbanBoard() {
                                         column={column} 
                                         tasks={tasks} 
                                         index={index}
+                                        labels={boardData.labels}
                                         onUpdateTitle={updateColumnTitle}
                                         onDelete={deleteColumn}
                                         onAddTask={addTask}
@@ -221,12 +257,18 @@ export function KanbanBoard() {
             {selectedTask && (
                 <CardModal 
                     task={selectedTask}
+                    allLabels={boardData.labels}
                     isOpen={!!selectedTask}
                     onClose={() => setSelectedTask(null)}
                     onUpdateTask={updateTask}
                     onDeleteTask={deleteTask}
+                    onUpdateLabel={updateLabel}
+                    onCreateLabel={createLabel}
+                    onDeleteLabel={deleteLabel}
                 />
             )}
         </DragDropContext>
     );
 }
+
+    

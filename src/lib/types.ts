@@ -31,11 +31,17 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
-  labels?: string[];
+  labelIds?: string[];
   dueDate?: string;
   checklist?: ChecklistItem[];
 }
@@ -45,3 +51,5 @@ export interface Column {
   title: string;
   taskIds: string[];
 }
+
+    

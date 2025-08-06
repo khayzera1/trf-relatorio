@@ -1,36 +1,31 @@
 
 "use client";
 
-import type { Task } from "@/lib/types";
+import type { Task, Label } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from 'date-fns';
 import { Calendar, CheckSquare } from "lucide-react";
 
-const availableLabelColors: Record<string, string> = {
-    'dev': 'bg-blue-500',
-    'ui': 'bg-purple-500',
-    'backend': 'bg-red-500',
-    'qa': 'bg-green-500',
-    'infra': 'bg-yellow-500',
-};
-
 interface KanbanCardProps {
     task: Task;
+    labels: Record<string, Label>;
     isDragging: boolean;
 }
 
-export function KanbanCard({ task, isDragging }: KanbanCardProps) {
+export function KanbanCard({ task, labels, isDragging }: KanbanCardProps) {
     const checklistProgress = task.checklist && task.checklist.length > 0 
         ? task.checklist.filter(item => item.completed).length
         : 0;
+    
+    const taskLabels = task.labelIds?.map(id => labels[id]).filter(Boolean) || [];
 
     return (
         <Card className={`glass-card bg-card/80 mb-2 p-3 rounded-lg shadow-sm hover:border-primary/20 transition-all cursor-pointer ${isDragging ? 'shadow-2xl scale-105 border-primary/40' : ''}`}>
             <CardContent className="p-0 space-y-2">
-                {task.labels && task.labels.length > 0 && (
+                {taskLabels.length > 0 && (
                      <div className="flex flex-wrap gap-1">
-                        {task.labels.map(label => (
-                            <span key={label} className={`h-2 w-10 rounded-full ${availableLabelColors[label] || 'bg-gray-400'}`}></span>
+                        {taskLabels.map(label => (
+                            <span key={label.id} className={`h-2 w-10 rounded-full ${label.color}`}></span>
                         ))}
                     </div>
                 )}
@@ -53,3 +48,5 @@ export function KanbanCard({ task, isDragging }: KanbanCardProps) {
         </Card>
     );
 }
+
+    

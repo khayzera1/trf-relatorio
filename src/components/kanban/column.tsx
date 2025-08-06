@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import type { Column, Task } from "@/lib/types";
+import type { Column, Task, Label } from "@/lib/types";
 import { KanbanCard } from './card';
 import { MoreHorizontal, Plus, X } from "lucide-react";
 import { Button } from "../ui/button";
@@ -19,6 +19,7 @@ import { Textarea } from "../ui/textarea";
 interface KanbanColumnProps {
     column: Column;
     tasks: Task[];
+    labels: Record<string, Label>;
     index: number;
     onUpdateTitle: (columnId: string, newTitle: string) => void;
     onDelete: (columnId: string) => void;
@@ -26,7 +27,7 @@ interface KanbanColumnProps {
     onOpenTaskModal: (task: Task) => void;
 }
 
-export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, onAddTask, onOpenTaskModal }: KanbanColumnProps) {
+export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDelete, onAddTask, onOpenTaskModal }: KanbanColumnProps) {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(column.title);
     const titleInputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +70,6 @@ export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, on
         if (newTaskTitle.trim()) {
             onAddTask(column.id, newTaskTitle.trim());
             setNewTaskTitle("");
-            // Keep open for more additions or handle explicitly
             addTaskInputRef.current?.focus();
         }
     };
@@ -135,7 +135,7 @@ export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, on
                                                     style={{ ...provided.draggableProps.style }}
                                                     onClick={() => onOpenTaskModal(task)}
                                                 >
-                                                    <KanbanCard task={task} isDragging={snapshot.isDragging} />
+                                                    <KanbanCard task={task} labels={labels} isDragging={snapshot.isDragging} />
                                                 </div>
                                             )}
                                         </Draggable>
@@ -175,3 +175,5 @@ export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, on
         </Draggable>
     );
 }
+
+    
