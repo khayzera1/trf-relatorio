@@ -35,5 +35,3 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   // retorna null para não renderizar nada enquanto o redirecionamento ocorre
   return null;
 }
-
-    

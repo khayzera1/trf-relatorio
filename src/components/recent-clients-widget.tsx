@@ -9,14 +9,7 @@ import type { ClientData } from '@/lib/types';
 import { getClients } from '@/lib/firebase/client';
 import Link from 'next/link';
 import { Button } from './ui/button';
-
-const getInitials = (name: string = '') => {
-    const names = name.split(' ').filter(Boolean);
-    if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-};
+import { getInitials } from '@/lib/utils';
 
 export function RecentClientsWidget() {
     const [recentClients, setRecentClients] = useState<ClientData[]>([]);
@@ -26,7 +19,9 @@ export function RecentClientsWidget() {
         setIsLoading(true);
         try {
             const allClients = await getClients();
-            setRecentClients(allClients.slice(0, 5)); // Get the 5 most recent
+            // Get the 5 most recent clients based on creation time
+            const sortedClients = allClients.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+            setRecentClients(sortedClients.slice(0, 5));
         } catch (error) {
             console.error("Failed to fetch recent clients:", error);
             setRecentClients([]); // Clear on error

@@ -14,11 +14,11 @@ import {
     query,
     orderBy,
     Firestore,
-    writeBatch,
     where,
     limit,
     setDoc,
     getDoc,
+    Timestamp,
 } from 'firebase/firestore';
 import type { ClientData, ClientDataInput, BoardData } from '@/lib/types';
 
@@ -49,7 +49,7 @@ export async function addClient(client: ClientDataInput): Promise<string> {
     try {
         const docRef = await addDoc(clientsCollection, {
             ...client,
-            createdAt: new Date(), 
+            createdAt: Timestamp.now(), 
         });
         return docRef.id;
     } catch (e) {
@@ -103,7 +103,7 @@ export async function deleteClient(id: string): Promise<void> {
  * @returns The created board data.
  */
 export async function createDefaultBoard(userId: string, defaultData: BoardData): Promise<BoardData> {
-    const boardWithUser = { ...defaultData, userId };
+    const boardWithUser = { ...defaultData, userId, createdAt: Timestamp.now() };
     const boardDocRef = doc(kanbanBoardsCollection, boardWithUser.id);
     await setDoc(boardDocRef, boardWithUser);
     return boardWithUser;
@@ -135,7 +135,7 @@ export async function getBoardForUser(userId: string): Promise<BoardData | null>
 export async function updateBoard(userId: string, boardId: string, data: Partial<BoardData>): Promise<void> {
     // Ensure the data being saved is associated with the correct user, just in case.
     const boardDocRef = doc(db, 'kanbanBoards', boardId);
-    await updateDoc(boardDocRef, { ...data, userId });
+    await updateDoc(boardDocRef, { ...data, userId, updatedAt: Timestamp.now() });
 }
 
 

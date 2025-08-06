@@ -13,7 +13,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Textarea } from "../ui/textarea";
 
 interface KanbanColumnProps {
@@ -49,10 +61,10 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
     }, [isAddingTask]);
 
     const handleTitleBlur = () => {
-        if (title.trim()) {
+        if (title.trim() && title.trim() !== column.title) {
             onUpdateTitle(column.id, title.trim());
         } else {
-            setTitle(column.title); // Reset if empty
+            setTitle(column.title); // Reset if empty or unchanged
         }
         setIsEditingTitle(false);
     };
@@ -70,8 +82,13 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
         if (newTaskTitle.trim()) {
             onAddTask(column.id, newTaskTitle.trim());
             setNewTaskTitle("");
-            addTaskInputRef.current?.focus();
+            addTaskInputRef.current?.focus(); // Keep focus to add more tasks
         }
+    };
+    
+    const handleCancelAddTask = () => {
+        setIsAddingTask(false);
+        setNewTaskTitle("");
     };
 
     return (
@@ -90,11 +107,11 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                                 onChange={(e) => setTitle(e.target.value)}
                                 onBlur={handleTitleBlur}
                                 onKeyDown={handleTitleKeyDown}
-                                className="h-8 border-primary bg-transparent text-lg font-semibold focus-visible:ring-1 focus-visible:ring-offset-0"
+                                className="h-8 border-primary bg-transparent text-base font-semibold focus-visible:ring-1 focus-visible:ring-offset-0"
                             />
                         ) : (
-                             <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingTitle(true)}>
-                                <h2 className="text-lg font-semibold px-2 py-1">{column.title}</h2>
+                             <div className="flex items-center gap-2 cursor-pointer group flex-grow" onDoubleClick={() => setIsEditingTitle(true)}>
+                                <h2 className="text-base font-semibold px-2 py-1 group-hover:text-primary">{column.title}</h2>
                                 <span className="text-sm font-medium text-muted-foreground bg-muted h-6 w-6 flex items-center justify-center rounded-full">{tasks.length}</span>
                             </div>
                         )}
@@ -105,15 +122,37 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="glass-card">
-                                <DropdownMenuItem onClick={() => setIsAddingTask(true)} className="cursor-pointer">
-                                    <Plus className="mr-2" /> Adicionar Tarefa
+                                <DropdownMenuItem onClick={() => { setIsAddingTask(true); }} className="cursor-pointer">
+                                     Adicionar Tarefa
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setIsEditingTitle(true)} className="cursor-pointer">
                                     Renomear Lista
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onDelete(column.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                                    Excluir Lista
-                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem
+                                            onSelect={(e) => e.preventDefault()}
+                                            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                                        >
+                                            Excluir Lista
+                                        </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="glass-card">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Excluir esta lista?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Tem certeza de que deseja excluir a lista <span className="font-bold">{column.title}</span>? Todas as tarefas contidas nela também serão excluídas. Esta ação não pode ser desfeita.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => onDelete(column.id)}>
+                                                Sim, excluir
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -141,39 +180,47 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                                         </Draggable>
                                     ))}
                                     {provided.placeholder}
-                                    {isAddingTask ? (
+                                    {isAddingTask && (
                                         <div className="p-1 mt-1 space-y-2">
-                                            <Textarea
-                                                ref={addTaskInputRef}
-                                                placeholder="Digite um título para esta tarefa..."
-                                                value={newTaskTitle}
-                                                onChange={(e) => setNewTaskTitle(e.target.value)}
-                                                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAddTask())}
-                                                className="min-h-[60px]"
-                                            />
+                                            <div className="shadow-lg">
+                                                <Textarea
+                                                    ref={addTaskInputRef}
+                                                    placeholder="Digite um título para esta tarefa..."
+                                                    value={newTaskTitle}
+                                                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            handleAddTask();
+                                                        } else if (e.key === "Escape") {
+                                                            handleCancelAddTask();
+                                                        }
+                                                    }}
+                                                    className="min-h-[60px]"
+                                                />
+                                            </div>
                                             <div className="flex items-center gap-2">
-                                                <Button onClick={handleAddTask}>Adicionar</Button>
-                                                <Button variant="ghost" size="icon" onClick={() => setIsAddingTask(false)}>
+                                                <Button onClick={handleAddTask}>Adicionar Tarefa</Button>
+                                                <Button variant="ghost" size="icon" onClick={handleCancelAddTask}>
                                                     <X className="h-5 w-5"/>
                                                 </Button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="pt-2 px-1">
-                                            <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
-                                                <Plus className="mr-2" />
-                                                Adicionar Tarefa
-                                            </Button>
                                         </div>
                                     )}
                                 </div>
                             )}
                         </Droppable>
+                         {!isAddingTask && (
+                            <div className="pt-2 px-1 pb-1">
+                                <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
+                                    <Plus className="mr-2" />
+                                    Adicionar uma tarefa
+                                </Button>
+                            </div>
+                         )}
                     </div>
                 </div>
             )}
         </Draggable>
     );
 }
-
-    

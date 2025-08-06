@@ -1,8 +1,11 @@
 
 
+import type { Timestamp } from 'firebase/firestore';
+
 export interface ClientData {
   id: string;
   clientName: string;
+  createdAt?: Timestamp;
 }
 
 export interface ClientDataInput extends Omit<ClientData, 'id'> {};
@@ -70,8 +73,6 @@ export interface BoardData {
     columnOrder: string[];
     labels: Record<string, Label>;
     userId?: string; // To associate the board with a user
+    createdAt?: Timestamp;
+    updatedAt?: Timestamp;
 }
-
-    
-
-    

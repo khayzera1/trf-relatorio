@@ -36,14 +36,8 @@ import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
 import ProtectedRoute from "@/components/protected-route";
 import { ClockWidget } from "@/components/clock-widget";
 import { RecentClientsWidget } from "@/components/recent-clients-widget";
+import { getInitials } from "@/lib/utils";
 
-const getInitials = (name: string = '') => {
-    const names = name.split(' ').filter(Boolean);
-    if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-};
 
 function HomePageContent() {
   const [clients, setClients] = useState<ClientData[]>([]);

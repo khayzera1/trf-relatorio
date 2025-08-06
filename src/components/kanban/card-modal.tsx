@@ -265,7 +265,25 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         <div className="flex justify-between gap-2">
                             <Button onClick={handleSaveLabel} className="w-full">{isCreatingLabel ? 'Criar' : 'Salvar'}</Button>
                             {editingLabel && (
-                                <Button variant="destructive" size="icon" onClick={() => handleDeleteLabel(editingLabel.id)}><Trash2 className="h-4 w-4"/></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4"/></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="glass-card">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Excluir Etiqueta?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Esta ação removerá a etiqueta <span className="font-bold">{editingLabel.name}</span> de todos os cartões. Isso não pode ser desfeito.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteLabel(editingLabel.id)}>
+                                                Sim, excluir
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             )}
                         </div>
                     </div>
@@ -279,8 +297,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                 <div className="px-2 space-y-2">
                     {Object.values(allLabels).map(label => (
                         <div key={label.id} className="flex items-center gap-2 group">
-                            <input type="checkbox" readOnly checked={labelIds.includes(label.id)} className="h-4 w-4" onClick={() => toggleLabel(label.id)}/>
-                            <div onClick={() => toggleLabel(label.id)} className={`w-full px-2 py-1 rounded text-xs font-semibold text-white ${label.color}`}>
+                            <input type="checkbox" readOnly checked={labelIds.includes(label.id)} className="h-4 w-4 rounded border-primary text-primary focus:ring-primary" onClick={() => toggleLabel(label.id)}/>
+                            <div onClick={() => toggleLabel(label.id)} className={`w-full px-2 py-1 rounded text-xs font-semibold text-white ${label.color} cursor-pointer`}>
                                 {label.name}
                             </div>
                             <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleStartEditLabel(label)}>
@@ -303,45 +321,61 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         onBlur={() => handleUpdate('title', title)}
-                        className="text-2xl font-semibold leading-none tracking-tight border-transparent focus-visible:border-input focus-visible:ring-1 bg-transparent"
+                        className="text-2xl font-semibold leading-none tracking-tight border-transparent focus-visible:border-input focus-visible:ring-1 bg-transparent -ml-2"
                     />
                 </DialogTitle>
                 <DialogDescription className="sr-only">
                     Edite os detalhes da tarefa. O título acima é editável.
                 </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 px-1 relative">
+            <div className="grid md:grid-cols-3 gap-x-6 gap-y-8 py-4 px-1 relative overflow-y-auto pr-4">
                 {isUploading && (
                     <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         <p className="mt-4 font-semibold text-foreground">Processando arquivo...</p>
                     </div>
                 )}
-                <div className="md:col-span-2 space-y-6 overflow-y-auto">
-                    <div className="flex flex-wrap gap-4 items-center">
-                        {labelIds.length > 0 && (
-                            <div className="space-y-2">
-                                <UiLabel className="flex items-center gap-2 text-sm text-muted-foreground"><Tag className="h-4 w-4"/> Etiquetas</UiLabel>
-                                <div className="flex flex-wrap gap-1">
-                                    {labelIds.map(labelId => (
-                                        allLabels[labelId] &&
-                                        <span key={labelId} className={`px-2 py-1 rounded text-xs font-semibold text-white ${allLabels[labelId].color}`}>
-                                            {allLabels[labelId].name}
-                                        </span>
-                                    ))}
+                <div className="md:col-span-2 space-y-8">
+                     {/* Seção de Labels e Prazo */}
+                     {(labelIds.length > 0 || dueDate) && (
+                        <div className="flex flex-wrap gap-6 items-start">
+                            {labelIds.length > 0 && (
+                                <div className="space-y-2">
+                                    <UiLabel className="flex items-center gap-2 text-sm text-muted-foreground"><Tag className="h-4 w-4"/> Etiquetas</UiLabel>
+                                    <div className="flex flex-wrap gap-1">
+                                        {labelIds.map(labelId => (
+                                            allLabels[labelId] &&
+                                            <span key={labelId} className={`px-2 py-1 rounded text-xs font-semibold text-white ${allLabels[labelId].color}`}>
+                                                {allLabels[labelId].name}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        <div className="space-y-2">
-                            <UiLabel className="flex items-center gap-2 text-sm text-muted-foreground"><CalendarIcon className="h-4 w-4"/> Prazo</UiLabel>
-                            {dueDate ? (
-                                <Button variant="outline" className="h-auto">
-                                    {format(dueDate, "d 'de' MMM, yyyy", { locale: ptBR })}
-                                    <X className="h-3 w-3 ml-2" onClick={(e) => {e.stopPropagation(); handleDateSelect(undefined)}}/>
-                                </Button>
-                            ) : <span className="text-sm text-muted-foreground italic">Nenhum</span>}
+                            )}
+                            {dueDate && (
+                                <div className="space-y-2">
+                                    <UiLabel className="flex items-center gap-2 text-sm text-muted-foreground"><CalendarIcon className="h-4 w-4"/> Prazo</UiLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" className="h-auto">
+                                                {format(dueDate, "d 'de' MMM, yyyy", { locale: ptBR })}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0 glass-card">
+                                            <Calendar
+                                                mode="single"
+                                                selected={dueDate}
+                                                onSelect={handleDateSelect}
+                                                initialFocus
+                                                locale={ptBR}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    )}
+
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-3">
@@ -375,9 +409,27 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                             <a href={att.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-sm hover:underline break-all">{att.name}</a>
                                             <p className="text-xs text-muted-foreground">Adicionado em {format(parseISO(att.createdAt), "d MMM, yyyy 'às' HH:mm", {locale: ptBR})}</p>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteAttachment(att.id)}>
-                                            <Trash2 className="h-4 w-4"/>
-                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive">
+                                                    <Trash2 className="h-4 w-4"/>
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="glass-card">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Excluir Anexo?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Tem certeza de que deseja excluir o anexo <span className="font-bold">{att.name}</span>? Esta ação não pode ser desfeita.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteAttachment(att.id)}>
+                                                        Sim, excluir
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 ))}
                             </div>
@@ -397,10 +449,10 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                     <Progress value={checklistProgress} className="h-2 w-full"/>
                                 </div>
                                 {checklist.map(item => (
-                                    <div key={item.id} className="flex items-center gap-2 group">
-                                        <input type="checkbox" checked={item.completed} onChange={() => toggleChecklistItem(item.id)} className="h-4 w-4 rounded bg-muted/50 border-muted-foreground text-primary focus:ring-primary"/>
-                                        <span className={`flex-grow text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}>{item.text}</span>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => deleteChecklistItem(item.id)}>
+                                    <div key={item.id} className="flex items-center gap-2 group -ml-1">
+                                        <Checkbox id={`item-${item.id}`} checked={item.completed} onCheckedChange={() => toggleChecklistItem(item.id)} />
+                                        <UiLabel htmlFor={`item-${item.id}`} className={`flex-grow text-sm font-normal ${item.completed ? 'line-through text-muted-foreground' : 'text-foreground'} cursor-pointer`}>{item.text}</UiLabel>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive" onClick={() => deleteChecklistItem(item.id)}>
                                             <X className="h-3 w-3"/>
                                         </Button>
                                     </div>
@@ -409,17 +461,15 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                         </div>
                     )}
                     
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                            <Input 
-                                placeholder="Adicionar um item ao checklist..."
-                                value={newChecklistItem}
-                                onChange={(e) => setNewChecklistItem(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && addChecklistItem()}
-                                className="bg-muted/50"
-                            />
-                            <Button onClick={addChecklistItem}><Plus className="h-4 w-4 mr-1"/> Adicionar</Button>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <Input 
+                            placeholder="Adicionar um item ao checklist..."
+                            value={newChecklistItem}
+                            onChange={(e) => setNewChecklistItem(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addChecklistItem()}
+                            className="bg-muted/50"
+                        />
+                        <Button onClick={addChecklistItem} disabled={!newChecklistItem.trim()}>Adicionar</Button>
                     </div>
                 </div>
 
@@ -458,7 +508,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                     <UiLabel htmlFor="attachment-url">Anexar um link</UiLabel>
                                     <Input id="attachment-url" placeholder="Cole qualquer link aqui..." value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} />
                                     <Input id="attachment-name" placeholder="Nome do Link (Obrigatório)" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} />
-                                    <Button onClick={handleAddAttachmentLink} className="w-full">Anexar Link</Button>
+                                    <Button onClick={handleAddAttachmentLink} className="w-full" disabled={!attachmentUrl.trim() || !attachmentName.trim()}>Anexar Link</Button>
                                 </div>
                                 <Separator/>
                                 <div className="space-y-2">
