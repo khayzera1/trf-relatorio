@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { DragDropContext, Droppable, OnDragEndResponder } from "@hello-pangea/dnd";
 import { KanbanColumn } from './column';
 import type { Task, Column as ColumnType, Label, BoardData } from '@/lib/types';
