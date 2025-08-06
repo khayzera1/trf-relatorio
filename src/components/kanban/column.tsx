@@ -69,7 +69,8 @@ export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, on
         if (newTaskTitle.trim()) {
             onAddTask(column.id, newTaskTitle.trim());
             setNewTaskTitle("");
-            // setIsAddingTask(false); // Keep open for more additions or handle explicitly
+            // Keep open for more additions or handle explicitly
+            addTaskInputRef.current?.focus();
         }
     };
 
@@ -140,41 +141,37 @@ export function KanbanColumn({ column, tasks, index, onUpdateTitle, onDelete, on
                                         </Draggable>
                                     ))}
                                     {provided.placeholder}
+                                    {isAddingTask ? (
+                                        <div className="p-1 mt-1 space-y-2">
+                                            <Textarea
+                                                ref={addTaskInputRef}
+                                                placeholder="Digite um título para esta tarefa..."
+                                                value={newTaskTitle}
+                                                onChange={(e) => setNewTaskTitle(e.target.value)}
+                                                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAddTask())}
+                                                className="min-h-[60px]"
+                                            />
+                                            <div className="flex items-center gap-2">
+                                                <Button onClick={handleAddTask}>Adicionar</Button>
+                                                <Button variant="ghost" size="icon" onClick={() => setIsAddingTask(false)}>
+                                                    <X className="h-5 w-5"/>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="pt-2 px-1">
+                                            <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
+                                                <Plus className="mr-2" />
+                                                Adicionar Tarefa
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </Droppable>
-
-                        {isAddingTask ? (
-                            <div className="p-2 space-y-2">
-                                <Textarea
-                                    ref={addTaskInputRef}
-                                    placeholder="Digite um título para esta tarefa..."
-                                    value={newTaskTitle}
-                                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAddTask())}
-                                    className="min-h-[60px]"
-                                />
-                                <div className="flex items-center gap-2">
-                                    <Button onClick={handleAddTask}>Adicionar</Button>
-                                    <Button variant="ghost" size="icon" onClick={() => setIsAddingTask(false)}>
-                                        <X className="h-5 w-5"/>
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="p-2">
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
-                                    <Plus className="mr-2" />
-                                    Adicionar Tarefa
-                                </Button>
-                            </div>
-                        )}
                     </div>
                 </div>
             )}
         </Draggable>
     );
 }
-
-
-    
