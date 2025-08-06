@@ -21,7 +21,7 @@ import Link from "next/link";
 import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import type { ClientData } from "@/lib/types";
+import { addClient } from "@/lib/firebase/client";
 
 const formSchema = z.object({
   clientName: z.string().min(2, {
@@ -46,14 +46,8 @@ export default function NewClientPage() {
 
     async function onSubmit(values: NewClientFormData) {
         try {
-            const newClient: ClientData = {
-              id: `CLI${Date.now()}`, 
-              ...values,
-            };
-
-            const existingData = JSON.parse(localStorage.getItem('clientData') || '[]');
-            localStorage.setItem('clientData', JSON.stringify([...existingData, newClient]));
-
+            await addClient({ clientName: values.clientName });
+            
             toast({
                 title: "Cliente Cadastrado com Sucesso!",
                 description: `O cliente ${values.clientName} foi adicionado.`,

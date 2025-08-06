@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import type { ClientData } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, X } from "lucide-react";
+import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, X, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
-
+import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
 
 const getInitials = (name: string = '') => {
     const names = name.split(' ').filter(Boolean);
@@ -44,28 +44,35 @@ const getInitials = (name: string = '') => {
 
 export default function Home() {
   const [clients, setClients] = useState<ClientData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [clientToEdit, setClientToEdit] = useState<ClientData | null>(null);
   const [newClientName, setNewClientName] = useState("");
   const { toast } = useToast();
 
-  const loadClients = () => {
+  const loadClients = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const savedData = localStorage.getItem('clientData');
-      if (savedData) {
-        setClients(JSON.parse(savedData));
-      }
+      const savedData = await getClients();
+      setClients(savedData);
     } catch (error) {
-      console.error("Failed to parse client data from localStorage", error);
+      console.error("Failed to fetch clients from Firestore", error);
+      toast({
+          variant: "destructive",
+          title: "Erro ao Carregar Clientes",
+          description: "Não foi possível buscar os clientes do banco de dados.",
+      });
       setClients([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     loadClients();
-  }, []);
+  }, [loadClients]);
 
-  const handleEditClient = () => {
+  const handleEditClient = async () => {
     if (!clientToEdit || !newClientName.trim()) {
       toast({
         variant: "destructive",
@@ -75,28 +82,42 @@ export default function Home() {
       return;
     }
 
-    const updatedClients = clients.map(c => 
-      c.id === clientToEdit.id ? { ...c, clientName: newClientName } : c
-    );
-
-    localStorage.setItem('clientData', JSON.stringify(updatedClients));
-    setClients(updatedClients);
-    toast({
-      title: "Cliente Atualizado!",
-      description: `O nome do cliente foi alterado para ${newClientName}.`,
-    });
-    setClientToEdit(null);
-    setNewClientName("");
+    try {
+        await updateClient(clientToEdit.id, newClientName);
+        toast({
+          title: "Cliente Atualizado!",
+          description: `O nome do cliente foi alterado para ${newClientName}.`,
+        });
+        loadClients(); // Recarrega os clientes para mostrar a alteração
+    } catch (error) {
+        console.error("Failed to update client:", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao Atualizar",
+            description: "Não foi possível atualizar o cliente. Tente novamente.",
+        });
+    } finally {
+        setClientToEdit(null);
+        setNewClientName("");
+    }
   };
 
-  const handleDeleteClient = (clientId: string) => {
-    const updatedClients = clients.filter(c => c.id !== clientId);
-    localStorage.setItem('clientData', JSON.stringify(updatedClients));
-    setClients(updatedClients);
-    toast({
-      title: "Cliente Removido",
-      description: "O cliente foi removido com sucesso.",
-    });
+  const handleDeleteClient = async (clientId: string) => {
+    try {
+      await deleteClient(clientId);
+      toast({
+        title: "Cliente Removido",
+        description: "O cliente foi removido com sucesso.",
+      });
+      loadClients(); // Recarrega os clientes após a remoção
+    } catch (error) {
+        console.error("Failed to delete client:", error);
+        toast({
+            variant: "destructive",
+            title: "Erro ao Remover",
+            description: "Não foi possível remover o cliente. Tente novamente.",
+        });
+    }
   };
 
   const filteredClients = useMemo(() => {
@@ -109,6 +130,14 @@ export default function Home() {
   }, [clients, searchTerm]);
 
   const hasClients = clients.length > 0;
+
+  if (isLoading) {
+      return (
+          <div className="flex min-h-screen w-full items-center justify-center bg-background">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -141,7 +170,7 @@ export default function Home() {
         </div>
         
         {filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {filteredClients.map((client) => (
               <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary flex flex-col">
                   <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">

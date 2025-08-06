@@ -4,6 +4,8 @@ export interface ClientData {
   clientName: string;
 }
 
+export interface ClientDataInput extends Omit<ClientData, 'id'> {};
+
 export interface KpiCardData {
   title: string;
   value: string;
