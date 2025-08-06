@@ -22,6 +22,7 @@ import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { addClient } from "@/lib/firebase/client";
+import ProtectedRoute from "@/components/protected-route";
 
 const formSchema = z.object({
   clientName: z.string().min(2, {
@@ -31,7 +32,7 @@ const formSchema = z.object({
 
 export type NewClientFormData = z.infer<typeof formSchema>;
 
-export default function NewClientPage() {
+function NewClientPageContent() {
     const router = useRouter();
     const { toast } = useToast();
 
@@ -122,3 +123,13 @@ export default function NewClientPage() {
         </div>
     );
 }
+
+export default function NewClientPage() {
+    return (
+        <ProtectedRoute>
+            <NewClientPageContent />
+        </ProtectedRoute>
+    )
+}
+
+    

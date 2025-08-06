@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import type { ClientData } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, X, Loader2 } from "lucide-react";
+import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +19,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -33,6 +32,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { getClients, updateClient, deleteClient } from "@/lib/firebase/client";
+import { useAuth } from "@/context/auth-context";
+import { useRouter } from "next/navigation";
+import ProtectedRoute from "@/components/protected-route";
 
 const getInitials = (name: string = '') => {
     const names = name.split(' ').filter(Boolean);
@@ -42,7 +44,7 @@ const getInitials = (name: string = '') => {
     return name.substring(0, 2).toUpperCase();
 };
 
-export default function Home() {
+function HomePageContent() {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -60,7 +62,7 @@ export default function Home() {
       toast({
           variant: "destructive",
           title: "Erro ao Carregar Clientes",
-          description: "Não foi possível buscar os clientes do banco de dados.",
+          description: "Não foi possível buscar os clientes. Verifique sua conexão e permissões.",
       });
       setClients([]);
     } finally {
@@ -88,7 +90,7 @@ export default function Home() {
           title: "Cliente Atualizado!",
           description: `O nome do cliente foi alterado para ${newClientName}.`,
         });
-        loadClients(); // Recarrega os clientes para mostrar a alteração
+        loadClients();
     } catch (error) {
         console.error("Failed to update client:", error);
         toast({
@@ -109,7 +111,7 @@ export default function Home() {
         title: "Cliente Removido",
         description: "O cliente foi removido com sucesso.",
       });
-      loadClients(); // Recarrega os clientes após a remoção
+      loadClients();
     } catch (error) {
         console.error("Failed to delete client:", error);
         toast({
@@ -141,14 +143,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header>
-        <Link href="/clients/new">
-            <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Adicionar Cliente
-            </Button>
-        </Link>
-      </Header>
+      <Header />
       <main className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div className="flex items-center gap-3">
@@ -158,14 +153,22 @@ export default function Home() {
               <p className="text-muted-foreground">Gerencie seus clientes e gere relatórios.</p>
             </div>
           </div>
-          <div className="relative w-full sm:max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar cliente..." 
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+           <div className="flex w-full sm:w-auto sm:max-w-sm items-center gap-4">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar cliente..." 
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Link href="/clients/new">
+                  <Button className="flex-shrink-0">
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Adicionar
+                  </Button>
+              </Link>
           </div>
         </div>
         
@@ -278,3 +281,14 @@ export default function Home() {
     </div>
   );
 }
+
+
+export default function Home() {
+  return (
+    <ProtectedRoute>
+      <HomePageContent />
+    </ProtectedRoute>
+  );
+}
+
+    

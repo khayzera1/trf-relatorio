@@ -1,7 +1,8 @@
 
 'use client';
 
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, Auth, User } from 'firebase/auth';
 import { 
     getFirestore, 
     collection, 
@@ -11,7 +12,8 @@ import {
     updateDoc, 
     deleteDoc,
     query,
-    orderBy
+    orderBy,
+    Firestore
 } from 'firebase/firestore';
 import type { ClientData, ClientDataInput } from '@/lib/types';
 
@@ -26,10 +28,10 @@ const firebaseConfig = {
   "messagingSenderId": "783413603123"
 };
 
-
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
 
 const clientsCollection = collection(db, 'clients');
 
@@ -98,3 +100,8 @@ export async function deleteClient(id: string): Promise<void> {
         throw new Error("Could not delete client from the database.");
     }
 }
+
+export { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut };
+export type { User };
+
+    

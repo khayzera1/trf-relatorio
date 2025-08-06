@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/app/loading";
+import ProtectedRoute from "@/components/protected-route";
 
 function ReportsPageContent() {
     const searchParams = useSearchParams();
@@ -34,12 +35,20 @@ function ReportsPageContent() {
     );
 }
 
-// Using a wrapper component for Suspense allows the page to access searchParams
-// without suspending the entire page layout.
-export default function ReportsPage() {
+function ReportsPageContainer() {
     return (
         <Suspense fallback={<Loading />}>
             <ReportsPageContent />
         </Suspense>
     );
 }
+
+export default function ReportsPage() {
+    return (
+        <ProtectedRoute>
+            <ReportsPageContainer />
+        </ProtectedRoute>
+    );
+}
+
+    

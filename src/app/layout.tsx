@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Inter } from 'next/font/google';
 import Loading from './loading';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/context/auth-context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,12 +29,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={<Loading />}>
-              {children}
-          </Suspense>
-          <Toaster />
+          <AuthProvider>
+            <Suspense fallback={<Loading />}>
+                {children}
+            </Suspense>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+
+    
