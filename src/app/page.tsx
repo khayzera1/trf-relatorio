@@ -5,11 +5,34 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import type { ClientData } from "@/lib/types";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, ArrowRight, Users, Search, Contact } from "lucide-react";
+import { UserPlus, ArrowRight, Users, Search, Contact, Pencil, Trash2, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+
 
 const getInitials = (name: string = '') => {
     const names = name.split(' ').filter(Boolean);
@@ -22,8 +45,11 @@ const getInitials = (name: string = '') => {
 export default function Home() {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [clientToEdit, setClientToEdit] = useState<ClientData | null>(null);
+  const [newClientName, setNewClientName] = useState("");
+  const { toast } = useToast();
 
-  useEffect(() => {
+  const loadClients = () => {
     try {
       const savedData = localStorage.getItem('clientData');
       if (savedData) {
@@ -33,7 +59,45 @@ export default function Home() {
       console.error("Failed to parse client data from localStorage", error);
       setClients([]);
     }
+  };
+
+  useEffect(() => {
+    loadClients();
   }, []);
+
+  const handleEditClient = () => {
+    if (!clientToEdit || !newClientName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Erro de Validação",
+        description: "O nome do cliente não pode estar vazio.",
+      });
+      return;
+    }
+
+    const updatedClients = clients.map(c => 
+      c.id === clientToEdit.id ? { ...c, clientName: newClientName } : c
+    );
+
+    localStorage.setItem('clientData', JSON.stringify(updatedClients));
+    setClients(updatedClients);
+    toast({
+      title: "Cliente Atualizado!",
+      description: `O nome do cliente foi alterado para ${newClientName}.`,
+    });
+    setClientToEdit(null);
+    setNewClientName("");
+  };
+
+  const handleDeleteClient = (clientId: string) => {
+    const updatedClients = clients.filter(c => c.id !== clientId);
+    localStorage.setItem('clientData', JSON.stringify(updatedClients));
+    setClients(updatedClients);
+    toast({
+      title: "Cliente Removido",
+      description: "O cliente foi removido com sucesso.",
+    });
+  };
 
   const filteredClients = useMemo(() => {
     if (!searchTerm.trim()) {
@@ -79,12 +143,12 @@ export default function Home() {
         {filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredClients.map((client) => (
-              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary">
-                  <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center">
+              <Card key={client.id} className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary flex flex-col">
+                  <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
                       <Avatar className="h-16 w-16 text-xl">
                           <AvatarFallback className="bg-primary/20 text-primary font-bold">{getInitials(client.clientName)}</AvatarFallback>
                       </Avatar>
-                      <p className="text-lg font-semibold text-card-foreground">{client.clientName}</p>
+                      <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
                       <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
                           <Button variant="ghost" size="sm">
                               Gerar Relatório
@@ -92,6 +156,42 @@ export default function Home() {
                           </Button>
                       </Link>
                   </CardContent>
+                  <CardFooter className="bg-muted/50 p-2 flex justify-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={() => {
+                        setClientToEdit(client);
+                        setNewClientName(client.clientName);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                      <span className="sr-only">Editar Cliente</span>
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Apagar Cliente</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso irá apagar permanentemente o cliente <span className="font-bold">{client.clientName}</span> e todos os seus dados associados.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
+                            Sim, apagar cliente
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardFooter>
               </Card>
             ))}
           </div>
@@ -115,6 +215,37 @@ export default function Home() {
             </div>
         )}
       </main>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={!!clientToEdit} onOpenChange={(isOpen) => !isOpen && setClientToEdit(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+            <DialogDescription>
+              Altere o nome do cliente aqui. Clique em salvar quando terminar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Nome
+              </Label>
+              <Input
+                id="name"
+                value={newClientName}
+                onChange={(e) => setNewClientName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+                <Button type="button" variant="ghost">Cancelar</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleEditClient}>Salvar Alterações</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
