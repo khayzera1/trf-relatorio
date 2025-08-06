@@ -92,7 +92,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }:
 
     const handleDateSelect = (date: Date | undefined) => {
         setDueDate(date);
-        handleUpdate('dueDate', date ? date.toISOString() : undefined);
+        handleUpdate('dueDate', date ? date.toISOString().split('T')[0] : undefined);
     };
 
     if (!task) return null;
@@ -235,5 +235,3 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask }:
     </Dialog>
   );
 }
-
-    

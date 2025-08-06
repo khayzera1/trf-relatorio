@@ -14,6 +14,11 @@ const availableLabelColors: Record<string, string> = {
     'infra': 'bg-yellow-500',
 };
 
+interface KanbanCardProps {
+    task: Task;
+    isDragging: boolean;
+}
+
 export function KanbanCard({ task, isDragging }: KanbanCardProps) {
     const checklistProgress = task.checklist && task.checklist.length > 0 
         ? task.checklist.filter(item => item.completed).length
@@ -47,9 +52,4 @@ export function KanbanCard({ task, isDragging }: KanbanCardProps) {
             </CardContent>
         </Card>
     );
-}
-
-interface KanbanCardProps {
-    task: Task;
-    isDragging: boolean;
 }
