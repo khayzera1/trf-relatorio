@@ -216,8 +216,8 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
         };
     };
 
-    const handleDeleteAttachment = async (attachmentToDelete: Attachment) => {
-        const newAttachments = attachments.filter(att => att.id !== attachmentToDelete.id);
+    const handleDeleteAttachment = (attachmentId: string) => {
+        const newAttachments = attachments.filter(att => att.id !== attachmentId);
         handleUpdate('attachments', newAttachments);
         toast({ title: 'Anexo removido' });
     };
@@ -364,7 +364,7 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
                                             <a href={att.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-sm hover:underline break-all">{att.name}</a>
                                             <p className="text-xs text-muted-foreground">Adicionado em {format(parseISO(att.createdAt), "d MMM, yyyy 'às' HH:mm", {locale: ptBR})}</p>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteAttachment(att)}>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteAttachment(att.id)}>
                                             <Trash2 className="h-4 w-4"/>
                                         </Button>
                                     </div>
@@ -478,5 +478,3 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     </Dialog>
   );
 }
-
-    

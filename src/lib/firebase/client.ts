@@ -20,14 +20,6 @@ import {
     setDoc,
     getDoc,
 } from 'firebase/firestore';
-import { 
-    getStorage, 
-    ref, 
-    uploadBytes, 
-    getDownloadURL, 
-    deleteObject,
-    FirebaseStorage
-} from "firebase/storage";
 import type { ClientData, ClientDataInput, BoardData } from '@/lib/types';
 
 // Your web app's Firebase configuration
@@ -45,7 +37,6 @@ const firebaseConfig = {
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
-const storage: FirebaseStorage | null = getApps().length ? getStorage(app) : null;
 
 // Firestore Collections
 const clientsCollection = collection(db, 'clients');
@@ -154,13 +145,6 @@ export {
     auth, 
     onAuthStateChanged, 
     signInWithEmailAndPassword, 
-    signOut,
-    storage, 
-    ref, 
-    uploadBytes, 
-    getDownloadURL,
-    deleteObject
+    signOut
 };
 export type { User };
-
-    
