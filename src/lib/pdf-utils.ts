@@ -58,25 +58,32 @@ const drawCampaignSection = (doc: jsPDFWithAutoTable, campaignData: CampaignRepo
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 70;
     
+    let currentY = cursorY;
+
     campaignData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
         
-        const currentX = margin + colIndex * (cardWidth + cardGap);
-        const currentY = cursorY + rowIndex * (cardHeight + cardGap);
+        const cardX = margin + colIndex * (cardWidth + cardGap);
+        const cardY = cursorY + rowIndex * (cardHeight + cardGap);
 
         // Check if a new page is needed BEFORE drawing the card
-        if (currentY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
+        if (cardY + cardHeight > doc.internal.pageSize.getHeight() - margin) {
             doc.addPage();
-            cursorY = margin - (rowIndex * (cardHeight + cardGap)); // Adjust cursorY for the new page
+            // Reset cursorY for the new page, considering we are in a new row
+            cursorY = margin - (rowIndex * (cardHeight + cardGap));
         }
         
-        drawKpiCard(doc, card, currentX, cursorY + rowIndex * (cardHeight + cardGap), cardWidth, cardHeight);
+        // Recalculate cardY after potential page break
+        const finalCardY = cursorY + rowIndex * (cardHeight + cardGap);
+        drawKpiCard(doc, card, cardX, finalCardY, cardWidth, cardHeight);
     });
 
     const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
-    return cursorY + totalRows * (cardHeight + cardGap); 
+    // Return the Y position after the last row of cards
+    return cursorY + totalRows * (cardHeight + cardGap);
 };
+
 
 export function generatePdf(data: ReportData, clientName?: string | null) {
     if (!data || !data.reportTitle || !data.campaigns) {
