@@ -22,8 +22,8 @@ export function ClockWidget() {
     const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
     return (
-        <Card className="glass-card animate-fade-in">
-            <CardContent className="p-6">
+        <Card className="glass-card animate-fade-in h-full">
+            <CardContent className="p-6 flex flex-col justify-center h-full">
                 <div className="flex items-center justify-between text-muted-foreground mb-4">
                     <h3 className="text-lg font-semibold">Horário Local</h3>
                     <Clock className="h-5 w-5" />

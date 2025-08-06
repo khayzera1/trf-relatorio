@@ -19,7 +19,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -140,15 +139,12 @@ function HomePageContent() {
     <div className="flex min-h-screen text-foreground bg-background">
        <Sidebar />
        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Coluna da Esquerda com Widgets */}
-          <div className="lg:col-span-1 flex flex-col gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
             <ClockWidget />
             <RecentClientsWidget />
-          </div>
+        </div>
 
-          {/* Coluna da Direita com Painel de Clientes */}
-          <div className="lg:col-span-2 w-full">
+        <div className="w-full">
             <div className="glass-card p-6 mb-8">
                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                     <div className="flex items-center gap-4">
@@ -184,7 +180,7 @@ function HomePageContent() {
                 <Card key={client.id} className="glass-card overflow-hidden flex flex-col animate-fade-in transition-all duration-300 hover:border-white/30 hover:scale-105" style={{ animationDelay: `${index * 100}ms`}}>
                     <CardContent className="p-6 flex flex-col items-center justify-center gap-4 text-center flex-grow">
                         <Avatar className="h-16 w-16 text-xl">
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold border-2 border-primary/50">{getInitials(client.clientName)}</AvatarFallback>
+                            <AvatarFallback className="bg-primary text-primary-foreground font-bold">{getInitials(client.clientName)}</AvatarFallback>
                         </Avatar>
                         <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
                         <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
@@ -253,8 +249,7 @@ function HomePageContent() {
                 </div>
             )}
           </div>
-        </div>
-      </main>
+       </main>
 
       {/* Edit Client Dialog */}
       <Dialog open={!!clientToEdit} onOpenChange={(isOpen) => !isOpen && setClientToEdit(null)}>

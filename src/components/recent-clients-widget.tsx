@@ -35,7 +35,7 @@ export function RecentClientsWidget() {
     }, [loadRecentClients]);
 
     return (
-        <Card className="glass-card animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <Card className="glass-card animate-fade-in h-full" style={{ animationDelay: '200ms' }}>
             <CardHeader>
                 <div className="flex items-center justify-between text-muted-foreground">
                     <CardTitle className="text-lg font-semibold">Últimos Clientes</CardTitle>
@@ -52,7 +52,7 @@ export function RecentClientsWidget() {
                         {recentClients.map(client => (
                              <div key={client.id} className="flex items-center gap-4 group">
                                 <Avatar className="h-10 w-10 text-sm">
-                                    <AvatarFallback className="bg-primary/10 text-primary font-bold border-2 border-primary/50">{getInitials(client.clientName)}</AvatarFallback>
+                                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">{getInitials(client.clientName)}</AvatarFallback>
                                 </Avatar>
                                 <p className="flex-1 font-medium text-foreground truncate">{client.clientName}</p>
                                 <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
