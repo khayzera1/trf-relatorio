@@ -67,7 +67,7 @@ const prompt = ai.definePrompt({
     You are a marketing data analyst expert for a digital marketing agency.
     Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report.
     The entire analysis and output must be in **Brazilian Portuguese (pt-br)**.
-    The report should only use information that is present in the CSV. Do not invent or mix data between campaigns.
+    The report must only use information that is present in the CSV. Do not invent or mix data between campaigns.
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Each row represents a different campaign and must be processed independently.
@@ -84,16 +84,17 @@ const prompt = ai.definePrompt({
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   For the "Custo por Resultado" column, the 'title' of the card MUST be specific to the result type (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
-            -   **Crucially, for the "Resultados" metric, the title of the KPI card MUST be the name of the result itself, which can be found in the column header (e.g., 'Resultados: Compras no site'). For example, if the column header is 'Resultados: Compras no site', the card title should be 'Compras no site'.**
+            -   **Result Metrics:**
+                -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
+                -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
         *   **Relevant Metrics to Include:** For EACH campaign row, you must check for and include every relevant metric present in the CSV for that specific campaign, including but not limited to:
             -   'Alcance'
             -   'Impressões'
             -   'CPM (Custo por mil impressões)'
             -   'Cliques no link'
             -   'CTR (taxa de cliques no link)'
-            -   'Resultados' (The title of the card should be the name of the result itself, e.g., 'Compras', 'Leads', 'ThruPlays').
-            -   'Custo por resultado' (The title of the card should reflect the result, e.g., 'Custo por Compra').
+            -   'Resultados' (The title of the card must be the name of the result itself, e.g., 'Compras', 'Leads', 'ThruPlays').
+            -   'Custo por resultado' (The title of the card must reflect the result, e.g., 'Custo por Compra').
             -   'Valor de conversão de compras'
             -   'ROAS (retorno do investimento em anúncios)'
             -   Any other relevant metric present in the CSV for that campaign.
@@ -132,3 +133,5 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
