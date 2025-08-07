@@ -32,8 +32,10 @@ export function Sidebar() {
   const navItems = [
     { href: '/', label: 'Clientes', icon: Users, exact: true },
     { href: '/board', label: 'Quadro Kanban', icon: LayoutDashboard, exact: true },
-    { href: '/reports', label: 'Relatórios', icon: FileText, exact: false },
   ];
+
+  // The "Relatórios" link now points to the client list page to prompt selection.
+  const reportsNavItem = { href: '/', label: 'Relatórios', icon: FileText, exact: false, isReports: true };
 
   return (
     <aside className="w-64 flex-shrink-0 flex flex-col bg-card/60 glass-card p-4">
@@ -76,8 +78,19 @@ export function Sidebar() {
         )}
 
         <nav className="flex-grow space-y-2">
-            {navItems.map((item) => {
-                const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            {[...navItems, reportsNavItem].map((item) => {
+                // Special check for the "Relatórios" link. It should be active if the pathname starts with /reports OR if it's pointing to / and the current path is /reports.
+                // However, since we now point it to '/', we just need to check if the current path is /reports.
+                const isActive = item.isReports 
+                    ? pathname.startsWith('/reports') 
+                    : (item.exact ? pathname === item.href : pathname.startsWith(item.href) && item.href !== '/');
+                
+                // The main "Clientes" should only be active on '/', not on '/reports'
+                if (item.href === '/' && !item.exact && pathname.startsWith('/reports')) {
+                    // This condition is now implicitly handled by the logic above
+                }
+
+
                 return(
                 <Link 
                     key={item.label} 
@@ -97,5 +110,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
-    
