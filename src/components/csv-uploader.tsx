@@ -115,7 +115,7 @@ export function CsvUploader({ clientId, clientName, onReportSaved, onCancel }: C
             await addReport(clientId, reportData);
             toast({
                 title: "Sucesso!",
-                description: "O relatório foi salvo no histórico do cliente.",
+                description: "O relatório foi salvo e o PDF está sendo gerado.",
             });
             onReportSaved();
         } catch (error) {
@@ -154,7 +154,7 @@ export function CsvUploader({ clientId, clientName, onReportSaved, onCancel }: C
             <ReportPreview 
                 data={reportData} 
                 onCancel={handleReset}
-                onSave={handleSaveReport}
+                onSaveAndGeneratePdf={handleSaveReport}
                 clientName={clientName}
             />
         )

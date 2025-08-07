@@ -4,14 +4,14 @@
 import type { ReportData, KpiCardData, CategoryReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign, Save } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar, User, BarChart2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { generatePdf } from "@/lib/pdf-utils";
 
 interface ReportPreviewProps {
   data: ReportData;
   onCancel: () => void;
-  onSave: () => void;
+  onSaveAndGeneratePdf: () => Promise<void>;
   clientName?: string | null;
 }
 
@@ -52,12 +52,14 @@ const CategorySection = ({ categoryData }: { categoryData: CategoryReportData })
     );
 };
 
-export function ReportPreview({ data, onCancel, onSave, clientName }: ReportPreviewProps) {
+export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName }: ReportPreviewProps) {
   
-  const handleGeneratePdf = () => {
-    if (data) {
-        generatePdf(data, clientName);
-    }
+  const handleGeneratePdf = async () => {
+    if (!data) return;
+    // First, save the report to the database
+    await onSaveAndGeneratePdf();
+    // Then, generate the PDF for download
+    generatePdf(data, clientName);
   };
 
   const hasCategories = data.categories && data.categories.length > 0;
@@ -115,11 +117,7 @@ export function ReportPreview({ data, onCancel, onSave, clientName }: ReportPrev
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
         <Button onClick={handleGeneratePdf} disabled={!hasCategories} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
-            Gerar PDF
-        </Button>
-         <Button onClick={onSave} disabled={!hasCategories} className="w-full sm:w-auto">
-            <Save className="mr-2 h-4 w-4" />
-            Salvar Relatório
+            Salvar e Gerar PDF
         </Button>
       </CardFooter>
     </Card>
