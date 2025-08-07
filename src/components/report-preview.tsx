@@ -123,5 +123,3 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
     </Card>
   );
 }
-
-    
