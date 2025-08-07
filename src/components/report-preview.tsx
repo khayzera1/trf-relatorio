@@ -4,7 +4,7 @@
 import type { ReportData, KpiCardData, CategoryReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User, BarChart2 } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { generatePdf } from "@/lib/pdf-utils";
 
