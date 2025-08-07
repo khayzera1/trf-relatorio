@@ -79,17 +79,11 @@ export function Sidebar() {
 
         <nav className="flex-grow space-y-2">
             {[...navItems, reportsNavItem].map((item) => {
-                // Special check for the "Relatórios" link. It should be active if the pathname starts with /reports OR if it's pointing to / and the current path is /reports.
-                // However, since we now point it to '/', we just need to check if the current path is /reports.
-                const isActive = item.isReports 
-                    ? pathname.startsWith('/reports') 
-                    : (item.exact ? pathname === item.href : pathname.startsWith(item.href) && item.href !== '/');
+                const isActive = pathname.startsWith('/reports') && item.isReports 
+                  ? true 
+                  : (item.href === '/' && item.exact) ? pathname === '/' : pathname.startsWith(item.href) && item.href !== '/';
                 
-                // The main "Clientes" should only be active on '/', not on '/reports'
-                if (item.href === '/' && !item.exact && pathname.startsWith('/reports')) {
-                    // This condition is now implicitly handled by the logic above
-                }
-
+                const isReportsLink = item.isReports;
 
                 return(
                 <Link 
@@ -99,8 +93,10 @@ export function Sidebar() {
                         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActive 
                             ? "bg-primary text-primary-foreground shadow" 
-                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                        isReportsLink && !isActive && "opacity-75 cursor-help hover:bg-transparent hover:text-muted-foreground",
                     )}
+                    title={isReportsLink ? "Selecione um cliente para ver os relatórios" : ""}
                 >
                     <item.icon className="h-5 w-5" />
                     {item.label}
