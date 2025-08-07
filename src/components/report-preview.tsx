@@ -65,7 +65,7 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
   const hasCampaigns = data.campaigns && data.campaigns.length > 0;
 
   return (
-    <Card className="shadow-lg animate-fade-in w-full">
+    <Card className="shadow-lg animate-fade-in w-full flex flex-col max-h-[calc(100vh-120px)]">
       <CardHeader>
         <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
@@ -82,7 +82,7 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
             </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow overflow-y-auto">
         <Separator className="my-4" />
         <div className="p-4 sm:p-6 lg:p-8 bg-muted/50 rounded-lg border" id="pdf-content">
             <div className="bg-primary text-primary-foreground p-6 rounded-t-lg shadow-md">
@@ -113,7 +113,7 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
             </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
+      <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4 pt-6 border-t">
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
         <Button onClick={handleGeneratePdf} disabled={!hasCampaigns} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />

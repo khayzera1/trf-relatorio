@@ -67,7 +67,7 @@ const prompt = ai.definePrompt({
     You are a marketing data analyst expert for a digital marketing agency.
     Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report.
     The entire analysis and output must be in **Brazilian Portuguese (pt-br)**.
-    The report must only use information that is present in the CSV. Do not invent or mix data between campaigns.
+    The report must only use information that is present in the CSV. Do not invent or mix data between campaigns. The CSV is the single source of truth.
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Each row represents a different campaign and must be processed independently.
@@ -75,7 +75,7 @@ const prompt = ai.definePrompt({
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as "De DD/MM/AAAA a DD/MM/AAAA". If you cannot determine the dates, return "Período não encontrado".
     4.  **Process Each Campaign Individually:** You MUST create a separate report object for each campaign (each row) in the CSV. Do not mix information between rows.
     
-    5.  **For EACH campaign row, you MUST:**
+    5.  **For EACH campaign row, you MUST perform the following checks and actions:**
         *   **Assign a Generic Name:** Name each campaign sequentially as "Campanha 1", "Campanha 2", "Campanha 3", and so on, based on its order in the CSV file. Do NOT use the real campaign name from the data.
         *   **Extract Total Investment:** Get the 'Valor gasto (R$)' for that specific campaign row and present it in the 'totalInvestment' field, formatted correctly (e.g., "R$ 500,00").
         *   **Create KPI Cards:** Create a list of 'kpiCards' by extracting metrics from ALL relevant columns for that single campaign row. The column headers in the CSV are the source of truth for the KPI titles.
@@ -84,9 +84,9 @@ const prompt = ai.definePrompt({
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   **Specific Metric Handling:**
-                -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
-                -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
+            -   **Specific Metric Handling (Crucial Verification Step):**
+                -   For any column starting with "Resultados:" (e.g., 'Resultados: Compras no site', 'Resultados: Contatos no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site', 'Contatos no site'). The 'description' field is not needed in this case. VERIFY THIS.
+                -   For any column starting with "Custo por Resultado:", the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site', 'Custo por Contato no site'). You MUST use the same result name identified from the "Resultados:" column for that same campaign row. The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
 
     6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
@@ -122,4 +122,5 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
+
 
