@@ -78,26 +78,14 @@ const prompt = ai.definePrompt({
     5.  **For EACH campaign row, you MUST:**
         *   **Assign a Generic Name:** Name each campaign sequentially as "Campanha 1", "Campanha 2", "Campanha 3", and so on, based on its order in the CSV file. Do NOT use the real campaign name from the data.
         *   **Extract Total Investment:** Get the 'Valor gasto (R$)' for that specific campaign row and present it in the 'totalInvestment' field, formatted correctly (e.g., "R$ 500,00").
-        *   **Create KPI Cards:** Create a list of 'kpiCards' by extracting metrics from ALL relevant columns for that single campaign row.
+        *   **Create KPI Cards:** Create a list of 'kpiCards' by extracting metrics from ALL relevant columns for that single campaign row. The column headers in the CSV are the source of truth for the KPI titles.
         *   **KPI Formatting Rules:**
             -   Use a comma (,) for decimal separators (e.g., R$6,23).
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   **Result Metrics:**
-                -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
-                -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
-        *   **Relevant Metrics to Include:** For EACH campaign row, you must check for and include every relevant metric present in the CSV for that specific campaign, including but not limited to:
-            -   'Alcance'
-            -   'Impressões'
-            -   'CPM (Custo por mil impressões)'
-            -   'Cliques no link'
-            -   'CTR (taxa de cliques no link)'
-            -   'Resultados' (The title of the card must be the name of the result itself, e.g., 'Compras', 'Leads', 'ThruPlays').
-            -   'Custo por resultado' (The title of the card must reflect the result, e.g., 'Custo por Compra').
-            -   'Valor de conversão de compras'
-            -   'ROAS (retorno do investimento em anúncios)'
-            -   Any other relevant metric present in the CSV for that campaign.
+            -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
+            -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
     
     6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
@@ -133,5 +121,3 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
