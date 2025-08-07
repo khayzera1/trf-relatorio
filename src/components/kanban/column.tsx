@@ -180,44 +180,44 @@ export function KanbanColumn({ column, tasks, labels, index, onUpdateTitle, onDe
                                         </Draggable>
                                     ))}
                                     {provided.placeholder}
+
+                                    {isAddingTask ? (
+                                        <div className="p-1 mt-1 space-y-2">
+                                            <div className="shadow-lg">
+                                                <Textarea
+                                                    ref={addTaskInputRef}
+                                                    placeholder="Digite um título para esta tarefa..."
+                                                    value={newTaskTitle}
+                                                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            handleAddTask();
+                                                        } else if (e.key === "Escape") {
+                                                            handleCancelAddTask();
+                                                        }
+                                                    }}
+                                                    className="min-h-[60px]"
+                                                />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button onClick={handleAddTask}>Adicionar Tarefa</Button>
+                                                <Button variant="ghost" size="icon" onClick={handleCancelAddTask}>
+                                                    <X className="h-5 w-5"/>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="pt-1">
+                                            <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
+                                                <Plus className="mr-2" />
+                                                Adicionar uma tarefa
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </Droppable>
-                        
-                        <div className="pt-1 px-2 pb-2">
-                             {isAddingTask ? (
-                                <div className="p-1 mt-1 space-y-2">
-                                    <div className="shadow-lg">
-                                        <Textarea
-                                            ref={addTaskInputRef}
-                                            placeholder="Digite um título para esta tarefa..."
-                                            value={newTaskTitle}
-                                            onChange={(e) => setNewTaskTitle(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && !e.shiftKey) {
-                                                    e.preventDefault();
-                                                    handleAddTask();
-                                                } else if (e.key === "Escape") {
-                                                    handleCancelAddTask();
-                                                }
-                                            }}
-                                            className="min-h-[60px]"
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Button onClick={handleAddTask}>Adicionar Tarefa</Button>
-                                        <Button variant="ghost" size="icon" onClick={handleCancelAddTask}>
-                                            <X className="h-5 w-5"/>
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAddingTask(true)}>
-                                    <Plus className="mr-2" />
-                                    Adicionar uma tarefa
-                                </Button>
-                            )}
-                        </div>
                     </div>
                 </div>
             )}
