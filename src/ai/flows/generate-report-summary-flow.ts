@@ -70,7 +70,7 @@ const prompt = ai.definePrompt({
     The report should only use information that is present in the CSV.
 
     **Instructions:**
-    1.  **Analyze the CSV Data:** Carefully review the provided CSV data, which contains one or more marketing campaigns. Each row can represent a different campaign.
+    1.  **Analyze the CSV Data:** Carefully review the provided CSV data, which contains one or more marketing campaigns. Each row represents a different campaign and should be processed independently.
     2.  **Create a Report Title:** Generate a single, professional title for the overall report. Example: 'Relatório de Desempenho de Campanhas'
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as "De DD/MM/AAAA a DD/MM/AAAA". If you cannot determine the dates, return "Período não encontrado".
     4.  **Process Each Campaign Individually:** You MUST create a separate report object for each campaign (each row) in the CSV.
@@ -78,7 +78,7 @@ const prompt = ai.definePrompt({
     5.  **For each campaign, you MUST:**
         *   **Assign a Generic Name:** Name each campaign sequentially as "Campanha 1", "Campanha 2", "Campanha 3", and so on, based on its order in the CSV file. Do NOT use the real campaign name from the data.
         *   **Extract Total Investment:** Get the 'Valor gasto (R$)' for that specific campaign and present it in the 'totalInvestment' field, formatted correctly (e.g., "R$ 500,00").
-        *   **Create KPI Cards:** Create a list of 'kpiCards' that summarizes the performance metrics for that single campaign. Use the columns from the CSV as KPIs.
+        *   **Create KPI Cards:** Create a list of 'kpiCards' that summarizes all performance metrics for that single campaign. Use the columns from the CSV as KPIs.
         *   **KPI Formatting Rules:**
             -   Use a comma (,) for decimal separators (e.g., R$6,23).
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
@@ -86,7 +86,7 @@ const prompt = ai.definePrompt({
             -   Include 'R$' for currency values.
             -   For "Custo por Resultado", the 'title' should be specific to the result type (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
             -   **Crucially, for the "Resultados" metric, the title of the KPI card MUST be the name of the result itself, which can be found in the column header (e.g., 'Resultados: Compras no site', 'Resultados: Leads'). For example, if the column is 'Resultados: Compras no site', the card title should be 'Compras no site'.**
-        *   **Relevant Metrics to Include (if available in the CSV for the campaign):**
+        *   **Relevant Metrics to Include:** For EACH campaign row, you must check for and include every relevant metric present in the CSV for that specific campaign, including but not limited to:
             -   'Alcance'
             -   'Impressões'
             -   'CPM (Custo por mil impressões)'
@@ -130,5 +130,3 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
