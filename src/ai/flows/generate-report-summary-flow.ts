@@ -103,7 +103,7 @@ const generateReportSummaryFlow = ai.defineFlow(
     name: 'generateReportSummaryFlow',
     inputSchema: GenerateReportSummaryInputSchema,
     outputSchema: GenerateReportSummaryOutputSchema,
-    stream: false,
+    stream: false, 
     cache: false,
   },
   async input => {
@@ -122,5 +122,3 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
-
-
