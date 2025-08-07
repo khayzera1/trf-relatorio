@@ -71,7 +71,7 @@ const prompt = ai.definePrompt({
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Each row represents a different campaign and must be processed independently.
-    2.  **Create a Report Title:** Generate a single, professional title for the overall report. Example: 'Relatório de Desempenho de Campanhas'
+    2.  **Create a Report Title:** Generate a single, professional title for the overall report. Example: 'Relatório de Desempenho de Campanhas'.
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as "De DD/MM/AAAA a DD/MM/AAAA". If you cannot determine the dates, return "Período não encontrado".
     4.  **Process Each Campaign Individually:** You MUST create a separate report object for each campaign (each row) in the CSV. Do not mix information between rows.
     
@@ -84,9 +84,10 @@ const prompt = ai.definePrompt({
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
-            -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
-    
+            -   **Specific Metric Handling:**
+                -   For the "Resultados" column (e.g., 'Resultados: Compras no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site'). The 'description' field is not needed in this case.
+                -   For the "Custo por Resultado" column, the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site'), using the same result name identified from the "Resultados" column. The 'description' field is not needed.
+
     6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
     **CSV Data:**
@@ -121,3 +122,4 @@ const generateReportSummaryFlow = ai.defineFlow(
     return output;
   }
 );
+
