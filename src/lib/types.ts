@@ -15,8 +15,8 @@ export interface KpiCardData {
   description?: string;
 }
 
-export interface CategoryReportData {
-  categoryName: string;
+export interface CampaignReportData {
+  campaignName: string;
   totalInvestment: string;
   kpiCards: KpiCardData[];
 }
@@ -24,7 +24,7 @@ export interface CategoryReportData {
 export interface ReportData {
   reportTitle: string;
   reportPeriod: string;
-  categories: CategoryReportData[];
+  campaigns: CampaignReportData[];
 }
 
 export interface SavedReportData extends ReportData {
@@ -81,4 +81,5 @@ export interface BoardData {
     createdAt?: Timestamp;
     updatedAt?: Timestamp;
 }
+
 

@@ -3,7 +3,7 @@
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // Import for table functionality
-import type { ReportData, KpiCardData, CategoryReportData } from './types';
+import type { ReportData, KpiCardData, CampaignReportData } from './types';
 
 // Extend jsPDF with autoTable, if it's not already defined
 interface jsPDFWithAutoTable extends jsPDF {
@@ -93,23 +93,23 @@ const drawKpiCard = (doc: jsPDF, card: KpiCardData, x: number, y: number, width:
 };
 
 
-const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryReportData, startY: number, pageWidth: number, margin: number): number => {
+const drawCampaignSection = (doc: jsPDFWithAutoTable, campaignData: CampaignReportData, startY: number, pageWidth: number, margin: number): number => {
     let cursorY = startY;
 
-    // --- Draw Category Title and Total Investment ---
+    // --- Draw Campaign Title and Total Investment ---
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(17, 24, 39);
-    doc.text(cleanText(categoryData.categoryName), margin, cursorY);
+    doc.text(cleanText(campaignData.campaignName), margin, cursorY);
     
-    const investmentText = `Investimento Total: ${cleanText(categoryData.totalInvestment)}`;
+    const investmentText = `Investimento: ${cleanText(campaignData.totalInvestment)}`;
     const investmentTextWidth = doc.getTextWidth(investmentText);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(55, 65, 81);
     doc.text(investmentText, pageWidth - margin - investmentTextWidth, cursorY);
 
-    cursorY += 35; // Space between category title and KPI cards
+    cursorY += 35; // Space between campaign title and KPI cards
 
     // --- Draw KPI Cards ---
     const cardsPerRow = 3;
@@ -117,7 +117,7 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
     const cardWidth = (pageWidth - margin * 2 - cardGap * (cardsPerRow - 1)) / cardsPerRow;
     const cardHeight = 85; 
     
-    categoryData.kpiCards.forEach((card, index) => {
+    campaignData.kpiCards.forEach((card, index) => {
         const rowIndex = Math.floor(index / cardsPerRow);
         const colIndex = index % cardsPerRow;
         
@@ -135,13 +135,13 @@ const drawCategorySection = (doc: jsPDFWithAutoTable, categoryData: CategoryRepo
         drawKpiCard(doc, card, cardX, cardY, cardWidth, cardHeight);
     });
 
-    const totalRows = Math.ceil(categoryData.kpiCards.length / cardsPerRow);
+    const totalRows = Math.ceil(campaignData.kpiCards.length / cardsPerRow);
     return cursorY + totalRows * (cardHeight + cardGap);
 };
 
 
 export function generatePdf(data: ReportData, clientName?: string | null) {
-    if (!data || !data.reportTitle || !data.categories) {
+    if (!data || !data.reportTitle || !data.campaigns) {
         console.error("Invalid data provided to generatePdf");
         alert("Não foi possível gerar o PDF. Dados inválidos ou ausentes.");
         return;
@@ -202,20 +202,20 @@ export function generatePdf(data: ReportData, clientName?: string | null) {
     // --- Draw Main Content ---
     let contentCursorY = headerHeight + 30; // Start content below the header
     
-    data.categories.forEach((category, index) => {
+    data.campaigns.forEach((campaign, index) => {
         // Estimate section height to check for page breaks
-        const kpiRows = Math.ceil(category.kpiCards.length / 3); 
+        const kpiRows = Math.ceil(campaign.kpiCards.length / 3); 
         const sectionHeightEstimate = 50 + (kpiRows * 100); // Title height + (rows * (card height + gap))
 
-        // If the estimated height will overflow and it's not the first category on the page
+        // If the estimated height will overflow and it's not the first campaign on the page
         if (contentCursorY + sectionHeightEstimate > pageHeight - margin && contentCursorY > (headerHeight + 30)) { 
            doc.addPage();
            contentCursorY = margin;
         } else if (index > 0) {
-           contentCursorY += 20; // Add space between categories
+           contentCursorY += 20; // Add space between campaigns
         }
         
-        contentCursorY = drawCategorySection(doc, category, contentCursorY, pageWidth, margin);
+        contentCursorY = drawCampaignSection(doc, campaign, contentCursorY, pageWidth, margin);
     });
 
     const safeFileName = clientName ? `relatorio_${cleanText(clientName)}` : "relatorio_de_campanha";

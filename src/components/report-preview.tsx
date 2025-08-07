@@ -1,10 +1,10 @@
 
 "use client";
 
-import type { ReportData, KpiCardData, CategoryReportData } from "@/lib/types";
+import type { ReportData, KpiCardData, CampaignReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign } from "lucide-react";
+import { FileText, Download, X, BarChart2, DollarSign, Calendar, User, Tag } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { generatePdf } from "@/lib/pdf-utils";
 
@@ -29,22 +29,22 @@ const KpiCard = ({ card }: { card: KpiCardData }) => {
     );
 };
 
-const CategorySection = ({ categoryData }: { categoryData: CategoryReportData }) => {
+const CampaignSection = ({ campaignData }: { campaignData: CampaignReportData }) => {
     return (
         <div className="mb-10 last-of-type:mb-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
                     <Tag className="h-5 w-5 text-primary flex-shrink-0" />
-                    <h3 className="text-xl font-semibold text-foreground break-words">{categoryData.categoryName}</h3>
+                    <h3 className="text-xl font-semibold text-foreground break-words">{campaignData.campaignName}</h3>
                 </div>
                 <div className="flex items-center gap-2 text-md font-bold text-foreground bg-muted px-3 py-1.5 rounded-md">
                    <DollarSign className="h-4 w-4 text-muted-foreground"/>
-                   <span>Investimento Total:</span>
-                   <span className="text-primary">{categoryData.totalInvestment}</span>
+                   <span>Investimento:</span>
+                   <span className="text-primary">{campaignData.totalInvestment}</span>
                 </div>
             </div>
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categoryData.kpiCards.map((card, index) => (
+                {campaignData.kpiCards.map((card, index) => (
                     <KpiCard key={index} card={card} />
                 ))}
             </div>
@@ -62,7 +62,7 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
     generatePdf(data, clientName);
   };
 
-  const hasCategories = data.categories && data.categories.length > 0;
+  const hasCampaigns = data.campaigns && data.campaigns.length > 0;
 
   return (
     <Card className="shadow-lg animate-fade-in w-full">
@@ -100,9 +100,9 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
             </div>
             
             <div className="bg-card p-6 rounded-b-lg">
-              {hasCategories ? (
-                  data.categories.map((category, index) => (
-                     <CategorySection key={index} categoryData={category} />
+              {hasCampaigns ? (
+                  data.campaigns.map((campaign, index) => (
+                     <CampaignSection key={index} campaignData={campaign} />
                   ))
               ) : (
                   <div className="text-center py-8">
@@ -115,7 +115,7 @@ export function ReportPreview({ data, onCancel, onSaveAndGeneratePdf, clientName
       </CardContent>
       <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-4">
         <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">Cancelar</Button>
-        <Button onClick={handleGeneratePdf} disabled={!hasCategories} className="w-full sm:w-auto">
+        <Button onClick={handleGeneratePdf} disabled={!hasCampaigns} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Salvar e Gerar PDF
         </Button>

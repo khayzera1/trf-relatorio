@@ -4,7 +4,7 @@
 /**
  * @fileOverview This file defines a Genkit flow that analyzes marketing campaign data
  * from a CSV containing one or more campaigns and extracts key performance indicators (KPIs)
- * for a consolidated dashboard-style report, grouped by strategic categories.
+ * for a consolidated dashboard-style report, grouped by individual campaigns.
  *
  * - generateReportSummary - Analyzes CSV data and returns structured KPI data.
  * - GenerateReportSummaryInput - The input type for the generateReportSummary function.
@@ -32,17 +32,17 @@ const KpiCardDataSchema = z.object({
     description: z.string().optional().describe("A brief, optional description providing context for the KPI. For 'Custo por Resultado', this should specify what the result is (e.g., 'Conversa no WhatsApp', 'Contato no site'). For other KPIs, this is usually not needed."),
 });
 
-const CategoryReportSchema = z.object({
-  categoryName: z.string().describe("The name of the category: 'Reconhecimento & Engajamento', 'Contato', or 'Vendas'."),
-  totalInvestment: z.string().describe("The total amount invested in this category, formatted as Brazilian currency (R$). Sum of 'Valor gasto (R$)' for all campaigns in the category."),
-  kpiCards: z.array(KpiCardDataSchema).describe("An array of all relevant KPI card objects for this category, summarizing all campaigns within it."),
+const CampaignReportSchema = z.object({
+  campaignName: z.string().describe("The generic name of the campaign, following the pattern 'Campanha X', where X is the sequential number of the campaign found in the CSV. E.g., 'Campanha 1', 'Campanha 2'."),
+  totalInvestment: z.string().describe("The total amount invested in this specific campaign, formatted as Brazilian currency (R$). This is the value from the 'Valor gasto (R$)' column for this campaign."),
+  kpiCards: z.array(KpiCardDataSchema).describe("An array of all relevant KPI card objects for this specific campaign."),
 });
 
 
 const GenerateReportSummaryOutputSchema = z.object({
   reportTitle: z.string().describe("A concise and descriptive title for the consolidated report in Brazilian Portuguese, based on the data provided. Example: 'Relatório de Desempenho de Campanhas'."),
   reportPeriod: z.string().describe("The reporting period, extracted from the CSV data. Format it in Brazilian Portuguese like 'De DD/MM/AAAA a DD/MM/AAAA'."),
-  categories: z.array(CategoryReportSchema).describe("An array of report objects, one for each of the three main categories."),
+  campaigns: z.array(CampaignReportSchema).describe("An array of report objects, one for each distinct campaign found in the CSV data."),
 });
 
 export type GenerateReportSummaryOutput = z.infer<typeof GenerateReportSummaryOutputSchema>;
@@ -66,35 +66,38 @@ const prompt = ai.definePrompt({
   prompt: `
     You are a marketing data analyst expert for a digital marketing agency.
     Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report.
-    The entire analysis and output must be in **Brazilian Portuguese (pt-BR)**.
+    The entire analysis and output must be in **Brazilian Portuguese (pt-br)**.
     The report should only use information that is present in the CSV.
 
     **Instructions:**
-    1.  **Analyze the CSV Data:** Carefully review the provided CSV data.
+    1.  **Analyze the CSV Data:** Carefully review the provided CSV data, which contains one or more marketing campaigns. Each row can represent a different campaign.
     2.  **Create a Report Title:** Generate a single, professional title for the overall report. Example: 'Relatório de Desempenho de Campanhas'
     3.  **Extract the Reporting Period:** Find the start and end dates in the CSV and format them as "De DD/MM/AAAA a DD/MM/AAAA". If you cannot determine the dates, return "Período não encontrado".
-    4.  **Group Campaigns into Categories:** You MUST group all campaigns from the CSV into one of three main categories based on their objectives. The categories are: "Reconhecimento & Engajamento", "Contato", and "Vendas".
-
-        **Grouping Rules:**
-        *   **Reconhecimento & Engajamento:** Group campaigns whose objective is 'alcance' (reach), 'visualizações de vídeo' (video views / ThruPlay), 'seguidores' (followers), 'visitas ao perfil' (profile visits), 'curtidas' (likes), 'engajamento' (engagement), or any other activity that does not generate a direct contact.
-        *   **Contato:** Group campaigns whose objective is strictly 'geração de cadastros' (lead generation), 'formulários' (forms), 'mensagens', 'conversas no WhatsApp' (WhatsApp conversations), 'leads no site', 'leads no Meta', or any other direct contact generation. Do NOT include 'tráfego' (traffic) unless it's explicitly for a lead capture page.
-        *   **Vendas:** Group campaigns whose objective is 'compras' (purchases), 'adições ao carrinho' (add to cart), or 'finalizações de compra' (checkouts).
-
-    5.  **For each category, you MUST:**
-        *   **Calculate Total Investment:** Sum the 'Valor gasto (R$)' for ALL campaigns within that category and present it in the 'totalInvestment' field, formatted correctly (e.g., "R$ 1.500,00").
-        *   **Aggregate KPIs:** Create a list of 'kpiCards' that summarizes the performance of ALL campaigns in that category. Consolidate the metrics. For example, sum all 'Impressões' from all campaigns in the category into a single "Impressões" KPI card.
+    4.  **Process Each Campaign Individually:** You MUST create a separate report object for each campaign (each row) in the CSV.
+    
+    5.  **For each campaign, you MUST:**
+        *   **Assign a Generic Name:** Name each campaign sequentially as "Campanha 1", "Campanha 2", "Campanha 3", and so on, based on its order in the CSV file. Do NOT use the real campaign name from the data.
+        *   **Extract Total Investment:** Get the 'Valor gasto (R$)' for that specific campaign and present it in the 'totalInvestment' field, formatted correctly (e.g., "R$ 500,00").
+        *   **Create KPI Cards:** Create a list of 'kpiCards' that summarizes the performance metrics for that single campaign. Use the columns from the CSV as KPIs.
         *   **KPI Formatting Rules:**
             -   Use a comma (,) for decimal separators (e.g., R$6,23).
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   For "Custo por Resultado", the 'title' should be specific (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
-        *   **Relevant Metrics per Category:**
-            -   **Reconhecimento & Engajamento:** Focus on 'Alcance', 'Impressões', 'CPM (Custo por mil impressões)'. Also, you MUST create specific KPI cards for any results found in the 'Resultados' column for these campaigns, such as 'Custo por ThruPlay', 'ThruPlays', 'Engajamentos com a publicação', and 'Visitas ao Perfil'. The title of the card should be the name of the result.
-            -   **Contato:** Focus on 'Cliques no link', 'CTR (taxa de cliques no link)'. You MUST create specific KPI cards for any results found in the 'Resultados' column (e.g., 'Leads', 'Conversas iniciadas') and their corresponding costs ('Custo por Resultado').
-            -   **Vendas:** Focus on 'Valor de conversão de compras', 'ROAS (retorno do investimento em anúncios)'. You MUST create specific KPI cards for any results found in the 'Resultados' column (e.g., 'Compras') and their corresponding costs ('Custo por Resultado').
+            -   For "Custo por Resultado", the 'title' should be specific to the result type (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
+        *   **Relevant Metrics to Include (if available in the CSV for the campaign):**
+            -   'Alcance'
+            -   'Impressões'
+            -   'CPM (Custo por mil impressões)'
+            -   'Cliques no link'
+            -   'CTR (taxa de cliques no link)'
+            -   'Resultados' (The title of the card should be the name of the result itself, e.g., 'Compras', 'Leads', 'ThruPlays').
+            -   'Custo por resultado' (The title of the card should reflect the result, e.g., 'Custo por Compra').
+            -   'Valor de conversão de compras'
+            -   'ROAS (retorno do investimento em anúncios)'
+            -   Any other relevant metric present in the CSV for that campaign.
     
-    6.  **Final Output:** Create an object containing the report title, period, and an array of these category objects. Only include categories that have campaigns. If a category has no campaigns, do not include it in the final array.
+    6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
     **CSV Data:**
     \`\`\`csv
@@ -119,10 +122,11 @@ const generateReportSummaryFlow = ai.defineFlow(
       return {
         reportTitle: "Relatório de Campanha",
         reportPeriod: "Período não encontrado",
-        categories: []
+        campaigns: []
       };
     }
     
     return output;
   }
 );
+
