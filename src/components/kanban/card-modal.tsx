@@ -17,6 +17,7 @@ import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -244,30 +245,30 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
             return (
                  <div className="p-4">
                     <div className="flex items-center mb-4">
-                        <Button variant="ghost" size="icon" className="mr-2 h-8 w-8" onClick={handleBackToLabelList}><ArrowLeft/></Button>
-                        <h4 className="font-semibold text-center flex-grow">{isCreatingLabel ? 'Criar Etiqueta' : 'Editar Etiqueta'}</h4>
+                        <Button variant="ghost" size="icon" className="mr-2 h-8 w-8" onClick={handleBackToLabelList}><ArrowLeft className="h-5 w-5"/></Button>
+                        <h4 className="font-semibold text-lg text-center flex-grow">{isCreatingLabel ? 'Criar Etiqueta' : 'Editar Etiqueta'}</h4>
                     </div>
                     <div className="space-y-4">
                         <div>
-                            <UiLabel htmlFor="label-name">Nome</UiLabel>
+                            <UiLabel htmlFor="label-name" className="text-sm">Nome</UiLabel>
                             <Input id="label-name" value={currentLabelName} onChange={(e) => setCurrentLabelName(e.target.value)} />
                         </div>
                         <div>
-                             <UiLabel>Cor</UiLabel>
-                             <div className="grid grid-cols-4 gap-2 mt-1">
+                             <UiLabel className="text-sm">Cor</UiLabel>
+                             <div className="grid grid-cols-4 gap-2 mt-2">
                                 {labelColorOptions.map(color => (
-                                    <div key={color} onClick={() => setCurrentLabelColor(color)} className={`h-8 rounded cursor-pointer flex items-center justify-center ${color}`}>
-                                        {currentLabelColor === color && <Check className="h-4 w-4 text-white"/>}
+                                    <div key={color} onClick={() => setCurrentLabelColor(color)} className={`h-10 rounded cursor-pointer flex items-center justify-center ${color}`}>
+                                        {currentLabelColor === color && <Check className="h-5 w-5 text-white"/>}
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <div className="flex justify-between gap-2">
-                            <Button onClick={handleSaveLabel} className="w-full">{isCreatingLabel ? 'Criar' : 'Salvar'}</Button>
+                        <div className="flex justify-between gap-2 pt-2">
+                            <Button onClick={handleSaveLabel} className="w-full h-11">{isCreatingLabel ? 'Criar' : 'Salvar'}</Button>
                             {editingLabel && (
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="icon"><Trash2 className="h-4 w-4"/></Button>
+                                        <Button variant="destructive" size="icon" className="h-11 w-11"><Trash2 className="h-5 w-5"/></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="glass-card">
                                         <AlertDialogHeader>
@@ -293,21 +294,21 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
 
         return (
             <div className="p-2 space-y-1">
-                <h4 className="font-semibold text-center mb-2 p-2">Etiquetas</h4>
+                <h4 className="font-semibold text-center mb-2 p-2 text-base">Etiquetas</h4>
                 <div className="px-2 space-y-2">
                     {Object.values(allLabels).map(label => (
-                        <div key={label.id} className="flex items-center gap-2 group">
-                            <input type="checkbox" readOnly checked={labelIds.includes(label.id)} className="h-4 w-4 rounded border-primary text-primary focus:ring-primary" onClick={() => toggleLabel(label.id)}/>
-                            <div onClick={() => toggleLabel(label.id)} className={`w-full px-2 py-1 rounded text-xs font-semibold text-white ${label.color} cursor-pointer`}>
+                        <div key={label.id} className="flex items-center gap-3 group">
+                            <Checkbox id={`label-check-${label.id}`} checked={labelIds.includes(label.id)} onCheckedChange={() => toggleLabel(label.id)} className="h-5 w-5"/>
+                            <div onClick={() => toggleLabel(label.id)} className={`w-full px-3 py-2 rounded text-sm font-semibold text-white ${label.color} cursor-pointer`}>
                                 {label.name}
                             </div>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleStartEditLabel(label)}>
-                                <Pencil className="h-3 w-3"/>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => handleStartEditLabel(label)}>
+                                <Pencil className="h-4 w-4"/>
                             </Button>
                         </div>
                     ))}
                 </div>
-                <Button variant="secondary" className="w-full mt-2" onClick={handleStartCreateLabel}>Criar nova etiqueta</Button>
+                <Button variant="secondary" className="w-full mt-4 h-10" onClick={handleStartCreateLabel}>Criar nova etiqueta</Button>
             </div>
         );
     };
@@ -557,3 +558,5 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     </Dialog>
   );
 }
+
+    
