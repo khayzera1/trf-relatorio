@@ -8,7 +8,7 @@
  *
  * - generateReportSummary - Analyzes CSV data and returns structured KPI data.
  * - GenerateReportSummaryInput - The input type for the generateReportSummary function.
- * - GenerateReportSummaryOutput - The return type for the generateReportSummary function.
+ * - GenerateReportSummaryOutput - The return type for the generateReportsummary function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -86,7 +86,9 @@ const prompt = ai.definePrompt({
             -   Include 'R$' for currency values.
             -   **Specific Metric Handling (Crucial Verification Step):**
                 -   For any column starting with "Resultados:" (e.g., 'Resultados: Compras no site', 'Resultados: Contatos no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site', 'Contatos no site'). The 'description' field is not needed in this case. VERIFY THIS.
+                -   For a column named 'Resultados: profile_visit_view', the 'title' of the KPI card MUST BE 'Visitas ao perfil'. The 'description' field is not needed. VERIFY THIS.
                 -   For any column starting with "Custo por Resultado:", the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site', 'Custo por Contato no site'). You MUST use the same result name identified from the "Resultados:" column for that same campaign row. The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
+                -   For a column named 'Custo por Resultado: profile_visit_view', the 'title' of the KPI card MUST BE 'Custo por visita ao perfil'. The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
 
     6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
