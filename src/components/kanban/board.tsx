@@ -64,6 +64,7 @@ export function KanbanBoard() {
             toast({ variant: "destructive", title: "Erro ao Carregar Quadro", description: "Não foi possível carregar seus dados." });
         } finally {
             setIsLoading(false);
+            hasLoaded.current = true; // Mark as loaded after initial fetch
         }
     }, [user, toast]);
 
@@ -72,26 +73,31 @@ export function KanbanBoard() {
     }, [loadBoard]);
 
 
-    const saveBoard = useCallback(async (data: BoardData) => {
+    const saveBoard = useCallback(async (dataToSave: BoardData) => {
         if (!user) return;
         try {
-            await updateBoard(user.uid, data.id, data);
+            await updateBoard(user.uid, dataToSave.id, dataToSave);
         } catch (error) {
             console.error("Failed to save board:", error);
             toast({ variant: "destructive", title: "Erro de Sincronização", description: "Não foi possível salvar suas últimas alterações." });
         }
     }, [user, toast]);
     
-    // This effect handles saving the board data to Firestore whenever it changes.
-    // A ref `hasLoaded` is used to prevent saving the initial empty/default state on first load.
+    // Debounced save effect
     useEffect(() => {
-        if (boardData && !isLoading) {
-            if (hasLoaded.current) {
-                saveBoard(boardData);
-            } else {
-                hasLoaded.current = true;
-            }
+        // Only run if the initial load is complete and there's data to save.
+        if (!hasLoaded.current || !boardData || isLoading) {
+            return;
         }
+
+        const handler = setTimeout(() => {
+            saveBoard(boardData);
+        }, 1500); // Wait 1.5 seconds after the last change to save
+
+        // Cleanup function to cancel the timeout if the component unmounts or boardData changes again.
+        return () => {
+            clearTimeout(handler);
+        };
     }, [boardData, isLoading, saveBoard]);
 
 
@@ -260,7 +266,7 @@ export function KanbanBoard() {
         setBoardData(prev => prev && ({ ...prev, labels: newLabels, tasks: newTasks }));
     };
 
-    if (isLoading) {
+    if (isLoading && !hasLoaded.current) {
         return (
             <div className="flex min-h-screen w-full items-center justify-center bg-transparent">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -346,7 +352,5 @@ export function KanbanBoard() {
         </DragDropContext>
     );
 }
-
-    
 
     
