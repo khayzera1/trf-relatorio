@@ -64,10 +64,10 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateReportSummaryInputSchema},
   output: {schema: GenerateReportSummaryOutputSchema},
   prompt: `
-    You are a marketing data analyst expert for a digital marketing agency.
+    You are an expert marketing data analyst for a digital marketing agency.
     Your task is to analyze the provided marketing campaign data in CSV format and transform it into a structured JSON object for a dashboard report.
     The entire analysis and output must be in **Brazilian Portuguese (pt-br)**.
-    The report must only use information that is present in the CSV. Do not invent or mix data between campaigns. The CSV is the single source of truth.
+    The report must only use information that is present in the CSV. Do not invent, infer, or mix data between campaigns. The CSV is the single source of truth.
 
     **Instructions:**
     1.  **Analyze the CSV Data:** Carefully review the provided CSV data. Each row represents a different campaign and must be processed independently.
@@ -84,11 +84,14 @@ const prompt = ai.definePrompt({
             -   Use a period (.) for thousands separators in whole numbers (e.g., 35.671).
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
-            -   **Specific Metric Handling (Crucial Verification Step):**
-                -   For any column starting with "Resultados:" (e.g., 'Resultados: Compras no site', 'Resultados: Contatos no site'), the 'title' of the KPI card MUST BE the name of the result itself (e.g., 'Compras no site', 'Contatos no site'). The 'description' field is not needed in this case. VERIFY THIS.
-                -   For a column named 'Resultados: profile_visit_view', the 'title' of the KPI card MUST BE 'Visitas ao perfil'. The 'description' field is not needed. VERIFY THIS.
-                -   For any column starting with "Custo por Resultado:", the 'title' of the KPI card MUST BE specific to the result type (e.g., 'Custo por Compra no site', 'Custo por Contato no site'). You MUST use the same result name identified from the "Resultados:" column for that same campaign row. The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
-                -   For a column named 'Custo por Resultado: profile_visit_view', the 'title' of the KPI card MUST BE 'Custo por visita ao perfil'. The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
+            -   **Specific Metric Handling & Translation (Crucial Verification Step):**
+                -   First, check the 'Indicador de resultados' column for the current campaign row. This column determines the name for 'Resultados' and 'Custo por Resultado'.
+                -   **Mapeamento e Tradução de Indicadores:**
+                    -   If 'Indicador de resultados' is 'conversions:contact_website', the result name is 'Contatos no site'.
+                    -   If 'Indicador de resultados' is 'profile_visit_view', the result name is 'Visitas ao perfil'.
+                    -   For any other value in 'Indicador de resultados' (e.g., 'video_view:ThruPlay'), extract the main term (e.g., 'ThruPlay') and use it as the result name.
+                -   The 'title' for the **'Resultados'** KPI card MUST BE the translated result name (e.g., 'Contatos no site', 'Visitas ao perfil'). The 'description' field is not needed. VERIFY THIS.
+                -   The 'title' for the **'Custo por Resultado'** KPI card MUST BE the translated result name prepended with "Custo por " (e.g., 'Custo por Contato no site', 'Custo por Visita ao perfil'). The 'description' field is not needed. DOUBLE-CHECK THIS ASSOCIATION.
 
     6.  **Final Output:** Create an object containing the report title, period, and an array of these individual campaign report objects. If the CSV is empty or has no campaign data, the 'campaigns' array should be empty.
 
