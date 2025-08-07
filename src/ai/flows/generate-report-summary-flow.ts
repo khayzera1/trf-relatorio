@@ -85,6 +85,7 @@ const prompt = ai.definePrompt({
             -   Round all decimal numbers to a maximum of two decimal places.
             -   Include 'R$' for currency values.
             -   For "Custo por Resultado", the 'title' should be specific to the result type (e.g., "Custo por Compra", "Custo por Lead"). The 'description' field is not needed in this case.
+            -   **Crucially, for the "Resultados" metric, the title of the KPI card MUST be the name of the result itself, which can be found in the column header (e.g., 'Resultados: Compras no site', 'Resultados: Leads'). For example, if the column is 'Resultados: Compras no site', the card title should be 'Compras no site'.**
         *   **Relevant Metrics to Include (if available in the CSV for the campaign):**
             -   'Alcance'
             -   'Impressões'
@@ -130,3 +131,4 @@ const generateReportSummaryFlow = ai.defineFlow(
   }
 );
 
+    
