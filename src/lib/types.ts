@@ -1,5 +1,4 @@
 
-
 import type { Timestamp } from 'firebase/firestore';
 
 export interface ClientData {
@@ -27,6 +26,12 @@ export interface ReportData {
   reportPeriod: string;
   categories: CategoryReportData[];
 }
+
+export interface SavedReportData extends ReportData {
+    id: string;
+    createdAt: Timestamp;
+}
+
 
 // Types for Kanban Board
 export interface ChecklistItem {
@@ -76,3 +81,5 @@ export interface BoardData {
     createdAt?: Timestamp;
     updatedAt?: Timestamp;
 }
+
+    

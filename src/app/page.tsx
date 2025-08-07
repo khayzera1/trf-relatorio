@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -183,9 +184,9 @@ function HomePageContent() {
                             <AvatarFallback className="bg-primary text-primary-foreground font-bold">{getInitials(client.clientName)}</AvatarFallback>
                         </Avatar>
                         <p className="text-lg font-semibold text-card-foreground break-all">{client.clientName}</p>
-                        <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
+                        <Link href={`/reports?clientId=${client.id}`}>
                             <Button variant="ghost" size="sm">
-                                Gerar Relatório
+                                Gerenciar Relatórios
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </Link>
@@ -293,3 +294,5 @@ export default function Home() {
     </ProtectedRoute>
   );
 }
+
+    

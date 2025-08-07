@@ -20,7 +20,7 @@ import {
     getDoc,
     Timestamp,
 } from 'firebase/firestore';
-import type { ClientData, ClientDataInput, BoardData } from '@/lib/types';
+import type { ClientData, ClientDataInput, BoardData, ReportData, SavedReportData } from '@/lib/types';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -73,6 +73,19 @@ export async function getClients(): Promise<ClientData[]> {
     }
 }
 
+export async function getClientById(id: string): Promise<ClientData | null> {
+    try {
+        const clientDoc = await getDoc(doc(db, 'clients', id));
+        if (clientDoc.exists()) {
+            return { id: clientDoc.id, ...clientDoc.data() } as ClientData;
+        }
+        return null;
+    } catch (e) {
+        console.error("Error getting document: ", e);
+        throw new Error("Could not fetch client from the database.");
+    }
+}
+
 export async function updateClient(id: string, clientName: string): Promise<void> {
     try {
         const clientDoc = doc(db, 'clients', id);
@@ -85,11 +98,54 @@ export async function updateClient(id: string, clientName: string): Promise<void
 
 export async function deleteClient(id: string): Promise<void> {
     try {
+        // TODO: Also delete all reports for this client in a batch
         const clientDoc = doc(db, 'clients', id);
         await deleteDoc(clientDoc);
     } catch (e) {
         console.error("Error deleting document: ", e);
         throw new Error("Could not delete client from the database.");
+    }
+}
+
+// --- Report Management Functions ---
+
+export async function addReport(clientId: string, reportData: ReportData): Promise<string> {
+    try {
+        const reportsCollection = collection(db, 'clients', clientId, 'reports');
+        const docRef = await addDoc(reportsCollection, {
+            ...reportData,
+            createdAt: Timestamp.now(),
+        });
+        return docRef.id;
+    } catch(e) {
+        console.error("Error adding report: ", e);
+        throw new Error("Could not add report to the database.");
+    }
+}
+
+export async function getReportsForClient(clientId: string): Promise<SavedReportData[]> {
+    try {
+        const reportsCollection = collection(db, 'clients', clientId, 'reports');
+        const q = query(reportsCollection, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const reports: SavedReportData[] = [];
+        querySnapshot.forEach((doc) => {
+            reports.push({ id: doc.id, ...doc.data() } as SavedReportData);
+        });
+        return reports;
+    } catch(e) {
+        console.error("Error getting reports: ", e);
+        throw new Error("Could not fetch reports from the database.");
+    }
+}
+
+export async function deleteReport(clientId: string, reportId: string): Promise<void> {
+    try {
+        const reportDoc = doc(db, 'clients', clientId, 'reports', reportId);
+        await deleteDoc(reportDoc);
+    } catch(e) {
+        console.error("Error deleting report: ", e);
+        throw new Error("Could not delete report from the database.");
     }
 }
 
@@ -148,3 +204,5 @@ export {
     signOut
 };
 export type { User };
+
+    

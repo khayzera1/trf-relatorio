@@ -4,13 +4,14 @@
 import type { ReportData, KpiCardData, CategoryReportData } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign } from "lucide-react";
+import { FileText, Download, X, Tag, Calendar, User, BarChart2, DollarSign, Save } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { generatePdf } from "@/lib/pdf-utils";
 
 interface ReportPreviewProps {
   data: ReportData;
   onCancel: () => void;
+  onSave: () => void;
   clientName?: string | null;
 }
 
@@ -51,7 +52,7 @@ const CategorySection = ({ categoryData }: { categoryData: CategoryReportData })
     );
 };
 
-export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps) {
+export function ReportPreview({ data, onCancel, onSave, clientName }: ReportPreviewProps) {
   
   const handleGeneratePdf = () => {
     if (data) {
@@ -71,7 +72,7 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
                     <CardTitle className="text-2xl font-headline break-words">Pré-visualização do Relatório</CardTitle>
                 </div>
                 <CardDescription className="break-words">
-                    Revise os dados extraídos e agrupados pela IA. Se tudo estiver correto, clique em "Gerar PDF".
+                    Revise os dados e, se estiver tudo correto, salve ou gere o PDF.
                 </CardDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancelar">
@@ -116,7 +117,13 @@ export function ReportPreview({ data, onCancel, clientName }: ReportPreviewProps
             <Download className="mr-2 h-4 w-4" />
             Gerar PDF
         </Button>
+         <Button onClick={onSave} disabled={!hasCategories} className="w-full sm:w-auto">
+            <Save className="mr-2 h-4 w-4" />
+            Salvar Relatório
+        </Button>
       </CardFooter>
     </Card>
   );
 }
+
+    

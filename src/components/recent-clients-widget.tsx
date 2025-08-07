@@ -55,7 +55,7 @@ export function RecentClientsWidget() {
                                     <AvatarFallback className="bg-primary text-primary-foreground font-bold">{getInitials(client.clientName)}</AvatarFallback>
                                 </Avatar>
                                 <p className="flex-1 font-medium text-foreground truncate">{client.clientName}</p>
-                                <Link href={`/reports?clientName=${encodeURIComponent(client.clientName)}`}>
+                                <Link href={`/reports?clientId=${client.id}`}>
                                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <ArrowRight className="h-4 w-4"/>
                                      </Button>
@@ -72,3 +72,5 @@ export function RecentClientsWidget() {
         </Card>
     );
 }
+
+    

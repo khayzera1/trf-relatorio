@@ -30,9 +30,9 @@ export function Sidebar() {
   };
 
   const navItems = [
-    { href: '/', label: 'Clientes', icon: Users },
-    { href: '/board', label: 'Quadro Kanban', icon: LayoutDashboard },
-    { href: '/reports', label: 'Gerar Relatório', icon: FileText, subPath: true },
+    { href: '/', label: 'Clientes', icon: Users, exact: true },
+    { href: '/board', label: 'Quadro Kanban', icon: LayoutDashboard, exact: true },
+    { href: '/reports', label: 'Relatórios', icon: FileText, exact: false },
   ];
 
   return (
@@ -77,9 +77,7 @@ export function Sidebar() {
 
         <nav className="flex-grow space-y-2">
             {navItems.map((item) => {
-                const isActive = item.subPath ? pathname.startsWith(item.href) : pathname === item.href;
-                if (item.href === '/reports' && !pathname.startsWith('/reports')) return null;
-
+                const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
                 return(
                 <Link 
                     key={item.label} 
@@ -99,3 +97,5 @@ export function Sidebar() {
     </aside>
   );
 }
+
+    
