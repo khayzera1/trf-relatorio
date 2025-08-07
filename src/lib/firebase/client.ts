@@ -15,7 +15,6 @@ import {
     orderBy,
     Firestore,
     where,
-    limit,
     setDoc,
     getDoc,
     Timestamp,
@@ -171,7 +170,7 @@ export async function createDefaultBoard(userId: string, defaultData: BoardData)
  * @returns A promise that resolves to the user's board data or null if not found.
  */
 export async function getBoardForUser(userId: string): Promise<BoardData | null> {
-    const q = query(kanbanBoardsCollection, where("userId", "==", userId), limit(1));
+    const q = query(kanbanBoardsCollection, where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -204,5 +203,3 @@ export {
     signOut
 };
 export type { User };
-
-    
