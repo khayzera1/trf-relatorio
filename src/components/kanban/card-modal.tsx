@@ -558,5 +558,3 @@ export function CardModal({ task, isOpen, onClose, onUpdateTask, onDeleteTask, a
     </Dialog>
   );
 }
-
-    
